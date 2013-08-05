@@ -1,10 +1,11 @@
 # stefon-datomic
 
-A Clojure library designed to ... well, that part is up to you.
+This is a plugin for the Stefon blogging engine. It's a database adapter that persists Stefon data to a Datomic data store. 
+
 
 ## Usage
 
-FIXME
+Pending ... 
 
 ## License
 
