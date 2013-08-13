@@ -8,8 +8,15 @@
 
 
           (before (shell/start-system))
+          (after (shell/stop-system))
 
           (it "Should attach to a running Stefon instance"
 
               (let [handler-fn (fn [message])
-                    sender-fn (shell/attach-plugin handler-fn)])))
+                    sender-fn (shell/attach-plugin handler-fn)
+
+                    result-promise (sender-fn {:stefon.domain {:parameters nil}})]
+
+                (should-not-be-nil @result-promise)
+
+                (should= 1 1))))
