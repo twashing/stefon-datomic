@@ -17,8 +17,26 @@
 
                     result-promise (sender-fn {:stefon.domain {:parameters nil}})]
 
-                (println ">> 1" result-promise)
                 (should-not-be-nil @result-promise)
-                (println ">> 2")
+                (should= {:posts [], :assets [], :tags []} @result-promise)
 
-                (should= 1 1))))
+                (should= 1 1)))
+
+          ;; check that kernel / shell is running
+
+          ;; attach itself to kernel
+
+          ;; check if configured DB exists
+          ;;   i. if not, generate schema
+          ;;   ii. create DB w/ schema
+
+          ;; make CRUD functions from generated schema
+          ;;  post(s)
+          ;;  asset(s)
+          ;;  tag(s)
+          ;;  find-by relationships
+          ;;    posts > tags
+          ;;    tags > posts
+          ;;    assets > post
+
+          )
