@@ -150,20 +150,17 @@
                 (should= datomic.peer.LocalConnection (type conn))))
 
 
-          (it "Is a comment"
-              (comment
-                ;; check that kernel / shell is running
+          (it "Should attach itself to the kernel"
 
+              ;; check to see if kernel / system is running
 
+              ;; check plugin attach
 
-                ;; connect to DB
-                ;; check if configured DB exists
-                ;;   i. if not, generate schema
-                ;;   ii. create DB w/ schema
+              ;; check result is the sender-function
 
+              ;; check assignment of sender function
 
-                ;; attach itself to kernel
-                (shell/attach-plugin)))
+              1)
 
 
 
