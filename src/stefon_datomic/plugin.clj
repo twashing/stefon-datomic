@@ -21,6 +21,35 @@
      (datomic/create-database (-> config env :url))))
 
 
+(defn generate-db-schema [domain-schema]
+
+  (->>
+   (for [key (keys domain-schema)]
+     (for [val (key domain-schema)]
+
+       (let [key-name (name key)
+             name-name (name (:name val))
+             type-name (name (:type val))
+             cardinality-name (name (:cardinality val))
+             ]
+
+         {:db/id #db/id [:db.part/db]
+
+          :db/ident (keyword (str key-name "/" name-name))
+          :db/valueType (keyword (str "db.type/" type-name))
+          :db/cardinality (keyword (str "db.cardinality/" cardinality-name))
+
+          :db.install/_attribute :db.part/db})
+
+       ))
+   flatten
+   (into []))
+  )
+
+(defn connect-or-create []
+
+  )
+
 (defn plugin
 
   ([]
@@ -33,16 +62,19 @@
   ([env config]
 
 
-    ;; check if configured DB exists
-    #_(if-let [conn (connect-to-db)]
-      1
-      2
-      )
-
-    ;; if not, i) generate schema
-
-    ;; if not, ii) create DB with schema
+     ;; attach plugin to kernel
 
 
-    )
-)
+     ;; check if configured DB exists
+     #_(if-let [conn (connect-to-db)]
+         1
+         2
+         )
+
+     ;; if not, i) generate schema
+
+     ;; if not, ii) create DB with schema
+
+
+     )
+  )

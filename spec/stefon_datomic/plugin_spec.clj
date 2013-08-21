@@ -59,9 +59,34 @@
 
           (it "Should be able to create a DB"
 
-              (let [db (pluginD/create-db :dev)]
+              (let [rvalue (pluginD/create-db :dev)]
 
-                (should-not-be-nil db)))
+                (should-not-be-nil rvalue)
+                (should rvalue)))
+
+          (it "Should be able to Generate a DB Schema from a Domain Schema"
+
+              (let [domain-schema {:assets
+                                   [{:name :id, :cardinality :one, :type :uuid}
+                                    {:name :name, :cardinality :one, :type :string}
+                                    {:name :type, :cardinality :one, :type :string}
+                                    {:name :asset, :cardinality :one, :type :string}],
+                                   :posts
+                                   [{:name :id, :cardinality :one, :type :uuid}
+                                    {:name :title, :cardinality :one, :type :string}
+                                    {:name :content, :cardinality :one, :type :string}
+                                    {:name :content-type, :cardinality :one, :type :string}
+                                    {:name :created-date, :cardinality :one, :type :date}
+                                    {:name :modified-date, :cardinality :one, :type :date}],
+                                   :tags
+                                   [{:name :id, :cardinality :one, :type :uuid}
+                                    {:name :name, :cardinality :one, :type :string}]}
+
+
+                    db-schema (pluginD/generate-db-schema domain-schema)]
+
+                (should-not-be-nil db-schema)))
+
 
           ;; check that kernel / shell is running
 
