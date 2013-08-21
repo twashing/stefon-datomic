@@ -10,6 +10,22 @@
 
 
 (def config (load-string (slurp (io/resource "stefon-datomic.edn"))))
+(def domain-schema {:assets
+                    [{:name :id, :cardinality :one, :type :uuid}
+                     {:name :name, :cardinality :one, :type :string}
+                     {:name :type, :cardinality :one, :type :string}
+                     {:name :asset, :cardinality :one, :type :string}],
+                    :posts
+                    [{:name :id, :cardinality :one, :type :uuid}
+                     {:name :title, :cardinality :one, :type :string}
+                     {:name :content, :cardinality :one, :type :string}
+                     {:name :content-type, :cardinality :one, :type :string}
+                     {:name :created-date, :cardinality :one, :type :instant}
+                     {:name :modified-date, :cardinality :one, :type :instant}],
+                    :tags
+                    [{:name :id, :cardinality :one, :type :uuid}
+                     {:name :name, :cardinality :one, :type :string}]})
+
 
 (describe "Plugin should be able to attach to a running Stefon instance => "
 
@@ -43,8 +59,7 @@
                 (println ">> " @result-promise)
                 (should-not-be-nil @result-promise)
                 (should= '(:posts :assets :tags) (keys @result-promise))
-                (should= {:posts [{:name :id, :cardinality :one, :type :uuid} {:name :title, :cardinality :one, :type :string} {:name :content, :cardinality :one, :type :string} {:name :content-type, :cardinality :one, :type :string} {:name :created-date, :cardinality :one, :type :date} {:name :modified-date, :cardinality :one, :type :date}], :assets [{:name :id, :cardinality :one, :type :uuid} {:name :name, :cardinality :one, :type :string} {:name :type, :cardinality :one, :type :string} {:name :asset, :cardinality :one, :type :string}], :tags [{:name :id, :cardinality :one, :type :uuid} {:name :name, :cardinality :one, :type :string}]}
-                         @result-promise)))
+                (should= domain-schema @result-promise)))
 
 
           (it "Should get the plugin's configuration"
@@ -66,24 +81,7 @@
 
           (it "Should be able to Generate a DB Schema from a Domain Schema"
 
-              (let [domain-schema {:assets
-                                   [{:name :id, :cardinality :one, :type :uuid}
-                                    {:name :name, :cardinality :one, :type :string}
-                                    {:name :type, :cardinality :one, :type :string}
-                                    {:name :asset, :cardinality :one, :type :string}],
-                                   :posts
-                                   [{:name :id, :cardinality :one, :type :uuid}
-                                    {:name :title, :cardinality :one, :type :string}
-                                    {:name :content, :cardinality :one, :type :string}
-                                    {:name :content-type, :cardinality :one, :type :string}
-                                    {:name :created-date, :cardinality :one, :type :date}
-                                    {:name :modified-date, :cardinality :one, :type :date}],
-                                   :tags
-                                   [{:name :id, :cardinality :one, :type :uuid}
-                                    {:name :name, :cardinality :one, :type :string}]}
-
-
-                    db-schema (pluginD/generate-db-schema domain-schema)]
+              (let [db-schema (pluginD/generate-db-schema domain-schema)]
 
                 (should-not-be-nil db-schema)
                 (should= 12 (count db-schema))
@@ -91,6 +89,25 @@
                 (should= :assets/id (-> db-schema first :db/ident))
                 (should= :db.type/uuid (-> db-schema first :db/valueType))
                 (should= :db.cardinality/one (-> db-schema first :db/cardinality))))
+
+          (it "Should be able to load schema into a created DB"
+
+              ;; create DB
+              (pluginD/create-db :dev)
+
+
+              (let [
+                    ;; connect
+                    conn (pluginD/connect-to-db :dev)
+
+                    ;; load schema
+                    db-schema (pluginD/generate-db-schema domain-schema)
+                    result (pluginD/load-db-schema conn db-schema)]
+
+                (should-not-be-nil result)
+                (should (future? result))
+                (should (map? @result)))
+              )
 
 
           ;; check that kernel / shell is running

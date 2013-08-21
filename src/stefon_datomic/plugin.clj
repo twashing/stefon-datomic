@@ -46,6 +46,10 @@
    (into []))
   )
 
+(defn load-db-schema [conn db-schema]
+  (datomic/transact conn db-schema))
+
+
 (defn connect-or-create []
 
   )
