@@ -5,6 +5,12 @@
             ))
 
 
+(declare receive-fn)
+(declare send-fn)
+(def communication-pair (atom {:receive-fn receive-fn
+                               :send-fn send-fn}))
+
+
 (defn get-config []
   (load-string (slurp (io/resource "stefon-datomic.edn"))))
 
@@ -72,6 +78,14 @@
   ;; if not, ii) generate schema
   ;; if not, iii) load schema into DB
 
+
+  )
+
+
+(defn send-fn [message])
+(defn receive-fn [message]
+
+  ;; based on message, perform action
 
   )
 
