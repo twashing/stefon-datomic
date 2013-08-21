@@ -20,12 +20,13 @@
   ([env config]
      (datomic/connect (-> config env :url))))
 
+
+
 (defn create-db
   ([env]
      (create-db env (get-config)))
   ([env config]
      (datomic/create-database (-> config env :url))))
-
 
 (defn generate-db-schema
   "We expect our domain schema to be a map, and have the following form:
@@ -67,19 +68,41 @@
 (defn load-db-schema [conn db-schema]
   (datomic/transact conn db-schema))
 
+(defn init-db
 
-(defn connect-or-create []
+  ([domain-schema]
+     (init-db domain-schema :prod))
+
+  ([domain-schema env]
+
+     (let [
+           ;; i) create DB
+           sone (create-db env)
+           conn (connect-to-db env)
+
+           ;; ii) generate schema
+           db-schema (generate-db-schema domain-schema)]
+
+       ;; iii) load schema into DB
+       (load-db-schema conn db-schema))))
 
 
-  ;; check if configured DB exists
+(defn connect-or-create
 
+  ([domain-schema]
+     (connect-or-create domain-schema :prod))
 
-  ;; if not, i) create DB
-  ;; if not, ii) generate schema
-  ;; if not, iii) load schema into DB
+  ([domain-schema env]
 
+     (try
 
-  )
+       ;; check if configured DB exists
+       (connect-to-db env)
+
+       ;; otherwise, initialize it
+       (catch Exception e
+         (if (init-db domain-schema env)
+           (connect-to-db env))))))
 
 
 (defn send-fn [message])

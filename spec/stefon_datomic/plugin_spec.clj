@@ -29,7 +29,10 @@
 
 (describe "Plugin should be able to attach to a running Stefon instance => "
 
-          (before (datomic/delete-database (-> config :dev :url)))
+          (before
+
+           (datomic/delete-database (-> config :dev :url))
+           (shell/stop-system))
 
           (it "Should attach to a running Stefon instance"
 
@@ -109,14 +112,58 @@
                 (should (map? @result)))
               )
 
+          (it "Should connect or create a DB - Part 1"
 
-          ;; check that kernel / shell is running
+              (let [
+                    one (if-not (shell/system-started?)
+                          (shell/start-system))
+                    rhandler (fn [message] (println "Part 1 handler called"))
+                    sfunction (shell/attach-plugin rhandler)
 
-          ;; attach itself to kernel
+                    domain-schema-promise (sfunction {:stefon.domain.schema {:parameters nil}})
 
-          ;; check if configured DB exists
-          ;;   i. if not, generate schema
-          ;;   ii. create DB w/ schema
+                    ;; try calling when db DOES NOT exist
+                    conn (pluginD/connect-or-create @domain-schema-promise :dev)
+                    ]
+
+                (should-not-be-nil conn)
+                (should= datomic.peer.LocalConnection (type conn))))
+
+          (it "Should connect or create a DB - Part 2"
+
+              (let [
+                    one (if-not (shell/system-started?)
+                          (shell/start-system))
+                    rhandler (fn [message] (println "Part 2 handler called"))
+                    sfunction (shell/attach-plugin rhandler)
+
+                    domain-schema-promise (sfunction {:stefon.domain.schema {:parameters nil}})
+                    aa (pluginD/create-db :dev)
+                    bb (pluginD/init-db @domain-schema-promise :dev)
+
+
+                    ;; try calling when db DOES exist
+                    conn (pluginD/connect-or-create @domain-schema-promise :dev)
+                    ]
+
+                (should-not-be-nil conn)
+                (should= datomic.peer.LocalConnection (type conn))))
+
+
+          (it "Is a comment"
+              (comment
+                ;; check that kernel / shell is running
+
+
+
+                ;; connect to DB
+                ;; check if configured DB exists
+                ;;   i. if not, generate schema
+                ;;   ii. create DB w/ schema
+
+
+                ;; attach itself to kernel
+                (shell/attach-plugin)))
 
 
 
