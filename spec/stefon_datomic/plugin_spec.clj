@@ -1,11 +1,19 @@
 (ns stefon-datomic.plugin-spec
 
   (:require [speclj.core :refer :all]
+            [datomic.api :as datomic]
+            [clojure.java.io :as io]
+
             [stefon.shell :as shell]
-            [stefon.shell.plugin :as plugin]))
+            [stefon.shell.plugin :as plugin]
+            [stefon-datomic.plugin :as pluginD]))
 
 
-(describe "plugin should be able to attach to a running Stefon instance"
+(def config (load-string (slurp (io/resource "stefon-datomic.edn"))))
+
+(describe "Plugin should be able to attach to a running Stefon instance => "
+
+          (before (datomic/delete-database (-> config :dev :url)))
 
           (it "Should attach to a running Stefon instance"
 
@@ -39,14 +47,32 @@
                          @result-promise)))
 
 
-          ;; check that kernel / shell is running
+          (it "Should get the plugin's configuration"
 
+              (let [config (pluginD/get-config)]
+                (should-not-be-nil config)
+                (should= '(:dev :prod) (keys config))))
+
+          (it "Should throw an exception if DB has not been created, and we connect to DB"
+
+              (should-throw Exception (pluginD/connect-to-db :dev)))
+
+          (it "Should be able to create a DB"
+
+              (let [db (pluginD/create-db :dev)]
+
+                (should-not-be-nil db)))
+
+          ;; check that kernel / shell is running
 
           ;; attach itself to kernel
 
           ;; check if configured DB exists
           ;;   i. if not, generate schema
           ;;   ii. create DB w/ schema
+
+
+
 
           ;; make CRUD functions from generated schema
           ;;  post(s)
