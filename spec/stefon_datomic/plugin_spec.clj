@@ -29,10 +29,8 @@
 
 (describe "Plugin should be able to attach to a running Stefon instance => "
 
-          (before
-
-           (datomic/delete-database (-> config :dev :url))
-           (shell/stop-system))
+          (before (datomic/delete-database (-> config :dev :url))
+                  (shell/stop-system))
 
           (it "Should attach to a running Stefon instance"
 
@@ -48,6 +46,7 @@
                 (should= {:posts [], :assets [], :tags []} @result-promise)
 
                 (should= 1 1)))
+
 
           (it "Should return a list of domain schema"
 
@@ -71,9 +70,11 @@
                 (should-not-be-nil config)
                 (should= '(:dev :prod) (keys config))))
 
+
           (it "Should throw an exception if DB has not been created, and we connect to DB"
 
               (should-throw Exception (pluginD/connect-to-db :dev)))
+
 
           (it "Should be able to create a DB"
 
@@ -81,6 +82,7 @@
 
                 (should-not-be-nil rvalue)
                 (should rvalue)))
+
 
           (it "Should be able to Generate a DB Schema from a Domain Schema"
 
@@ -92,6 +94,7 @@
                 (should= :assets/id (-> db-schema first :db/ident))
                 (should= :db.type/uuid (-> db-schema first :db/valueType))
                 (should= :db.cardinality/one (-> db-schema first :db/cardinality))))
+
 
           (it "Should be able to load schema into a created DB"
 
@@ -109,8 +112,8 @@
 
                 (should-not-be-nil result)
                 (should (future? result))
-                (should (map? @result)))
-              )
+                (should (map? @result))))
+
 
           (it "Should connect or create a DB - Part 1"
 
@@ -128,6 +131,7 @@
 
                 (should-not-be-nil conn)
                 (should= datomic.peer.LocalConnection (type conn))))
+
 
           (it "Should connect or create a DB - Part 2"
 
