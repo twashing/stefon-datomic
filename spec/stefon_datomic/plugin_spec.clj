@@ -85,7 +85,12 @@
 
                     db-schema (pluginD/generate-db-schema domain-schema)]
 
-                (should-not-be-nil db-schema)))
+                (should-not-be-nil db-schema)
+                (should= 12 (count db-schema))
+
+                (should= :assets/id (-> db-schema first :db/ident))
+                (should= :db.type/uuid (-> db-schema first :db/valueType))
+                (should= :db.cardinality/one (-> db-schema first :db/cardinality))))
 
 
           ;; check that kernel / shell is running
