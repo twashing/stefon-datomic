@@ -21,7 +21,20 @@
      (datomic/create-database (-> config env :url))))
 
 
-(defn generate-db-schema [domain-schema]
+(defn generate-db-schema
+  "We expect our domain schema to be a map, and have the following form:
+
+   {:assets
+    [{:name :id, :cardinality :one, :type :uuid}
+     {:name :name, :cardinality :one, :type :string}
+    :posts
+    [{:name :id, :cardinality :one, :type :uuid}
+     {:name :title, :cardinality :one, :type :string}
+     {:name :content, :cardinality :one, :type :string}
+    :tags
+    [{:name :id, :cardinality :one, :type :uuid}
+     {:name :name, :cardinality :one, :type :string}]}"
+  [domain-schema]
 
   (->>
    (for [key (keys domain-schema)]
@@ -43,8 +56,7 @@
 
        ))
    flatten
-   (into []))
-  )
+   (into [])))
 
 (defn load-db-schema [conn db-schema]
   (datomic/transact conn db-schema))
@@ -52,7 +64,17 @@
 
 (defn connect-or-create []
 
+
+  ;; check if configured DB exists
+
+
+  ;; if not, i) create DB
+  ;; if not, ii) generate schema
+  ;; if not, iii) load schema into DB
+
+
   )
+
 
 (defn plugin
 
@@ -68,16 +90,6 @@
 
      ;; attach plugin to kernel
 
-
-     ;; check if configured DB exists
-     #_(if-let [conn (connect-to-db)]
-         1
-         2
-         )
-
-     ;; if not, i) generate schema
-
-     ;; if not, ii) create DB with schema
 
 
      )

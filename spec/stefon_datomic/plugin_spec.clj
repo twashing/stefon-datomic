@@ -120,7 +120,6 @@
 
 
 
-
           ;; make CRUD functions from generated schema
           ;;  post(s)
           ;;  asset(s)
