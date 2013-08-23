@@ -154,18 +154,37 @@
                 (should= datomic.peer.LocalConnection (type conn))))
 
 
-          (it "Should attach itself to the kernel"
+          (it "Should attach itself to the kernel - Main 001"
 
               ;; check to see if kernel / system is running
+              (should-throw Exception (pluginD/plugin :dev)))
+
+
+          (it "Should attach itself to the kernel - Main 002"
+
+              (let [one (shell/start-system)
+                    senderF (pluginD/plugin :dev)]
+
+                (println "Xxxx: " senderF)
+
+                ;; check result is the sender-function
+                (should-not-be-nil senderF)
+
+                ;; check assignment of sender function
+                (should (fn? senderF))))
+
+
+          #_(it "Should attach itself to the kernel - Main 002"
+
 
               ;; check plugin attach
+              (let [response-msg (atom nil)
+                    response-handler (pluginD/add-receive-tee (fn [msg] (swap! response-msg (fn [] msg))))
 
-              ;; check result is the sender-function
+                    one (shell/start-system)
+                    two (pluginD/plugin :dev)]
 
-              ;; check assignment of sender function
-
-              1)
-
+                ))
 
 
           ;; make CRUD functions from generated schema

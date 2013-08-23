@@ -2,13 +2,8 @@
 
   (:require [clojure.java.io :as io]
             [datomic.api :as datomic]
-            ))
 
-
-(declare receive-fn)
-(declare send-fn)
-(def communication-pair (atom {:receive-fn receive-fn
-                               :send-fn send-fn}))
+            [stefon.shell :as shell]))
 
 
 (defn get-config []
@@ -111,12 +106,14 @@
   ;; based on message, perform action
 
   )
+(def communication-pair (atom {:receive-fn receive-fn
+                               :send-fn send-fn}))
 
+(defn add-receive-tee [receiveF])
 
 (defn plugin
 
-  ([]
-     (plugin :prod))
+  ([] (plugin :prod))
 
   ([env]
      (let [config (get-config)]
@@ -124,10 +121,8 @@
 
   ([env config]
 
-
      ;; attach plugin to kernel
-
-
-
-     )
-  )
+     (if (shell/system-started?)
+       (shell/attach-plugin (:receive-fn @communication-pair))
+       (throw Exception "stefon-datomic: stefon system not started"))
+     ))
