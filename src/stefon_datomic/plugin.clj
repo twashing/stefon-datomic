@@ -100,16 +100,16 @@
            (connect-to-db env))))))
 
 
-(defn send-fn [message])
 (defn receive-fn [message]
 
   ;; based on message, perform action
 
   )
 (def communication-pair (atom {:receive-fn receive-fn
-                               :send-fn send-fn}))
+                               :send-fn nil}))
 
 (defn add-receive-tee [receiveF])
+
 
 (defn plugin
 
@@ -121,8 +121,12 @@
 
   ([env config]
 
+
      ;; attach plugin to kernel
      (if (shell/system-started?)
-       (shell/attach-plugin (:receive-fn @communication-pair))
+       (let [send-fn (shell/attach-plugin (:receive-fn @communication-pair))]
+         (swap! communication-pair (fn [inp]
+                                      (assoc inp :send-fn send-fn)))
+         send-fn)
        (throw Exception "stefon-datomic: stefon system not started"))
      ))

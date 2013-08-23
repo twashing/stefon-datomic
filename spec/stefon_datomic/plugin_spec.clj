@@ -165,16 +165,16 @@
               (let [one (shell/start-system)
                     senderF (pluginD/plugin :dev)]
 
-                (println "Xxxx: " senderF)
-
                 ;; check result is the sender-function
                 (should-not-be-nil senderF)
+                (should (fn? senderF))
 
                 ;; check assignment of sender function
-                (should (fn? senderF))))
+                (should-not-be-nil (:send-fn @pluginD/communication-pair))
+                (should (fn? (:send-fn @pluginD/communication-pair)))))
 
 
-          #_(it "Should attach itself to the kernel - Main 002"
+          (it "Should attach itself to the kernel - Main 002"
 
 
               ;; check plugin attach

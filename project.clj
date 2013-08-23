@@ -12,6 +12,7 @@
   :profiles {:dev {:source-paths ["dev"]
                    :dependencies [[lamina "0.5.0-rc3"]
                                   [cljs-uuid "0.0.4"]
+                                  [org.clojure/tools.trace "0.7.6"]
                                   [org.clojure/tools.namespace "0.2.3"]
                                   [speclj "2.5.0"]]}}
 
