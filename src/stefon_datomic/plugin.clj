@@ -3,7 +3,8 @@
   (:require [clojure.java.io :as io]
             [datomic.api :as datomic]
 
-            [stefon.shell :as shell]))
+            [stefon.shell :as shell]
+            [stefon.shell.kernel :as kernel]))
 
 
 (defn get-config []
@@ -14,7 +15,6 @@
      (connect-to-db env (get-config)))
   ([env config]
      (datomic/connect (-> config env :url))))
-
 
 
 (defn create-db
@@ -100,15 +100,33 @@
            (connect-to-db env))))))
 
 
+
+(def tee-fns (atom []))
 (defn receive-fn [message]
+
+  ;; notify tee-fns
+  (reduce (fn [rslt echF]
+            (echF message)
+            rslt)
+          []
+          @tee-fns)
 
   ;; based on message, perform action
 
   )
+
 (def communication-pair (atom {:receive-fn receive-fn
                                :send-fn nil}))
 
-(defn add-receive-tee [receiveF])
+
+(defn send-message [message]
+  ((:send-fn @communication-pair) message))
+
+
+;; Useful for testing purposes - get alerted when plugin receives a message
+(defn add-receive-tee [receiveF]
+  (swap! tee-fns (fn [inp]
+                   (conj inp receiveF))))
 
 
 (defn plugin
@@ -121,12 +139,15 @@
 
   ([env config]
 
+     ;; clear tee-fns
+     (swap! tee-fns (fn [inp] []))
+
 
      ;; attach plugin to kernel
      (if (shell/system-started?)
        (let [send-fn (shell/attach-plugin (:receive-fn @communication-pair))]
          (swap! communication-pair (fn [inp]
-                                      (assoc inp :send-fn send-fn)))
+                                     (assoc inp :send-fn send-fn)))
          send-fn)
        (throw Exception "stefon-datomic: stefon system not started"))
      ))

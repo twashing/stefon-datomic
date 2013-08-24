@@ -178,13 +178,18 @@
 
 
               ;; check plugin attach
-              (let [response-msg (atom nil)
-                    response-handler (pluginD/add-receive-tee (fn [msg] (swap! response-msg (fn [] msg))))
+              (let [one (shell/start-system)
+                    two (pluginD/plugin :dev)
 
-                    one (shell/start-system)
-                    two (pluginD/plugin :dev)]
+                    response-msg (atom nil)
+                    response-handler (pluginD/add-receive-tee (fn [msg]
+                                                                (swap! response-msg (fn [inp] msg))))
 
-                ))
+                    three (pluginD/send-message {:fu :bar})]
+
+                (should-not-be-nil @response-msg)
+                (should (map? @response-msg))
+                (should= {:fu :bar} @response-msg)))
 
 
           ;; make CRUD functions from generated schema
