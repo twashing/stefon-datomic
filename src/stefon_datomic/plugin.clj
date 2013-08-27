@@ -130,6 +130,7 @@
 
 
 (defn plugin
+  "This clears out all tee functions before attaching to the kernel"
 
   ([] (plugin :prod))
 
@@ -138,6 +139,7 @@
        (plugin env config)))
 
   ([env config]
+
 
      ;; clear tee-fns
      (swap! tee-fns (fn [inp] []))
@@ -149,5 +151,4 @@
          (swap! communication-pair (fn [inp]
                                      (assoc inp :send-fn send-fn)))
          send-fn)
-       (throw Exception "stefon-datomic: stefon system not started"))
-     ))
+       (throw Exception "stefon-datomic: stefon system not started"))))

@@ -193,7 +193,40 @@
 
 
           ;; make CRUD functions from generated schema
+
           ;;  post(s)
+          (it "Should save created post(s) to Datomic"
+
+              ;; create a post, then check the DB
+              1)
+
+          (it "Should retrieve a created post from Datomic"
+
+              ;; create 3, then get anyone of them - the second
+              2)
+
+          (it "Should update a created post from Datomic"
+
+              ;; create 3, then update anyone of them - the third
+              3)
+
+          (it "Should delete a created post from Datomic"
+
+              ;; create 3, then delete anyone of them - the first
+              5)
+
+          (it "Should find by attributes: content-type & created-date"
+
+              ;; create 4, 2 txt, and 2 md files; make one of them have a different created-date
+              ;;   then find the md files... from the DB
+              ;;   then find the one with a different created-date... from the DB
+              6)
+
+          (it "Should list created posts"
+
+              ;; create 3, then list them out... from the DB
+              7)
+
           ;;  asset(s)
           ;;  tag(s)
           ;;  find-by relationships
