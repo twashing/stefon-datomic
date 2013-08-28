@@ -54,9 +54,7 @@
           :db/valueType (keyword (str "db.type/" type-name))
           :db/cardinality (keyword (str "db.cardinality/" cardinality-name))
 
-          :db.install/_attribute :db.part/db})
-
-       ))
+          :db.install/_attribute :db.part/db})))
    flatten
    (into [])))
 

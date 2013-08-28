@@ -227,7 +227,7 @@
               ;; create 3, then list them out... from the DB
               7)
 
-          ;;  asset(s)
+          ;;  asset(s) - binary data is in Fressian (https://github.com/Datomic/fressian)
           ;;  tag(s)
           ;;  find-by relationships
           ;;    posts > tags
