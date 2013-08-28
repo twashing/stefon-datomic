@@ -67,8 +67,10 @@
                 ;; create a post, then check the DB
                 (shell/create :post "t" "c" "c/t" "0000" "1111")
 
+                (should-not-be-nil @result)
 
-                (should-not-be-nil @result)))
+
+                ))
 
           (it "Should retrieve a created post from Datomic"
 

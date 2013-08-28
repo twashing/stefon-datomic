@@ -7,8 +7,10 @@
             [stefon.shell.kernel :as kernel]))
 
 
-(defn get-config []
+(defn get-config-raw []
   (load-string (slurp (io/resource "stefon-datomic.edn"))))
+
+(def get-config (memoize get-config-raw))
 
 (defn connect-to-db
   ([env]
