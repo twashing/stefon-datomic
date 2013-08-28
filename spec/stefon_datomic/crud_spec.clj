@@ -33,44 +33,6 @@
                   (shell/stop-system))
 
 
-          #_(it "Should connect or create a DB - Part 2"
-
-              (let [
-                    one (if-not (shell/system-started?)
-                          (shell/start-system))
-                    rhandler (fn [message] (println "Part 2 handler called"))
-                    sfunction (shell/attach-plugin rhandler)
-
-                    domain-schema-promise (sfunction {:stefon.domain.schema {:parameters nil}})
-                    aa (pluginD/create-db :dev)
-                    bb (pluginD/init-db @domain-schema-promise :dev)
-
-
-                    ;; try calling when db DOES exist
-                    conn (pluginD/connect-or-create @domain-schema-promise :dev)
-                    ]
-
-                (should-not-be-nil conn)
-                (should= datomic.peer.LocalConnection (type conn))))
-
-
-          #_(it "Should attach itself to the kernel - Main 002"
-
-
-              ;; check plugin attach
-              (let [one (shell/start-system)
-                    two (pluginD/plugin :dev)
-
-                    response-msg (atom nil)
-                    response-handler (pluginD/add-receive-tee (fn [msg]
-                                                                (swap! response-msg (fn [inp] msg))))
-
-                    three (pluginD/send-message {:fu :bar})]
-
-                (should-not-be-nil @response-msg)
-                (should (map? @response-msg))
-                (should= {:fu :bar} @response-msg)))
-
 
           (defn bootstrap-stefon
             "Start the system and create a DB"
@@ -104,6 +66,7 @@
 
                 ;; create a post, then check the DB
                 (shell/create :post "t" "c" "c/t" "0000" "1111")
+
 
                 (should-not-be-nil @result)))
 
