@@ -146,6 +146,7 @@
            conn (connect-or-create @domain-schema-promise :dev)])))
 
 
+
 ;; PLUGING Function
 (defn plugin
   "This clears out all tee functions before attaching to the kernel"
@@ -166,6 +167,7 @@
      ;; attach plugin to kernel
      (if (shell/system-started?)
        (let [send-fn (shell/attach-plugin (:receive-fn @communication-pair))]
+
          (swap! communication-pair (fn [inp]
                                      (assoc inp :send-fn send-fn)))
          send-fn)
