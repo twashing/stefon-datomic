@@ -48,6 +48,7 @@
                 ;; create a post, then check the DB
                 (shell/create :post "t" "c" "c/t" "0000" "1111")
 
-                (should-not-be-nil @result) ))
-
-          )
+                (should-not-be-nil @result)
+                (should (map? @result))
+                (should= :plugin.post.create (-> @result keys first))
+                (should= {:title "t" :content "c" :content-type "c/t" :created-date "0000" :modified-date "1111"} (-> @result :plugin.post.create :parameters)))))
