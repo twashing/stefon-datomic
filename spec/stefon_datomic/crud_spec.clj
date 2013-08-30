@@ -34,25 +34,6 @@
 
 
 
-          (defn bootstrap-stefon
-            "Start the system and create a DB"
-            ([]
-               (bootstrap-stefon (fn [message])))
-            ([handler-fn]
-               (let [step-one (if-not (shell/system-started?)
-                                (shell/start-system))
-                     send-function (shell/attach-plugin handler-fn)
-
-                     domain-schema-promise (send-function {:stefon.domain.schema {:parameters nil}})
-                     step-four (pluginD/create-db :dev)
-                     step-five (pluginD/init-db @domain-schema-promise :dev)
-
-                     ;; try calling when db DOES exist
-                     conn (pluginD/connect-or-create @domain-schema-promise :dev)
-
-                     ])))
-
-
           ;; make CRUD functions from generated schema
 
           ;;  post(s)
@@ -62,7 +43,7 @@
                     tee-fn (fn [msg]
                              (println "<< RECIEVEING Message >> " msg)
                              (swap! result (fn [inp] msg)))
-                    step-two (bootstrap-stefon tee-fn)]
+                    step-two (pluginD/bootstrap-stefon tee-fn)]
 
                 ;; create a post, then check the DB
                 (shell/create :post "t" "c" "c/t" "0000" "1111")

@@ -9,17 +9,18 @@
 
 (defn get-config-raw []
   (load-string (slurp (io/resource "stefon-datomic.edn"))))
-
 (def get-config (memoize get-config-raw))
 
+
+;; DATABASE Functions
 (defn connect-to-db
   ([env]
      (connect-to-db env (get-config)))
   ([env config]
      (datomic/connect (-> config env :url))))
 
-
 (defn create-db
+  "Returns true if the database was created, false if it already exists."
   ([env]
      (create-db env (get-config)))
   ([env config]
@@ -101,6 +102,7 @@
 
 
 
+;; CHANNEL Functions
 (def tee-fns (atom []))
 (defn receive-fn [message]
 
@@ -129,6 +131,22 @@
                    (conj inp receiveF))))
 
 
+;; BOOTSTRAP the System
+(defn bootstrap-stefon
+  "Start the system and create a DB"
+  ([]
+     (bootstrap-stefon (fn [message])))
+  ([handler-fn]
+     (let [step-one (if-not (shell/system-started?)
+                      (shell/start-system))
+           send-function (shell/attach-plugin handler-fn)
+           domain-schema-promise (send-function {:stefon.domain.schema {:parameters nil}})
+
+           step-four (create-db :dev)
+           conn (connect-or-create @domain-schema-promise :dev)])))
+
+
+;; PLUGING Function
 (defn plugin
   "This clears out all tee functions before attaching to the kernel"
 
