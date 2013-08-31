@@ -1,4 +1,29 @@
 {
  :dev {:url "datomic:mem://stefon"}
  :prod {:url "datomic:free://localhost:4334/stefon"}
+ :action-mappings {
+                   :plugin.post.create 'stefon.shell.kernel/create-post
+                   :plugin.post.retrieve 'stefon.shell.kernel/retrieve-post
+                   :plugin.post.update 'stefon.shell.kernel/update-post
+                   :plugin.post.delete 'stefon.shell.kernel/delete-post
+                   :plugin.post.find 'stefon.shell.kernel/find-post
+                   :plugin.post.list 'stefon.shell.kernel/list-post
+
+                   :plugin.asset.create 'stefon.shell.kernel/create-asset
+                   :plugin.asset.retrieve 'stefon.shell.kernel/retrieve-asset
+                   :plugin.asset.update 'stefon.shell.kernel/update-asset
+                   :plugin.asset.delete 'stefon.shell.kernel/delete-asset
+                   :plugin.asset.find 'stefon.shell.kernel/find-asset
+                   :plugin.asset.list 'stefon.shell.kernel/list-asset
+
+                   :plugin.tag.create 'stefon.shell.kernel/create-tag
+                   :plugin.tag.retrieve 'stefon.shell.kernel/retrieve-tag
+                   :plugin.tag.update 'stefon.shell.kernel/update-tag
+                   :plugin.tag.delete 'stefon.shell.kernel/delete-tag
+                   :plugin.tag.find 'stefon.shell.kernel/find-tag
+                   :plugin.tag.list 'stefon.shell.kernel/list-tag
+
+                   :plugin.domain 'stefon.shell.kernel/get-domain
+                   :plugin.domain.schema 'stefon.shell.kernel/get-domain-schema
+                   }
  }

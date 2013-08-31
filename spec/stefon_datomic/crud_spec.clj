@@ -6,7 +6,8 @@
 
             [stefon.shell :as shell]
             [stefon.shell.plugin :as plugin]
-            [stefon-datomic.plugin :as pluginD]))
+            [stefon-datomic.plugin :as pluginD]
+            [stefon-datomic.crud :as crud]))
 
 
 (def config (load-string (slurp (io/resource "stefon-datomic.edn"))))
