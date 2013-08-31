@@ -11,6 +11,11 @@
 
 (defn add-entity-ns [ekey datom-map]
 
+  "Turns a datom-map like A into B, given an entity-key of :post
+
+   A) {:title t :content c :content-type c/t :created-date 0000 :modified-date 1111}
+   B) {:post/title t :post/content c :post/content-type c/t :post/created-date 0000 :post/modified-date 1111}"
+
   {:pre [(keyword? ekey)]}
 
   (let [one (seq datom-map)
@@ -41,13 +46,13 @@
         mapped-fn (first mapping)
         mapped-preamble (second mapping)
 
-        entity-w-ns (add-entity-ns :post datom-map)
+        entity-w-ns (add-entity-ns :posts datom-map)
 
         ;; add namespace to map keys
-        adatom (merge entity-w-ns mapped-preamble)
-
-        ee (println "Zzz... " adatom)
-        ]
+        adatom (merge entity-w-ns mapped-preamble)]
 
     ;; transact to Datomic
-    (mapped-fn mapped-preamble adatom)))
+
+    (println "Aaa... " mapped-fn)
+    (println "Bbb... " adatom)
+    (mapped-fn conn [adatom])))

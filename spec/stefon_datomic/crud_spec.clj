@@ -60,7 +60,12 @@
 
                     ;; add datom
                     one (crud/create conn :post {:title "t" :content "c" :content-type "c/t" :created-date "0000" :modified-date "1111"})
-                    ])
+
+                    ;;qresult (datomic/q '[:find ?e :in $ :where [?e :post/content-type "c/t"]] (datomic/db conn))
+                    qresult (datomic/q '[:find ?e :where [?e :posts/id]])
+                    ]
+
+                (println "Zzz... " (type one)))
 
               )
 
