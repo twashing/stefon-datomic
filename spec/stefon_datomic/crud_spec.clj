@@ -35,11 +35,18 @@
 
 
           ;; match incoming key against known actions
-          #_(it "Should give an empty list if the action is not known"
+          (it "Should give an empty list if the action is not known"
 
               (let [result (crud/find-mapping :fubar)]
-
                 (should-be-nil result)))
+
+          (it "Should return a proper mapping"
+
+              (let [result (crud/find-mapping :plugin.post.create)]
+                (should-not-be-nil result)
+
+                (should (vector? result))
+                (should= ['datomic.api/transact {:db/id #db/id [:db.part/user -1000001]}] result)))
 
 
           ;; make CRUD functions from generated schema
@@ -54,7 +61,6 @@
                     ;; add datom
                     one (crud/create conn :post {:title "t" :content "c" :content-type "c/t" :created-date "0000" :modified-date "1111"})
                     ])
-
 
               )
 

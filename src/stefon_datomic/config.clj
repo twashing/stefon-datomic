@@ -1,5 +1,6 @@
 (ns stefon-datomic.config
-  (:require [clojure.java.io :as io]))
+  (:require [clojure.java.io :as io]
+            [datomic.api :as datomic]))
 
 
 (defn get-config-raw []
