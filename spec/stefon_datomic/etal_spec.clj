@@ -3,10 +3,12 @@
   (:require [speclj.core :refer :all]
             [datomic.api :as datomic]
             [clojure.java.io :as io]
+            [clojure.set :as set]
 
             [stefon.shell :as shell]
             [stefon.shell.plugin :as plugin]
-            [stefon-datomic.plugin :as pluginD]))
+            [stefon-datomic.plugin :as pluginD]
+            [stefon-datomic.config :as config]))
 
 
 (def config (load-string (slurp (io/resource "stefon-datomic.edn"))))
@@ -66,9 +68,9 @@
 
           (it "Should get the plugin's configuration"
 
-              (let [config (pluginD/get-config)]
+              (let [config (config/get-config)]
                 (should-not-be-nil config)
-                (should= '(:dev :prod) (keys config))))
+                (should (some #{:dev :prod} (keys config)))))
 
 
           (it "Should throw an exception if DB has not been created, and we connect to DB"
@@ -189,49 +191,4 @@
 
                 (should-not-be-nil @response-msg)
                 (should (map? @response-msg))
-                (should= {:fu :bar} @response-msg)))
-
-
-          ;; make CRUD functions from generated schema
-
-          ;;  post(s)
-          (it "Should save created post(s) to Datomic"
-
-              ;; create a post, then check the DB
-              1)
-
-          (it "Should retrieve a created post from Datomic"
-
-              ;; create 3, then get anyone of them - the second
-              2)
-
-          (it "Should update a created post from Datomic"
-
-              ;; create 3, then update anyone of them - the third
-              3)
-
-          (it "Should delete a created post from Datomic"
-
-              ;; create 3, then delete anyone of them - the first
-              5)
-
-          (it "Should find by attributes: content-type & created-date"
-
-              ;; create 4, 2 txt, and 2 md files; make one of them have a different created-date
-              ;;   then find the md files... from the DB
-              ;;   then find the one with a different created-date... from the DB
-              6)
-
-          (it "Should list created posts"
-
-              ;; create 3, then list them out... from the DB
-              7)
-
-          ;;  asset(s) - binary data is in Fressian (https://github.com/Datomic/fressian)
-          ;;  tag(s)
-          ;;  find-by relationships
-          ;;    posts > tags
-          ;;    tags > posts
-          ;;    assets > post
-
-          )
+                (should= {:fu :bar} @response-msg))))

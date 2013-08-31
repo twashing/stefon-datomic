@@ -34,8 +34,16 @@
                   (shell/stop-system))
 
 
+          ;; match incoming key against known actions
+          #_(it "Should give an empty list if the action is not known"
+
+              (let [result (crud/find-mapping :fubar)]
+
+                (should-be-nil result)))
+
 
           ;; make CRUD functions from generated schema
+
 
           ;;  post(s)
           (it "Should save created post(s) to Datomic"

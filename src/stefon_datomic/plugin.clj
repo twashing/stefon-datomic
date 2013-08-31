@@ -1,28 +1,24 @@
 (ns stefon-datomic.plugin
 
-  (:require [clojure.java.io :as io]
-            [datomic.api :as datomic]
+  (:require [datomic.api :as datomic]
 
             [stefon.shell :as shell]
-            [stefon.shell.kernel :as kernel]))
+            [stefon.shell.kernel :as kernel]
 
-
-(defn get-config-raw []
-  (load-string (slurp (io/resource "stefon-datomic.edn"))))
-(def get-config (memoize get-config-raw))
+            [stefon-datomic.config :as config]))
 
 
 ;; DATABASE Functions
 (defn connect-to-db
   ([env]
-     (connect-to-db env (get-config)))
+     (connect-to-db env (config/get-config)))
   ([env config]
      (datomic/connect (-> config env :url))))
 
 (defn create-db
   "Returns true if the database was created, false if it already exists."
   ([env]
-     (create-db env (get-config)))
+     (create-db env (config/get-config)))
   ([env config]
      (datomic/create-database (-> config env :url))))
 
@@ -154,7 +150,7 @@
   ([] (plugin :prod))
 
   ([env]
-     (let [config (get-config)]
+     (let [config (config/get-config)]
        (plugin env config)))
 
   ([env config]
