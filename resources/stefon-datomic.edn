@@ -2,28 +2,25 @@
  :dev {:url "datomic:mem://stefon"}
  :prod {:url "datomic:free://localhost:4334/stefon"}
  :action-mappings {
-                   :plugin.post.create 'stefon.shell.kernel/create-post
-                   :plugin.post.retrieve 'stefon.shell.kernel/retrieve-post
-                   :plugin.post.update 'stefon.shell.kernel/update-post
-                   :plugin.post.delete 'stefon.shell.kernel/delete-post
-                   :plugin.post.find 'stefon.shell.kernel/find-post
-                   :plugin.post.list 'stefon.shell.kernel/list-post
+                   :plugin.post.create 'datomic.api/transact
+                   :plugin.post.retrieve 'datomic.api/q
+                   :plugin.post.update 'datomic.api/transact
+                   :plugin.post.delete 'datomic.api/transact
+                   :plugin.post.find 'datomic.api/q
+                   :plugin.post.list 'datomic.api/q
 
-                   :plugin.asset.create 'stefon.shell.kernel/create-asset
-                   :plugin.asset.retrieve 'stefon.shell.kernel/retrieve-asset
-                   :plugin.asset.update 'stefon.shell.kernel/update-asset
-                   :plugin.asset.delete 'stefon.shell.kernel/delete-asset
-                   :plugin.asset.find 'stefon.shell.kernel/find-asset
-                   :plugin.asset.list 'stefon.shell.kernel/list-asset
+                   :plugin.asset.create 'datomic.api/transact
+                   :plugin.asset.retrieve 'datomic.api/q
+                   :plugin.asset.update 'datomic.api/transact
+                   :plugin.asset.delete 'datomic.api/transact
+                   :plugin.asset.find 'datomic.api/q
+                   :plugin.asset.list 'datomic.api/q
 
-                   :plugin.tag.create 'stefon.shell.kernel/create-tag
-                   :plugin.tag.retrieve 'stefon.shell.kernel/retrieve-tag
-                   :plugin.tag.update 'stefon.shell.kernel/update-tag
-                   :plugin.tag.delete 'stefon.shell.kernel/delete-tag
-                   :plugin.tag.find 'stefon.shell.kernel/find-tag
-                   :plugin.tag.list 'stefon.shell.kernel/list-tag
-
-                   :plugin.domain 'stefon.shell.kernel/get-domain
-                   :plugin.domain.schema 'stefon.shell.kernel/get-domain-schema
+                   :plugin.tag.create 'datomic.api/transact
+                   :plugin.tag.retrieve 'datomic.api/q
+                   :plugin.tag.update 'datomic.api/transact
+                   :plugin.tag.delete 'datomic.api/transact
+                   :plugin.tag.find 'datomic.api/q
+                   :plugin.tag.list 'datomic.api/q
                    }
  }

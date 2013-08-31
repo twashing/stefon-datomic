@@ -48,7 +48,10 @@
           ;;  post(s)
           (it "Should save created post(s) to Datomic"
 
-              1)
+
+              {:title "t" :content "c" :content-type "c/t" :created-date "0000" :modified-date "1111"}
+
+              )
 
           (it "Should retrieve a created post from Datomic"
 
