@@ -48,8 +48,13 @@
           ;;  post(s)
           (it "Should save created post(s) to Datomic"
 
+              (let [;; create DB & get the connection
+                    conn (pluginD/bootstrap-stefon)
 
-              {:title "t" :content "c" :content-type "c/t" :created-date "0000" :modified-date "1111"}
+                    ;; add datom
+                    one (crud/create conn :post {:title "t" :content "c" :content-type "c/t" :created-date "0000" :modified-date "1111"})
+                    ])
+
 
               )
 

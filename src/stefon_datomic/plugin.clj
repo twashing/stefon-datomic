@@ -131,15 +131,16 @@
 (defn bootstrap-stefon
   "Start the system and create a DB"
   ([]
-     (bootstrap-stefon (fn [message])))
-  ([handler-fn]
+     (bootstrap-stefon :dev (fn [message])))
+  ([env handler-fn]
      (let [step-one (if-not (shell/system-started?)
                       (shell/start-system))
            send-function (shell/attach-plugin handler-fn)
            domain-schema-promise (send-function {:stefon.domain.schema {:parameters nil}})
 
-           step-four (create-db :dev)
-           conn (connect-or-create @domain-schema-promise :dev)])))
+           step-four (create-db env)
+           conn (connect-or-create @domain-schema-promise env)]
+       conn)))
 
 
 
