@@ -3,6 +3,7 @@
   (:require [speclj.core :refer :all]
             [datomic.api :as datomic]
             [clojure.java.io :as io]
+            [clojure.pprint :as pprint]
 
             [stefon.shell :as shell]
             [stefon.shell.plugin :as plugin]
@@ -40,7 +41,7 @@
               (let [result (crud/find-mapping :fubar)]
                 (should-be-nil result)))
 
-          (it "Should return a proper mapping"
+          #_(it "Should return a proper mapping"
 
               (let [result (crud/find-mapping :plugin.post.create)]
                 (should-not-be-nil result)
@@ -56,17 +57,20 @@
           (it "Should save created post(s) to Datomic"
 
               (let [;; create DB & get the connection
-                    conn (pluginD/bootstrap-stefon)
+                    result (pluginD/bootstrap-stefon)
+
+                    yyy (println "Ddd... " result)
 
                     ;; add datom
-                    one (crud/create conn :post {:title "t" :content "c" :content-type "c/t" :created-date "0000" :modified-date "1111"})
+                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
+                    one (crud/create (:conn result) :post {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
 
-                    ;;qresult (datomic/q '[:find ?e :in $ :where [?e :post/content-type "c/t"]] (datomic/db conn))
-                    qresult (datomic/q '[:find ?e :where [?e :posts/id]])
+
+                    ;;xxx (pprint/pprint "Ccc... " one)
+                    qresult (datomic/q '[:find ?e :where [?e :posts/content-type "c/t"]] (datomic/db (:conn result)))
                     ]
 
-                (println "Zzz... " (type one)))
-
+                )
               )
 
           (it "Should retrieve a created post from Datomic"

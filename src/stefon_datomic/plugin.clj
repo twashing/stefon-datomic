@@ -1,6 +1,7 @@
 (ns stefon-datomic.plugin
 
   (:require [datomic.api :as datomic]
+            [clojure.pprint :as pprint]
 
             [stefon.shell :as shell]
             [stefon.shell.kernel :as kernel]
@@ -47,7 +48,7 @@
              cardinality-name (name (:cardinality val))
              ]
 
-         {:db/id #db/id [:db.part/db]
+         {:db/id #db/id[:db.part/db]
 
           :db/ident (keyword (str key-name "/" name-name))
           :db/valueType (keyword (str "db.type/" type-name))
@@ -73,7 +74,7 @@
            conn (connect-to-db env)
 
            ;; ii) generate schema
-           db-schema (generate-db-schema domain-schema)]
+           db-schema (generate-db-schema domain-schema) ]
 
        ;; iii) load schema into DB
        (load-db-schema conn db-schema))))
@@ -89,12 +90,16 @@
      (try
 
        ;; check if configured DB exists
-       (connect-to-db env)
+       {:init-result nil
+        :conn (connect-to-db env)}
 
        ;; otherwise, initialize it
        (catch Exception e
-         (if (init-db domain-schema env)
-           (connect-to-db env))))))
+
+         (let [init-result (init-db domain-schema env)
+               conn (connect-to-db env)]
+           {:init-result init-result
+            :conn conn})))))
 
 
 
@@ -139,8 +144,15 @@
            domain-schema-promise (send-function {:stefon.domain.schema {:parameters nil}})
 
            step-four (create-db env)
-           conn (connect-or-create @domain-schema-promise env)]
-       conn)))
+
+           ;;result (connect-or-create @domain-schema-promise env)
+           ]
+
+           (let [init-result (init-db @domain-schema-promise env)
+                 conn (connect-to-db env)]
+
+             {:init-result init-result
+              :conn conn}))))
 
 
 

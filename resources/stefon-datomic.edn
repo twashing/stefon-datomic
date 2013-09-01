@@ -2,21 +2,21 @@
  :dev {:url "datomic:mem://stefon"}
  :prod {:url "datomic:free://localhost:4334/stefon"}
  :action-mappings {
-                   :plugin.post.create ['datomic.api/transact {:db/id #db/id[:db.part/user -1000001]}]
+                   :plugin.post.create ['datomic.api/transact #db/id[:db.part/user]]
                    :plugin.post.retrieve ['datomic.api/q]
                    :plugin.post.update ['datomic.api/transact]
                    :plugin.post.delete ['datomic.api/transact]
                    :plugin.post.find ['datomic.api/q]
                    :plugin.post.list ['datomic.api/q]
 
-                   :plugin.asset.create ['datomic.api/transact {:db/id #db/id[:db.part/user -1000001]}]
+                   :plugin.asset.create ['datomic.api/transact #db/id[:db.part/user]]
                    :plugin.asset.retrieve ['datomic.api/q]
                    :plugin.asset.update ['datomic.api/transact]
                    :plugin.asset.delete ['datomic.api/transact]
                    :plugin.asset.find ['datomic.api/q]
                    :plugin.asset.list ['datomic.api/q]
 
-                   :plugin.tag.create ['datomic.api/transact {:db/id #db/id[:db.part/user -1000001]}]
+                   :plugin.tag.create ['datomic.api/transact #db/id[:db.part/user]]
                    :plugin.tag.retrieve ['datomic.api/q]
                    :plugin.tag.update ['datomic.api/transact]
                    :plugin.tag.delete ['datomic.api/transact]

@@ -128,11 +128,12 @@
                     domain-schema-promise (sfunction {:stefon.domain.schema {:parameters nil}})
 
                     ;; try calling when db DOES NOT exist
-                    conn (pluginD/connect-or-create @domain-schema-promise :dev)
+                    result (pluginD/connect-or-create @domain-schema-promise :dev)
                     ]
 
-                (should-not-be-nil conn)
-                (should= datomic.peer.LocalConnection (type conn))))
+                (should-not-be-nil result)
+                (should-not-be-nil (:conn result))
+                (should= datomic.peer.LocalConnection (type (:conn result)))))
 
 
           (it "Should connect or create a DB - Part 2"
@@ -149,11 +150,12 @@
 
 
                     ;; try calling when db DOES exist
-                    conn (pluginD/connect-or-create @domain-schema-promise :dev)
+                    result (pluginD/connect-or-create @domain-schema-promise :dev)
                     ]
 
-                (should-not-be-nil conn)
-                (should= datomic.peer.LocalConnection (type conn))))
+                (should-not-be-nil result)
+                (should-not-be-nil (:conn result))
+                (should= datomic.peer.LocalConnection (type (:conn result)))))
 
 
           (it "Should attach itself to the kernel - Main 001"
