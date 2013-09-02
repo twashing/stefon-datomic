@@ -41,13 +41,13 @@
               (let [result (crud/find-mapping :fubar)]
                 (should-be-nil result)))
 
-          #_(it "Should return a proper mapping"
+          (it "Should return a proper mapping"
 
               (let [result (crud/find-mapping :plugin.post.create)]
                 (should-not-be-nil result)
 
                 (should (vector? result))
-                (should= ['datomic.api/transact {:db/id #db/id [:db.part/user -1000001]}] result)))
+                (should= 'datomic.api/transact (first result))))
 
 
           ;; make CRUD functions from generated schema
@@ -65,13 +65,8 @@
 
                     qresult (datomic/q '[:find ?e :where [?e :posts/content-type]] (datomic/db (:conn result)))]
 
-
-                (println "ARGGGGGH 1 > " (type qresult))
-                (println "ARGGGGGH 2 > " one)
-
                 (should= java.util.HashSet (type qresult))
-                (should-not (empty? qresult))
-                ))
+                (should-not (empty? qresult))))
 
           (it "Should retrieve a created post from Datomic"
 
