@@ -49,16 +49,17 @@
         entity-w-ns (add-entity-ns :posts datom-map)
 
         ;; add namespace to map keys
-        adatom (merge entity-w-ns mapped-preamble)]
+        ;;adatom (merge entity-w-ns mapped-preamble)
+        adatom (assoc entity-w-ns :db/id #db/id[:db.part/db])]
 
     ;; transact to Datomic
-
-    (println "Aaa... " mapped-fn)
-    (println "Bbb... " adatom)
-
-
     #_(mapped-fn conn [adatom])
+    (datomic/transact conn [adatom])
 
-    (datomic.api/transact conn [{:db/id #db/id [:db.part/db], :posts/modified-date #inst "2013-01-01T08:00:00.000-00:00", :posts/created-date #inst "2013-01-01T08:00:00.000-00:00", :posts/content-type "ct", :posts/content "c", :posts/title "t"}])
 
+    #_(datomic.api/transact conn [{:db/id #db/id [:db.part/db], :posts/modified-date #inst "2013-01-01T08:00:00.000-00:00", :posts/created-date #inst "2013-01-01T08:00:00.000-00:00", :posts/content-type "ct", :posts/content "c", :posts/title "t"}])
+
+    #_(datomic.api/transact conn [{:db/id (datomic/tempid :db.part/db), :posts/modified-date #inst "2013-01-01T08:00:00.000-00:00", :posts/created-date #inst "2013-01-01T08:00:00.000-00:00", :posts/content-type "ct", :posts/content "c", :posts/title "t"}])
+
+    #_(apply mapped-fn '(conn [{:db/id #db/id [:db.part/db], :posts/modified-date #inst "2013-01-01T08:00:00.000-00:00", :posts/created-date #inst "2013-01-01T08:00:00.000-00:00", :posts/content-type "ct", :posts/content "c", :posts/title "t"}]))
     ))
