@@ -63,3 +63,18 @@
 
     #_(apply mapped-fn '(conn [{:db/id #db/id [:db.part/db], :posts/modified-date #inst "2013-01-01T08:00:00.000-00:00", :posts/created-date #inst "2013-01-01T08:00:00.000-00:00", :posts/content-type "ct", :posts/content "c", :posts/title "t"}]))
     ))
+
+
+(defn retrieve [conn constraint-map]
+
+  (let [constraints-w-ns (add-entity-ns :posts constraint-map)
+
+        ;;xx (println "Zzz > " (map (fn [inp] (cons '?e inp)) (seq constraints-w-ns)))
+        constraints-final (->> constraints-w-ns
+                               seq
+                               (map (fn [inp] (cons '?e inp)) )
+                               flatten
+                               (into []))
+        expression-final [:find '?e :where constraints-final]]
+
+    (datomic/q expression-final (datomic/db conn))))

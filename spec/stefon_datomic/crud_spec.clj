@@ -50,6 +50,7 @@
                 (should= 'datomic.api/transact (first result))))
 
 
+          ;; ====
           ;; make CRUD functions from generated schema
 
 
@@ -71,7 +72,18 @@
           (it "Should retrieve a created post from Datomic"
 
               ;; create 3, then get anyone of them - the second
-              2)
+              (let [;; create DB & get the connection
+                    result (pluginD/bootstrap-stefon)
+
+                    ;; add datom
+                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
+                    one (crud/create (:conn result) :post {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
+
+                    qresult (crud/retrieve (:conn result) {:content-type "c/t" :title "t"}) ]
+
+                (println "Nnn ... " qresult)
+                (should= java.util.HashSet (type qresult))
+                (should-not (empty? qresult))))
 
           (it "Should update a created post from Datomic"
 
