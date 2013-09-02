@@ -50,7 +50,7 @@
                 (should= 1 1)))
 
 
-          (it "Should return a list of domain schema"
+          #_(it "Should return a list of domain schema"
 
               (let [sys1 (shell/create-system)
                     sys2 (shell/start-system sys1)

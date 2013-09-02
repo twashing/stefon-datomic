@@ -76,6 +76,7 @@
            ;; ii) generate schema
            db-schema (generate-db-schema domain-schema) ]
 
+
        ;; iii) load schema into DB
        (load-db-schema conn db-schema))))
 

@@ -56,16 +56,4 @@
     (println "Aaa... " mapped-fn)
     (println "Bbb... " adatom)
 
-    #_(mapped-fn conn [adatom])
-
-    (def date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013")))
-    #_(datomic.api/transact conn [
-                                {
-                                 :db/id (datomic/tempid :db.part/db),
-                                 :posts/modified-date date-one,
-                                 :posts/created-date date-one,
-                                 :posts/content-type "c/t",
-                                 :posts/content "c",
-                                 :posts/title "t"}])
-
-    ))
+    (mapped-fn conn [adatom])))

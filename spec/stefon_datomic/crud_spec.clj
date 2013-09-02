@@ -59,19 +59,15 @@
               (let [;; create DB & get the connection
                     result (pluginD/bootstrap-stefon)
 
-                    yyy (println "Ddd... " result)
-
                     ;; add datom
                     date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
                     one (crud/create (:conn result) :post {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
 
-
-                    ;;xxx (pprint/pprint "Ccc... " one)
-                    qresult (datomic/q '[:find ?e :where [?e :posts/content-type "c/t"]] (datomic/db (:conn result)))
+                    qresult (datomic/q '[:find ?e :where [?e :posts/content-type]] (datomic/db (:conn result)))
                     ]
 
-                )
-              )
+                (println "ARGGGGGH > " qresult)
+                ))
 
           (it "Should retrieve a created post from Datomic"
 
