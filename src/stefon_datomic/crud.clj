@@ -65,7 +65,7 @@
     ))
 
 
-(defn retrieve [conn constraint-map]
+(defn retrieve-entity [conn constraint-map]
 
   (let [constraints-w-ns (add-entity-ns :posts constraint-map)
 
@@ -78,3 +78,16 @@
         expression-final [:find '?e :where constraints-final]]
 
     (datomic/q expression-final (datomic/db conn))))
+
+(defn retrieve [conn constraint-map]
+
+  (let [id-set (retrieve-entity conn constraint-map)
+        entity-set (map (fn [inp]
+                          (datomic/entity (datomic/db conn) inp))
+                        (first id-set))]
+
+    (println ">> Entity-set 1 > " (datomic/entity (datomic/db conn) (ffirst id-set)))
+    (println ">> Entity-set 2 > " (datomic/touch (datomic/entity (datomic/db conn) (ffirst id-set))))
+
+
+    ))
