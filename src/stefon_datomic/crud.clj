@@ -56,4 +56,9 @@
     (println "Aaa... " mapped-fn)
     (println "Bbb... " adatom)
 
-    (mapped-fn conn [adatom])))
+
+    #_(mapped-fn conn [adatom])
+
+    (datomic.api/transact conn [{:db/id #db/id [:db.part/db], :posts/modified-date #inst "2013-01-01T08:00:00.000-00:00", :posts/created-date #inst "2013-01-01T08:00:00.000-00:00", :posts/content-type "ct", :posts/content "c", :posts/title "t"}])
+
+    ))

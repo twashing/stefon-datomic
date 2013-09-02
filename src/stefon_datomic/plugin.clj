@@ -45,10 +45,10 @@
        (let [key-name (name key)
              name-name (name (:name val))
              type-name (name (:type val))
-             cardinality-name (name (:cardinality val))
-             ]
+             cardinality-name (name (:cardinality val))]
 
-         {:db/id #db/id[:db.part/db]
+         {;;:db/id #db/id[:db.part/db]
+          :db/id (datomic/tempid :db.part/db)
 
           :db/ident (keyword (str key-name "/" name-name))
           :db/valueType (keyword (str "db.type/" type-name))
@@ -75,7 +75,6 @@
 
            ;; ii) generate schema
            db-schema (generate-db-schema domain-schema) ]
-
 
        ;; iii) load schema into DB
        (load-db-schema conn db-schema))))

@@ -66,6 +66,7 @@
                     qresult (datomic/q '[:find ?e :where [?e :posts/content-type]] (datomic/db (:conn result)))
                     ]
 
+
                 (println "ARGGGGGH > " qresult)
                 ))
 
