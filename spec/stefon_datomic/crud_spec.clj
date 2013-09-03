@@ -69,7 +69,7 @@
                 (should= java.util.HashSet (type qresult))
                 (should-not (empty? qresult))))
 
-          (it "Should retrieve a created entity post from Datomic - 001"
+          #_(it "Should retrieve a created entity post from Datomic - 001"
 
               ;; create 3, then get anyone of them - the second
               (let [;; create DB & get the connection
@@ -81,10 +81,11 @@
 
                     qresult (crud/retrieve-entity (:conn result) {:content-type "c/t" :title "t"}) ]
 
+                (println "WTF > " qresult)
                 (should= java.util.HashSet (type qresult))
                 (should-not (empty? qresult))))
 
-          (it "Should retrieve a created post from Datomic - 002"
+          #_(it "Should retrieve a created post from Datomic - 002"
 
               ;; create 3, then get anyone of them - the second
               (let [;; create DB & get the connection

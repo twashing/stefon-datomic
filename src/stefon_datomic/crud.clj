@@ -1,5 +1,6 @@
 (ns stefon-datomic.crud
-  (:require [datomic.api :as datomic]
+  (:require [clojure.string :as string]
+            [datomic.api :as datomic]
             [stefon-datomic.config :as config]))
 
 
@@ -53,31 +54,64 @@
         adatom (assoc entity-w-ns :db/id #db/id[:db.part/db])]
 
     ;; transact to Datomic
-    #_(mapped-fn conn [adatom])
-    (datomic/transact conn [adatom])
-
-
-    #_(datomic.api/transact conn [{:db/id #db/id [:db.part/db], :posts/modified-date #inst "2013-01-01T08:00:00.000-00:00", :posts/created-date #inst "2013-01-01T08:00:00.000-00:00", :posts/content-type "ct", :posts/content "c", :posts/title "t"}])
-
-    #_(datomic.api/transact conn [{:db/id (datomic/tempid :db.part/db), :posts/modified-date #inst "2013-01-01T08:00:00.000-00:00", :posts/created-date #inst "2013-01-01T08:00:00.000-00:00", :posts/content-type "ct", :posts/content "c", :posts/title "t"}])
-
-    #_(apply mapped-fn '(conn [{:db/id #db/id [:db.part/db], :posts/modified-date #inst "2013-01-01T08:00:00.000-00:00", :posts/created-date #inst "2013-01-01T08:00:00.000-00:00", :posts/content-type "ct", :posts/content "c", :posts/title "t"}]))
-    ))
+    (mapped-fn conn [adatom])))
 
 
 (defn retrieve-entity [conn constraint-map]
 
   (let [constraints-w-ns (add-entity-ns :posts constraint-map)
 
-        ;;xx (println "Zzz > " (map (fn [inp] (cons '?e inp)) (seq constraints-w-ns)))
+        ;; xx (println "Zzz > " (map (fn [inp] (cons '?e inp)) (seq constraints-w-ns)))
+
+        ;; we expect a structure like... ((:posts/title t) (:posts/content-type c/t))
+        names-fn #(-> % first name (string/split #"/") first (->> (str "?")) name)
+        param-names (map names-fn
+                         (seq constraints-w-ns))
+        param-values (map last (seq constraints-w-ns))
+
+        xx (println "param-names > " param-names)
+        xx (println "param-values > " param-values)
+
         constraints-final (->> constraints-w-ns
                                seq
-                               (map (fn [inp] (cons '?e inp)) )
+                               (map (fn [inp]
+                                      ['?e (first inp) (names-fn inp)] ))
                                flatten
                                (into []))
-        expression-final [:find '?e :where constraints-final]]
 
-    (datomic/q expression-final (datomic/db conn))))
+        xx (println "constraints-final > " constraints-final)
+
+        ;; expression-final [:find '?e :where constraints-final]
+        ;; expression-final '[:find ?e :in $ ?content-type :where [?e :posts/title "t" ?e :posts/content-type ?content-type]]  ;; Quote this to prevent attemped evaluation of the symbol ?e
+        ;; expression-final '[:find ?e :in $ ?title ?content-type :where [?e :posts/title ?title ?e :posts/content-type ?content-type]]  ;; Quote this to prevent attemped evaluation of the symbol ?e
+
+
+        ;;expression-final `[:find ?e :in $ ~@param-names :where ~constraints-final]
+
+
+        expression-final `[:find ~@(->> param-names (cons '$) (cons :in) (cons '?e)) :where ~constraints-final]
+        ;;expression-final '[:find ?e :in $ ?title ?content-type :where [?e :posts/title ?title ?e :posts/content-type ?content-type]]
+
+        xx (println "expression-final 1 > " expression-final)
+        xx (println "expression-final 2 > " (type expression-final))
+        xx (println "expression-final 3 > " (type '[:find ?e :in $ ?title ?content-type :where [?e :posts/title ?title ?e :posts/content-type ?content-type]]))
+        ]
+
+    (datomic/q expression-final (datomic/db conn) "t" "c/t")
+
+    ;;(def asdf '[?e :posts/title ?title ?e :posts/content-type ?content-type])
+    ;;(println "1 > " constraints-final)
+    ;;(println "2 > " asdf)
+    ;;(datomic/q (quote [:find ?e :in $ ?title ?content-type :where asdf]) (datomic/db conn) "t" "c/t")
+
+
+    ;;(datomic/q (quote [:find ?e :in $ ?title ?content-type :where [?e :posts/title ?title ?e :posts/content-type ?content-type]]) (datomic/db conn) "t" "c/t")
+
+    ;;(datomic/q '[:find ?e :in $ ?title ?content-type :where [?e :posts/title ?title ?e :posts/content-type ?content-type]] (datomic/db conn) "t" "c/t")
+
+    ;;(datomic/q '[:find ?e :in $ :where [?e :posts/title]] (datomic/db conn))
+
+    ))
 
 (defn retrieve [conn constraint-map]
 
