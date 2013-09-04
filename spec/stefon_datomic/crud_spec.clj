@@ -69,7 +69,7 @@
                 (should= java.util.HashSet (type qresult))
                 (should-not (empty? qresult))))
 
-          #_(it "Should retrieve a created entity post from Datomic - 001"
+          (it "Should retrieve a created entity post from Datomic - 001"
 
               ;; create 3, then get anyone of them - the second
               (let [;; create DB & get the connection

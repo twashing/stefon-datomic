@@ -61,57 +61,28 @@
 
   (let [constraints-w-ns (add-entity-ns :posts constraint-map)
 
-        ;; xx (println "Zzz > " (map (fn [inp] (cons '?e inp)) (seq constraints-w-ns)))
 
-        ;; we expect a structure like... ((:posts/title t) (:posts/content-type c/t))
-        names-fn #(-> % first name (string/split #"/") first (->> (str "?")) name)
+        ;; We expect a structure like... ((:posts/title t) (:posts/content-type c/t))
+        names-fn #(-> % first name (string/split #"/") first (->> (str "?")) name symbol)
         param-names (map names-fn
                          (seq constraints-w-ns))
         param-values (map last (seq constraints-w-ns))
 
-        xx (println "param-names > " param-names)
-        xx (println "param-values > " param-values)
 
+        ;; Should provide constraints that look like: [[?e :posts/title ?title] [?e :posts/content-type ?content-type]]
         constraints-final (->> constraints-w-ns
                                seq
                                (map (fn [inp]
                                       ['?e (first inp) (names-fn inp)] ))
-                               flatten
                                (into []))
 
-        xx (println "constraints-final > " constraints-final)
-
-        ;; expression-final [:find '?e :where constraints-final]
-        ;; expression-final '[:find ?e :in $ ?content-type :where [?e :posts/title "t" ?e :posts/content-type ?content-type]]  ;; Quote this to prevent attemped evaluation of the symbol ?e
-        ;; expression-final '[:find ?e :in $ ?title ?content-type :where [?e :posts/title ?title ?e :posts/content-type ?content-type]]  ;; Quote this to prevent attemped evaluation of the symbol ?e
+        expression-intermediate `[:find ~@(->> param-names (cons '$) (cons :in) (cons '?e)) :where ~@constraints-final]
 
 
-        ;;expression-final `[:find ?e :in $ ~@param-names :where ~constraints-final]
+        ;; Should provide an expression that looks like: [:find ?e :in $ ?title ?content-type :where [?e :posts/title ?title] [?e :posts/content-type ?content-type]]
+        expression-final (eval `(quote ~expression-intermediate)) ]
 
-
-        expression-final `[:find ~@(->> param-names (cons '$) (cons :in) (cons '?e)) :where ~constraints-final]
-        ;;expression-final '[:find ?e :in $ ?title ?content-type :where [?e :posts/title ?title ?e :posts/content-type ?content-type]]
-
-        xx (println "expression-final 1 > " expression-final)
-        xx (println "expression-final 2 > " (type expression-final))
-        xx (println "expression-final 3 > " (type '[:find ?e :in $ ?title ?content-type :where [?e :posts/title ?title ?e :posts/content-type ?content-type]]))
-        ]
-
-    (datomic/q expression-final (datomic/db conn) "t" "c/t")
-
-    ;;(def asdf '[?e :posts/title ?title ?e :posts/content-type ?content-type])
-    ;;(println "1 > " constraints-final)
-    ;;(println "2 > " asdf)
-    ;;(datomic/q (quote [:find ?e :in $ ?title ?content-type :where asdf]) (datomic/db conn) "t" "c/t")
-
-
-    ;;(datomic/q (quote [:find ?e :in $ ?title ?content-type :where [?e :posts/title ?title ?e :posts/content-type ?content-type]]) (datomic/db conn) "t" "c/t")
-
-    ;;(datomic/q '[:find ?e :in $ ?title ?content-type :where [?e :posts/title ?title ?e :posts/content-type ?content-type]] (datomic/db conn) "t" "c/t")
-
-    ;;(datomic/q '[:find ?e :in $ :where [?e :posts/title]] (datomic/db conn))
-
-    ))
+    (datomic.api/q expression-final (datomic/db conn) "t" "c/t") ))
 
 (defn retrieve [conn constraint-map]
 
