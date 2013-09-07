@@ -62,6 +62,50 @@
   (let [constraints-w-ns (add-entity-ns :posts constraint-map)
 
 
+        ;; We expect a structure like... ((:posts/title t) (:posts/content-type c/t))... at the end, we need to double-quote the name
+        names-fn #(-> % first name (string/split #"/") first (->> (str "?")) symbol (->> (list (symbol 'quote))))
+        param-names (map names-fn
+                           (seq constraints-w-ns))
+        param-values (map last (seq constraints-w-ns))
+
+
+        ;; Should provide constraints that look like: [[?e :posts/title ?title] [?e :posts/content-type ?content-type]]
+        constraints-final (->> constraints-w-ns
+                               seq
+                               (map (fn [inp]
+                                      ['?e (first inp) (names-fn inp)] ))
+                               (into []))
+
+
+        ;;
+        in-clause (->> param-names (cons ''$) (into []))
+        expression-intermediate {:find [''?e]
+                                   :in in-clause
+                                   :where constraints-final}
+        ;;expression-intermediate (list (symbol 'quote) expression-intermediate-0)
+
+        ;;
+        db-conn (list (symbol 'quote) '(datomic.api/db conn))
+
+        ;;
+        ;;expression-final `(datomic.api/q ~expression-intermediate ~db-conn ~@param-values)
+        expression-final `~expression-intermediate
+        ]
+
+
+    (println expression-final)
+    #_(eval expression-final)
+
+    (datomic.api/q expression-final (datomic.api/db conn) "t" "c/t")
+
+    ))
+
+
+#_(defn retrieve-entity [conn constraint-map]
+
+  (let [constraints-w-ns (add-entity-ns :posts constraint-map)
+
+
         ;; We expect a structure like... ((:posts/title t) (:posts/content-type c/t))
         names-fn #(-> % first name (string/split #"/") first (->> (str "?")) name symbol)
         param-names (map names-fn
@@ -73,16 +117,21 @@
         constraints-final (->> constraints-w-ns
                                seq
                                (map (fn [inp]
-                                      ['?e (first inp) (names-fn inp)] ))
+                                      ['?e (first inp) (names-fn inp)]))
                                (into []))
 
         expression-intermediate `[:find ~@(->> param-names (cons '$) (cons :in) (cons '?e)) :where ~@constraints-final]
 
 
         ;; Should provide an expression that looks like: [:find ?e :in $ ?title ?content-type :where [?e :posts/title ?title] [?e :posts/content-type ?content-type]]
-        expression-final (eval `(quote ~expression-intermediate)) ]
+        expression-final (eval `(quote ~expression-intermediate))
 
-    (datomic.api/q expression-final (datomic/db conn) "t" "c/t") ))
+        XX `(datomic.api/q ~expression-final ~(datomic/db conn) ~@param-values)
+        exec-fn (fn []
+                  XX)]
+
+    (eval XX)))
+
 
 (defn retrieve [conn constraint-map]
 
@@ -94,5 +143,11 @@
     (println ">> Entity-set 1 > " (datomic/entity (datomic/db conn) (ffirst id-set)))
     (println ">> Entity-set 2 > " (datomic/touch (datomic/entity (datomic/db conn) (ffirst id-set))))
 
-
     ))
+
+
+#_expression-intermediate #_`[:find ~@(->> param-names (cons '$) (cons :in) (cons '?e)) :where ~@constraints-final]
+
+
+;; Should provide an expression that looks like: [:find ?e :in $ ?title ?content-type :where [?e :posts/title ?title] [?e :posts/content-type ?content-type]]
+#_expression-final #_(eval `(quote ~expression-intermediate))
