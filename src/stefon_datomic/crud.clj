@@ -57,6 +57,17 @@
     (mapped-fn conn [adatom])))
 
 
+(defn maps-eav [maps]
+  (apply concat
+         (for [map maps]
+           (apply concat
+                  (for [[a v] map]
+                    (if (coll? v)
+                      (for [sub-v v]
+                        [map a sub-v])
+                      [[map a v]]))))))
+
+
 (defn retrieve-entity [conn constraint-map]
 
   (let [constraints-w-ns (add-entity-ns :posts constraint-map)
@@ -78,9 +89,9 @@
 
 
         ;;
-        in-clause (->> param-names (cons '$) (into []))
+        ;;in-clause (->> param-names (cons '$) (into []))
         expression-intermediate-0 {:find ['?e]
-                                   :in in-clause
+                                   :in ['$ (into [] param-names)]
                                    :where constraints-final}
         expression-intermediate (list (symbol 'quote) expression-intermediate-0)
 
@@ -89,8 +100,8 @@
         ;;db-conn (datomic.api/db conn)
 
         ;;
-        expression-final `(datomic.api/q ~expression-intermediate ~db-conn ~@param-values)
-        ;;expression-final `~expression-intermediate
+        ;;expression-final `(datomic.api/q ~expression-intermediate ~db-conn ~@param-values)
+        expression-final `~expression-intermediate
 
         #_XX #_(reduce (fn [rslt ech]
 
@@ -100,9 +111,31 @@
                    (cons expression-intermediate (cons db-conn param-values)))
         ]
 
-    (eval expression-final)
+    (println "expression-final > " expression-intermediate )
+    #_(eval expression-final)
 
-    #_(datomic.api/q expression-final (datomic.api/db conn) "t" "c/t")
+
+    (quote {:find [?e], :in [$ [?title ?content-type]], :where [[?e :posts/title ?title] [?e :posts/content-type ?content-type]]})
+    '{:find [?e] :in [$ [?title ?content-type]] :where [[?e :posts/title ?title] [?e :posts/content-type ?content-type]]}
+
+    (datomic.api/q expression-intermediate-0 (datomic.api/db conn) (into [] param-values))
+
+
+
+    #_(datomic.api/q expression-final (datomic.api/db conn) {:title "t" :created-date "c/t"})
+
+    #_(datomic.api/q '{:find [?e]
+                     :in [$ ?title ?content-type]
+                     :where [[?e :posts/title ?title] [?e :posts/content-type ?content-type]]}
+                   (datomic.api/db conn)
+                   {:title "t" :created-date "c/t"})
+
+    #_(datomic.api/q '{:find [?e]
+                     :in [$ [?title ?content-type]]
+                     :where [[?e :posts/title ?title] [?e :posts/content-type ?content-type]]}
+                   (datomic.api/db conn)
+                   ["t" "c/t"])
+
 
     #_(println (cons expression-intermediate (cons db-conn param-values)))
     #_(apply datomic.api/q (cons expression-intermediate (cons db-conn param-values))) ))
