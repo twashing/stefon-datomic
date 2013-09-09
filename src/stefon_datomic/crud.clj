@@ -34,7 +34,8 @@
 
 (defn create [conn domain-key datom-map]
 
-  {:pre [(keyword? domain-key)]}
+  {:pre [(keyword? domain-key)
+         (map? datom-map)]}
 
   (let [
         one (str "plugin." (name domain-key) ".create")
@@ -45,16 +46,17 @@
 
         ;; insert mapped function & preamble
         mapped-fn (first mapping)
-        mapped-preamble (second mapping)
+        mapped-preamble (second mapping)  ;; TODO - can't execute this
 
         entity-w-ns (add-entity-ns :posts datom-map)
 
         ;; add namespace to map keys
-        ;;adatom (merge entity-w-ns mapped-preamble)
-        adatom (assoc entity-w-ns :db/id #db/id[:db.part/db])]
+        ;;adatom (assoc entity-w-ns :db/id #db/id [:db.part/user])
+        adatom (assoc entity-w-ns :db/id (datomic.api/tempid :db.part/user))
+        ]
 
     ;; transact to Datomic
-    (mapped-fn conn [adatom])))
+    @(datomic.api/transact conn [adatom])))
 
 
 (defn retrieve-entity [conn constraint-map]
@@ -91,16 +93,10 @@
 
   (let [the-db (datomic/db conn)
 
-        id-set (retrieve-entity conn constraint-map)
+        ;; put java.util.HashSet into a regular Clojure set
+        id-set (map first (into #{} (retrieve-entity conn constraint-map)))
         entity-set (map (fn [inp]
                           (datomic/touch (datomic/entity the-db inp)))
-                        (first id-set))]
+                        id-set)]
 
     entity-set))
-
-
-#_expression-intermediate #_`[:find ~@(->> param-names (cons '$) (cons :in) (cons '?e)) :where ~@constraints-final]
-
-
-;; Should provide an expression that looks like: [:find ?e :in $ ?title ?content-type :where [?e :posts/title ?title] [?e :posts/content-type ?content-type]]
-#_expression-final #_(eval `(quote ~expression-intermediate))
