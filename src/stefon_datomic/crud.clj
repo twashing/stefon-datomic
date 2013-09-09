@@ -63,7 +63,7 @@
 
 
         ;; We expect a structure like... ((:posts/title t) (:posts/content-type c/t))... at the end, we need to double-quote the name
-        names-fn #(-> % first name (string/split #"/") first (->> (str "?")) symbol (->> (list (symbol 'quote))))
+        names-fn #(-> % first name (string/split #"/") first (->> (str "?")) symbol #_(->> (list (symbol 'quote))))
         param-names (map names-fn
                            (seq constraints-w-ns))
         param-values (map last (seq constraints-w-ns))
@@ -78,27 +78,34 @@
 
 
         ;;
-        in-clause (->> param-names (cons ''$) (into []))
-        expression-intermediate {:find [''?e]
+        in-clause (->> param-names (cons '$) (into []))
+        expression-intermediate-0 {:find ['?e]
                                    :in in-clause
                                    :where constraints-final}
-        ;;expression-intermediate (list (symbol 'quote) expression-intermediate-0)
+        expression-intermediate (list (symbol 'quote) expression-intermediate-0)
 
         ;;
         db-conn (list (symbol 'quote) '(datomic.api/db conn))
+        ;;db-conn (datomic.api/db conn)
 
         ;;
-        ;;expression-final `(datomic.api/q ~expression-intermediate ~db-conn ~@param-values)
-        expression-final `~expression-intermediate
+        expression-final `(datomic.api/q ~expression-intermediate ~db-conn ~@param-values)
+        ;;expression-final `~expression-intermediate
+
+        #_XX #_(reduce (fn [rslt ech]
+
+                     (println "Ech > " rslt " > " ech)
+                     (partial rslt ech))
+                   datomic.api/q
+                   (cons expression-intermediate (cons db-conn param-values)))
         ]
 
+    (eval expression-final)
 
-    (println expression-final)
-    #_(eval expression-final)
+    #_(datomic.api/q expression-final (datomic.api/db conn) "t" "c/t")
 
-    (datomic.api/q expression-final (datomic.api/db conn) "t" "c/t")
-
-    ))
+    #_(println (cons expression-intermediate (cons db-conn param-values)))
+    #_(apply datomic.api/q (cons expression-intermediate (cons db-conn param-values))) ))
 
 
 #_(defn retrieve-entity [conn constraint-map]
