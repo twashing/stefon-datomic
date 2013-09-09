@@ -89,15 +89,14 @@
 
 (defn retrieve [conn constraint-map]
 
-  (let [id-set (retrieve-entity conn constraint-map)
+  (let [the-db (datomic/db conn)
+
+        id-set (retrieve-entity conn constraint-map)
         entity-set (map (fn [inp]
-                          (datomic/entity (datomic/db conn) inp))
+                          (datomic/touch (datomic/entity the-db inp)))
                         (first id-set))]
 
-    (println ">> Entity-set 1 > " (datomic/entity (datomic/db conn) (ffirst id-set)))
-    (println ">> Entity-set 2 > " (datomic/touch (datomic/entity (datomic/db conn) (ffirst id-set))))
-
-    ))
+    entity-set))
 
 
 #_expression-intermediate #_`[:find ~@(->> param-names (cons '$) (cons :in) (cons '?e)) :where ~@constraints-final]
