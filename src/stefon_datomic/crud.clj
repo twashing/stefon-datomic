@@ -51,9 +51,7 @@
         entity-w-ns (add-entity-ns :posts datom-map)
 
         ;; add namespace to map keys
-        ;;adatom (assoc entity-w-ns :db/id #db/id [:db.part/user])
-        adatom (assoc entity-w-ns :db/id (datomic.api/tempid :db.part/user))
-        ]
+        adatom (assoc entity-w-ns :db/id (datomic.api/tempid :db.part/user)) ]
 
     ;; transact to Datomic
     @(datomic.api/transact conn [adatom])))
@@ -95,6 +93,7 @@
 
         ;; put java.util.HashSet into a regular Clojure set
         id-set (map first (into #{} (retrieve-entity conn constraint-map)))
+
         entity-set (map (fn [inp]
                           (datomic/touch (datomic/entity the-db inp)))
                         id-set)]

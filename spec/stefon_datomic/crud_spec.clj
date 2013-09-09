@@ -99,13 +99,6 @@
                     qresult (crud/retrieve (:conn result) {:content-type "c/t" :title "t"})
                     qresult-many (crud/retrieve (:conn result) {:content-type "c/t"})]
 
-                (println "One > " (dissoc one :tx-data))
-                (println "Two > " (dissoc two :tx-data))
-                (println "Three > " (dissoc three :tx-data))
-
-                (println "qresult > " qresult)
-                (println "qresult-many > " qresult-many)
-
                 (should (seq? qresult))
                 (should-not (empty? qresult))
                 (should= 1 (count qresult))
