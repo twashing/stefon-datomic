@@ -48,9 +48,9 @@
         mapped-fn (first mapping)
         mapped-preamble (second mapping)  ;; TODO - can't execute this
 
+        ;; add namespace to map keys
         entity-w-ns (add-entity-ns :posts datom-map)
 
-        ;; add namespace to map keys
         adatom (assoc entity-w-ns :db/id (datomic.api/tempid :db.part/user)) ]
 
     ;; transact to Datomic
@@ -99,3 +99,24 @@
                         id-set)]
 
     entity-set))
+
+(defn update [conn domain-key datom-map]
+
+  {:pre [(keyword? domain-key)
+         (map? datom-map)]}
+
+  (let [
+        one (str "plugin." (name domain-key) ".create")
+        lookup-key (keyword one)
+
+        ;; find the mapping
+        mapping (find-mapping lookup-key)
+
+        ;; insert mapped function & preamble
+        mapped-fn (first mapping) ]
+
+
+    (println "UPDATE datom > " datom-map)
+
+    ;; transact to Datomic
+    @(datomic.api/transact conn [datom-map])))

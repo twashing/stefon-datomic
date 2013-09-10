@@ -104,24 +104,42 @@
                 (should= 1 (count qresult))
                 (should= 3 (count qresult-many))))
 
-
-          #_(it "Should update a created post from Datomic"
+          (it "Should update a created post from Datomic"
 
               ;; create 3, then update anyone of them - the third
               (let [;; create DB & get the connection
                     result (pluginD/bootstrap-stefon)
+                    conn (:conn result)
 
                     ;; add datom
                     date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
-                    one (crud/create (:conn result) :post {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
+                    one (crud/create conn :post {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
+                    two (crud/create conn :post {:title "two" :content "two content" :content-type "c/t" :created-date date-one :modified-date date-one})
+                    three (crud/create conn :post {:title "three" :content "three content" :content-type "c/t" :created-date date-one :modified-date date-one})
 
-                    qresult (crud/retrieve (:conn result) {:content-type "c/t" :title "t"}) ]
-
-                (println "One > " qresult)
-                (println "Two > " (type qresult))
+                    qresult (crud/retrieve (:conn result) {:content-type "c/t" :title "three"})
+                    qresult-many (crud/retrieve (:conn result) {:content-type "c/t"})]
 
                 (should (seq? qresult))
-                (should-not (empty? qresult))))
+                (should-not (empty? qresult))
+                (should= 1 (count qresult))
+                (should= 3 (count qresult-many))
+
+                ;; now the UPDATE
+                (let [udt-before (assoc (into {} (first qresult))
+                                   :db/id (:db/id (first qresult))  ;; for some reason :db/id gets lost... putting it back
+                                   :posts/title "fubar" )
+                      udt-after (crud/update conn :post udt-before)
+
+                      ;;result-after (crud/retrieve conn {:db/id (:db/id (first qresult))})
+                      result-after (crud/retrieve conn {:content-type "c/t"})
+                      ]
+
+                  (println "BEFORE > " udt-before)
+                  (println "AFTER > " udt-after)
+
+                  (println "RESULT > " result-after)
+                  )))
 
           (it "Should delete a created post from Datomic"
 
