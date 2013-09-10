@@ -126,20 +126,18 @@
                 (should= 3 (count qresult-many))
 
                 ;; now the UPDATE
-                (let [udt-before (assoc (into {} (first qresult))
-                                   :db/id (:db/id (first qresult))  ;; for some reason :db/id gets lost... putting it back
+                (let [
+                      eid (:db/id (first qresult))
+
+                      udt-before (assoc (into {} (first qresult))
+                                   :db/id eid  ;; for some reason :db/id gets lost... putting it back
                                    :posts/title "fubar" )
                       udt-after (crud/update conn :post udt-before)
 
-                      ;;result-after (crud/retrieve conn {:db/id (:db/id (first qresult))})
-                      result-after (crud/retrieve conn {:content-type "c/t"})
-                      ]
+                      result-after (crud/retrieve conn {:posts/title "fubar"}) ]
 
-                  (println "BEFORE > " udt-before)
-                  (println "AFTER > " udt-after)
-
-                  (println "RESULT > " result-after)
-                  )))
+                  (should-not (empty? result-after))
+                  (should= "three content" (-> result-after first :posts/content)))))
 
           (it "Should delete a created post from Datomic"
 
