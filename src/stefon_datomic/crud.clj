@@ -10,7 +10,7 @@
     (-> cfg :action-mappings mkey)))
 
 
-(defn add-entity-ns [ekey datom-map]
+#_(defn add-entity-ns [ekey datom-map]
 
   "Turns a datom-map like A into B, given an entity-key of :post
 
@@ -30,6 +30,16 @@
         final-entity (zipmap zkeys zvals)]
 
     final-entity))
+
+(defn add-entity-ns
+  [ekey datom-map]
+  (reduce-kv (fn [a k v]
+               (assoc a (keyword
+                         (name ekey)
+                         (name k))
+                      v))
+             {}
+             datom-map))
 
 
 (defn create [conn domain-key datom-map]
