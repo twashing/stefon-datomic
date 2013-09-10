@@ -179,7 +179,22 @@
               ;; create 4, 2 txt, and 2 md files; make one of them have a different created-date
               ;;   then find the md files... from the DB
               ;;   then find the one with a different created-date... from the DB
-              6)
+              (let [;; create DB & get the connection
+                    result (pluginD/bootstrap-stefon)
+
+                    ;; add datom
+                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
+                    one (crud/create (:conn result) :post {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
+                    two (crud/create (:conn result) :post {:title "two" :content "two content" :content-type "c/t" :created-date date-one :modified-date date-one})
+                    three (crud/create (:conn result) :post {:title "three" :content "three content" :content-type "c/t" :created-date date-one :modified-date date-one})
+
+                    qresult (crud/retrieve (:conn result) {:content-type "c/t" :title "t"})
+                    qresult-many (crud/retrieve (:conn result) {:content-type "c/t"})]
+
+                (should (seq? qresult))
+                (should-not (empty? qresult))
+                (should= 1 (count qresult))
+                (should= 3 (count qresult-many))))
 
           (it "Should list created posts"
 
