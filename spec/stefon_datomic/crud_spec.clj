@@ -29,6 +29,21 @@
                      {:name :name, :cardinality :one, :type :string}]})
 
 
+(defn populate-with-posts []
+
+  ;; create DB & get the connection
+  (let [
+        result (pluginD/bootstrap-stefon)
+        conn (:conn result)
+
+        ;; add datom
+        date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
+        one (crud/create conn :post {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
+        two (crud/create conn :post {:title "two" :content "two content" :content-type "c/t" :created-date date-one :modified-date date-one})
+        three (crud/create conn :post {:title "three" :content "three content" :content-type "c/t" :created-date date-one :modified-date date-one})]
+
+    conn))
+
 (describe "Plugin should be able to capture and persist CRUD messages from a Stefon instance => "
 
           (before (datomic/delete-database (-> config :dev :url))
@@ -107,18 +122,11 @@
           (it "Should update a created post from Datomic"
 
               ;; create 3, then update anyone of them - the third
-              (let [;; create DB & get the connection
-                    result (pluginD/bootstrap-stefon)
-                    conn (:conn result)
+              (let [
+                    conn (populate-with-posts)
 
-                    ;; add datom
-                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
-                    one (crud/create conn :post {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
-                    two (crud/create conn :post {:title "two" :content "two content" :content-type "c/t" :created-date date-one :modified-date date-one})
-                    three (crud/create conn :post {:title "three" :content "three content" :content-type "c/t" :created-date date-one :modified-date date-one})
-
-                    qresult (crud/retrieve (:conn result) {:content-type "c/t" :title "three"})
-                    qresult-many (crud/retrieve (:conn result) {:content-type "c/t"})]
+                    qresult (crud/retrieve conn {:content-type "c/t" :title "three"})
+                    qresult-many (crud/retrieve conn {:content-type "c/t"})]
 
                 (should (seq? qresult))
                 (should-not (empty? qresult))
@@ -142,7 +150,29 @@
           (it "Should delete a created post from Datomic"
 
               ;; create 3, then delete anyone of them - the first
-              5)
+              (let [
+                    conn (populate-with-posts)
+
+                    qresult (crud/retrieve conn {:content-type "c/t" :title "three"})
+                    qresult-many (crud/retrieve conn {:content-type "c/t"})]
+
+                (should (seq? qresult))
+                (should-not (empty? qresult))
+                (should= 1 (count qresult))
+                (should= 3 (count qresult-many))
+
+                ;; now the DELETE
+                (let [
+                      eid (:db/id (first qresult))
+
+                      dlt-before (assoc (into {} (first qresult))
+                                   :db/id eid  ;; for some reason :db/id gets lost... putting it back
+                                   :posts/title "fubar" )
+                      dlt-after (crud/delete conn eid)
+
+                      result-after (crud/retrieve conn {:posts/title "fubar"}) ]
+
+                  (should (empty? result-after)) )))
 
           (it "Should find by attributes: content-type & created-date"
 

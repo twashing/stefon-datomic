@@ -120,3 +120,10 @@
 
     ;; transact to Datomic
     @(datomic.api/transact conn [datom-map])))
+
+(defn delete [conn entity-id]
+
+  {:pre [(-> conn nil? not)
+         (-> entity-id nil? not)]}
+
+  @(datomic.api/transact conn [[:db.fn/retractEntity entity-id]] ))
