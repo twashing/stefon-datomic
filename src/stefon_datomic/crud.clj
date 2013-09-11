@@ -1,6 +1,6 @@
 (ns stefon-datomic.crud
   (:require [clojure.string :as string]
-            [datomic.api :as datomic]
+            [datomic.api :as d]
             [stefon-datomic.config :as config]))
 
 
@@ -99,16 +99,21 @@
 
 (defn retrieve [conn constraint-map]
 
-  (let [the-db (datomic/db conn)
+  (let [the-db (d/db conn)
 
         ;; put java.util.HashSet into a regular Clojure set
         id-set (map first (into #{} (retrieve-entity conn constraint-map)))
 
         entity-set (map (fn [inp]
-                          (datomic/touch (datomic/entity the-db inp)))
+                          (d/touch (d/entity the-db inp)))
                         id-set)]
 
     entity-set))
+
+(defn retrieve-by-id [conn eid]
+
+  (datomic.api/q '[:find ?eid :in $ ?eid :where [?eid]] (d/db conn) eid))
+
 
 (defn update [conn domain-key datom-map]
 
