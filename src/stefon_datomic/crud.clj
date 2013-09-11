@@ -82,8 +82,8 @@
 
 (defn hset-to-cset
   "Put java.util.HashSet into a regular Clojure set"
-  [cset]
-  (map first (into #{} cset)))
+  [hset]
+  (map first (into #{} hset)))
 
 (defn vivify-datomic-entity [the-db eid]
   (d/touch (d/entity the-db eid)))
@@ -102,7 +102,14 @@
 
 (defn retrieve-by-id [conn eid]
 
-  (d/q '[:find ?eid :in $ ?eid :where [?eid]] (d/db conn) eid))
+  (let [result (d/q '[:find ?eid :in $ ?eid :where [?eid]] (d/db conn) eid)
+        result-map (into {} (vivify-datomic-entity (d/db conn) (ffirst result)))
+
+        eid (ffirst result)
+        final-map (assoc result-map :db/id eid)]
+
+    final-map))
+
 
 
 (defn update [conn domain-key datom-map]

@@ -110,8 +110,10 @@
                     eid (:db/id (first qresult))
                     uresult (crud/retrieve-by-id conn eid)]
 
-                (println "Xxx > " uresult)
-                (should= 1 (count uresult))))
+                (println "retrieve-by-id RESULT > " uresult)
+
+                (should (map? uresult))
+                (should= '(:db/id :posts/modified-date :posts/created-date :posts/content-type :posts/content :posts/title) (keys uresult))))
 
           (it "Should update a created post from Datomic"
 
