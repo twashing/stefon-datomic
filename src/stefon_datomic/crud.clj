@@ -9,7 +9,6 @@
   (let [cfg (config/get-config)]
     (-> cfg :action-mappings mkey)))
 
-
 (defn add-entity-ns
   "Turns a datom-map like A into B, given an entity-key of :post
 
@@ -23,6 +22,14 @@
                       v))
              {}
              datom-map))
+
+(defn hset-to-cset
+  "Put java.util.HashSet into a regular Clojure set"
+  [hset]
+  (map first (into #{} hset)))
+
+(defn vivify-datomic-entity [the-db eid]
+  (d/touch (d/entity the-db eid)))
 
 
 (defn create [conn domain-key datom-map]
@@ -80,15 +87,6 @@
     (datomic.api/q expression-final the-db param-values) ))
 
 
-(defn hset-to-cset
-  "Put java.util.HashSet into a regular Clojure set"
-  [hset]
-  (map first (into #{} hset)))
-
-(defn vivify-datomic-entity [the-db eid]
-  (d/touch (d/entity the-db eid)))
-
-
 (defn retrieve [conn constraint-map]
 
   (let [the-db (d/db conn)
@@ -109,7 +107,6 @@
         final-map (assoc result-map :db/id eid)]
 
     final-map))
-
 
 
 (defn update [conn domain-key datom-map]
