@@ -10,12 +10,12 @@
     (-> cfg :action-mappings mkey)))
 
 
-#_(defn add-entity-ns [ekey datom-map]
-
+(defn add-entity-ns
   "Turns a datom-map like A into B, given an entity-key of :post
 
    A) {:title t :content c :content-type c/t :created-date 0000 :modified-date 1111}
    B) {:post/title t :post/content c :post/content-type c/t :post/created-date 0000 :post/modified-date 1111}"
+  [ekey datom-map]
 
   {:pre [(keyword? ekey)]}
 
@@ -32,6 +32,10 @@
     final-entity))
 
 (defn add-entity-ns
+  "Turns a datom-map like A into B, given an entity-key of :post
+
+   A) {:title t :content c :content-type c/t :created-date 0000 :modified-date 1111}
+   B) {:post/title t :post/content c :post/content-type c/t :post/created-date 0000 :post/modified-date 1111}"
   [ekey datom-map]
   (reduce-kv (fn [a k v]
                (assoc a (keyword
