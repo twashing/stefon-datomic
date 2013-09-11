@@ -80,22 +80,29 @@
     (datomic.api/q expression-final the-db param-values) ))
 
 
+(defn hset-to-cset
+  "Put java.util.HashSet into a regular Clojure set"
+  [cset]
+  (map first (into #{} cset)))
+
+(defn vivify-datomic-entity [the-db eid]
+  (d/touch (d/entity the-db eid)))
+
+
 (defn retrieve [conn constraint-map]
 
   (let [the-db (d/db conn)
 
-        ;; put java.util.HashSet into a regular Clojure set
-        id-set (map first (into #{} (retrieve-entity conn constraint-map)))
-
+        id-set (hset-to-cset (retrieve-entity conn constraint-map))
         entity-set (map (fn [inp]
-                          (d/touch (d/entity the-db inp)))
+                          (vivify-datomic-entity the-db inp))
                         id-set)]
-
     entity-set))
+
 
 (defn retrieve-by-id [conn eid]
 
-  (datomic.api/q '[:find ?eid :in $ ?eid :where [?eid]] (d/db conn) eid))
+  (d/q '[:find ?eid :in $ ?eid :where [?eid]] (d/db conn) eid))
 
 
 (defn update [conn domain-key datom-map]
