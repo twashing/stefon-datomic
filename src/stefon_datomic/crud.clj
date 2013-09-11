@@ -16,27 +16,6 @@
    A) {:title t :content c :content-type c/t :created-date 0000 :modified-date 1111}
    B) {:post/title t :post/content c :post/content-type c/t :post/created-date 0000 :post/modified-date 1111}"
   [ekey datom-map]
-
-  {:pre [(keyword? ekey)]}
-
-  (let [one (seq datom-map)
-        two (map (fn [inp] [(keyword (str (name ekey) "/" (name (first inp))))
-                           (second inp)])
-                 one)
-
-        zkeys (map first two)
-        zvals (map second two)
-
-        final-entity (zipmap zkeys zvals)]
-
-    final-entity))
-
-(defn add-entity-ns
-  "Turns a datom-map like A into B, given an entity-key of :post
-
-   A) {:title t :content c :content-type c/t :created-date 0000 :modified-date 1111}
-   B) {:post/title t :post/content c :post/content-type c/t :post/created-date 0000 :post/modified-date 1111}"
-  [ekey datom-map]
   (reduce-kv (fn [a k v]
                (assoc a (keyword
                          (name ekey)
