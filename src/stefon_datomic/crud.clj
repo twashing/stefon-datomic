@@ -84,12 +84,66 @@
         ;;
         the-db (datomic.api/db conn)]
 
+    (println "FINAL clause > main > " expression-final)
     (datomic.api/q expression-final the-db param-values) ))
 
+(defn retrieve-entity-1
+  ;; lg: I have pasted this directly from my answer from
+  ;; stackoverflow. tested it, works. whats wrong with it?
+  [conn constraint-map]
+  (let [name-fn (comp symbol
+                      (partial str "?")
+                      name)
+        param-names (map name-fn
+                         (keys constraint-map))
+        param-vals (vals constraint-map)
+        constraint-map (add-entity-ns :posts constraint-map)
+        where-clause (map #(vector '?e % %2)
+                          (keys constraint-map)
+                          param-names)
+        in-clause (conj param-names '$)
+        final-clause (concat [:find '?e]
+                             [:in] in-clause
+                             [:where] where-clause)]
+
+    (println "FINAL clause > one > " final-clause)
+    (apply d/q final-clause (d/db conn) param-vals)))
+
+(defn retrieve-entity-2
+  ;; lg: i don't know what you meant by being able to pass an array of
+  ;; args (since the args are already present in the constraint-map i
+  ;; don't see why that would make sense. Here is a version that
+  ;; returns an incomplete query function that you can invoke with
+  ;; such a map (only last line modified)
+  [conn constraint-map]
+  (let [name-fn (comp symbol
+                      (partial str "?")
+                      name)
+        param-names (map name-fn
+                         (keys constraint-map))
+        param-vals (vals constraint-map)
+        constraint-map (add-entity-ns :posts constraint-map)
+        where-clause (map #(vector '?e % %2)
+                          (keys constraint-map)
+                          param-names)
+        in-clause (conj param-names '$)
+        final-clause (concat [:find '?e]
+                             [:in] in-clause
+                             [:where] where-clause)]
+
+    (println "FINAL clause > two > " final-clause)
+    (partial apply d/q final-clause (d/db conn))))
 
 (defn retrieve [conn constraint-map]
 
   (let [the-db (d/db conn)
+
+        try-main (retrieve-entity conn constraint-map)
+        try-one (retrieve-entity-1 conn constraint-map)
+        try-two (retrieve-entity-2 conn constraint-map)
+        ;;try-main (println "Try MAIN > " (retrieve-entity conn constraint-map))
+        ;;try-one (println "Try 1 > " (retrieve-entity-1 conn constraint-map))
+        ;;try-two (println "Try 2 > " (retrieve-entity-2 conn constraint-map))
 
         id-set (hset-to-cset (retrieve-entity conn constraint-map))
         entity-set (map (fn [inp]
