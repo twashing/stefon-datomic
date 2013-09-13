@@ -37,6 +37,8 @@
 
   (-> domain-key name (str "s") keyword))
 
+
+;; CREATE Functions
 (defn create [conn domain-key datom-map]
 
   {:pre [(keyword? domain-key)
@@ -62,6 +64,17 @@
 
     ;; transact to Datomic
     @(datomic.api/transact conn [adatom])))
+
+
+(defn create-relationship
+  "This function allows us to group together, the creation of a post, with assets & tags
+
+     - can create 1 post with many assets & tags
+     - can create 1 post with many assets
+     - can create 1 post with many tags"
+  [entity-list]
+
+  )
 
 
 (defn retrieve-entity [conn domain-key constraint-map]

@@ -203,10 +203,12 @@
                 (should= 3 (count qresult))))
 
           ;;  asset(s) - binary data is in Fressian (https://github.com/Datomic/fressian)
-          ;;  tag(s)
+
           ;;  find-by relationships
           ;;    posts > tags
           ;;    tags > posts
+
+          ;;    post > assets
           ;;    assets > post
 
           )
