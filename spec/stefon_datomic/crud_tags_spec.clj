@@ -1,4 +1,4 @@
-(ns stefon-datomic.crud-spec
+(ns stefon-datomic.crud-tags-spec
 
   (:require [speclj.core :refer :all]
             [datomic.api :as datomic]
