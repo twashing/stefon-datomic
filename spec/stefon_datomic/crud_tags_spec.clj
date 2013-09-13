@@ -98,19 +98,17 @@
                 (should (map? uresult))
                 (should= '(:db/id :tags/name :tags/id) (keys uresult))))
 
-          #_(it "Should update a created tag from Datomic"
+          (it "Should update a created tag from Datomic"
 
               ;; create 3, then update anyone of them - the third
               (let [
                     conn (populate-with-tags)
 
-                    qresult (crud/retrieve conn {:content-type "c/t" :title "three"})
-                    qresult-many (crud/retrieve conn {:content-type "c/t"})]
+                    qresult (crud/retrieve conn :tag {:name "datomic"}) ]
 
                 (should (seq? qresult))
                 (should-not (empty? qresult))
                 (should= 1 (count qresult))
-                (should= 3 (count qresult-many))
 
                 ;; now the UPDATE
                 (let [
@@ -118,13 +116,13 @@
 
                       udt-before (assoc (into {} (first qresult))
                                    :db/id eid  ;; for some reason :db/id gets lost... putting it back
-                                   :tags/title "fubar" )
+                                   :tags/name "fubar" )
                       udt-after (crud/update conn :tag udt-before)
 
-                      result-after (crud/retrieve conn {:tags/title "fubar"}) ]
+                      result-after (crud/retrieve conn :tag {:tags/name "fubar"}) ]
 
                   (should-not (empty? result-after))
-                  (should= "three content" (-> result-after first :tags/content)))))
+                  (should= "fubar" (-> result-after first :tags/name)))))
 
           #_(it "Should delete a created tag from Datomic"
 
