@@ -126,14 +126,14 @@
                   (should-not (empty? result-after))
                   (should= "image/png" (-> result-after first :assets/type)))))
 
-          #_(it "Should delete a created asset from Datomic"
+          (it "Should delete a created asset from Datomic"
 
               ;; create 3, then delete anyone of them - the first
               (let [
                     conn (populate-with-assets)
 
-                    qresult (crud/retrieve conn {:content-type "c/t" :title "three"})
-                    qresult-many (crud/retrieve conn {:content-type "c/t"})]
+                    qresult (crud/retrieve conn :asset {:name "iss-orbit"})
+                    qresult-many (crud/retrieve conn :asset {:asset "binarygoo"})]
 
                 (should (seq? qresult))
                 (should-not (empty? qresult))
@@ -143,13 +143,9 @@
                 ;; now the DELETE
                 (let [
                       eid (:db/id (first qresult))
-
-                      dlt-before (assoc (into {} (first qresult))
-                                   :db/id eid  ;; for some reason :db/id gets lost... putting it back
-                                   :assets/title "fubar" )
                       dlt-after (crud/delete conn eid)
 
-                      result-after (crud/retrieve conn {:assets/title "fubar"}) ]
+                      result-after (crud/retrieve conn :asset {:assets/name "iss-name"}) ]
 
                   (should (empty? result-after)) )))
 
