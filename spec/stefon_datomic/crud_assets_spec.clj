@@ -149,29 +149,22 @@
 
                   (should (empty? result-after)) )))
 
-          #_(it "Should find by attributes: content-type & created-date"
+          (it "Should find by attributes: content-type & created-date"
 
               ;; create 4, 2 txt, and 2 md files; make one of them have a different created-date
               ;;   then find the md files... from the DB
               ;;   then find the one with a different created-date... from the DB
-              (let [;; create DB & get the connection
-                    result (pluginD/bootstrap-stefon)
+              (let [conn (populate-with-assets)
 
-                    ;; add datom
-                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
-                    one (crud/create (:conn result) :asset {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
-                    two (crud/create (:conn result) :asset {:title "two" :content "two content" :content-type "c/t" :created-date date-one :modified-date date-one})
-                    three (crud/create (:conn result) :asset {:title "three" :content "three content" :content-type "c/t" :created-date date-one :modified-date date-one})
-
-                    qresult (crud/retrieve (:conn result) {:content-type "c/t" :title "t"})
-                    qresult-many (crud/retrieve (:conn result) {:content-type "c/t"})]
+                    qresult (crud/retrieve conn :asset {:name "iss-orbit"})
+                    qresult-many (crud/retrieve conn :asset {:asset "binarygoo"})]
 
                 (should (seq? qresult))
                 (should-not (empty? qresult))
                 (should= 1 (count qresult))
                 (should= 3 (count qresult-many))))
 
-          #_(it "Should list created assets"
+          (it "Should list created assets"
 
               ;; create 3, then list them out... from the DB
               (let [conn (populate-with-assets)
