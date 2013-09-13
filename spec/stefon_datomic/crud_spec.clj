@@ -113,7 +113,7 @@
                 (println "retrieve-by-id RESULT > " uresult)
 
                 (should (map? uresult))
-                (should= '(:db/id :posts/modified-date :posts/created-date :posts/content-type :posts/content :posts/title) (keys uresult))))
+                (should= '(:db/id :posts/modified-date :posts/created-date :posts/content-type :posts/content :posts/title :posts/id) (keys uresult))))
 
           (it "Should update a created post from Datomic"
 
@@ -195,7 +195,12 @@
           (it "Should list created posts"
 
               ;; create 3, then list them out... from the DB
-              7)
+              (let [
+                    conn (populate-with-posts)
+
+                    qresult (crud/list conn :posts)]
+
+                (println "Xxx > " qresult)))
 
           ;;  asset(s) - binary data is in Fressian (https://github.com/Datomic/fressian)
           ;;  tag(s)

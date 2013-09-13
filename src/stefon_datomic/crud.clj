@@ -48,8 +48,11 @@
         mapped-fn (first mapping)
         mapped-preamble (second mapping)  ;; TODO - can't execute this
 
+        ;; ensure we are adding ID strings to entities
+        datom-w-id (assoc datom-map :id (str (java.util.UUID/randomUUID)))
+
         ;; add namespace to map keys
-        entity-w-ns (add-entity-ns :posts datom-map)
+        entity-w-ns (add-entity-ns :posts datom-w-id)
 
         adatom (assoc entity-w-ns :db/id (datomic.api/tempid :db.part/user)) ]
 
@@ -136,3 +139,12 @@
          (-> entity-id nil? not)]}
 
   @(datomic.api/transact conn [[:db.fn/retractEntity entity-id]] ))
+
+(defn list [conn domain-key]
+
+  (let [the-db (d/db conn)
+        id-set (hset-to-cset (d/q '{:find [?e] :where [[?e :posts/id]]} (d/db conn)))
+        entity-set (map (fn [inp]
+                          (vivify-datomic-entity the-db inp))
+                        id-set)]
+    entity-set))
