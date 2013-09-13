@@ -143,7 +143,9 @@
 (defn list [conn domain-key]
 
   (let [the-db (d/db conn)
-        id-set (hset-to-cset (d/q '{:find [?e] :where [[?e :posts/id]]} (d/db conn)))
+
+        the-lookup (keyword (name domain-key) "id")  ;; turns :posts "id".. into :posts/id
+        id-set (hset-to-cset (d/q {:find ['?e] :where [['?e the-lookup]]} (d/db conn)))
         entity-set (map (fn [inp]
                           (vivify-datomic-entity the-db inp))
                         id-set)]

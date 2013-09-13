@@ -195,12 +195,12 @@
           (it "Should list created posts"
 
               ;; create 3, then list them out... from the DB
-              (let [
-                    conn (populate-with-posts)
-
+              (let [conn (populate-with-posts)
                     qresult (crud/list conn :posts)]
 
-                (println "Xxx > " qresult)))
+                (println "Listing created posts > " qresult)
+                (should-not (empty? qresult))
+                (should= 3 (count qresult))))
 
           ;;  asset(s) - binary data is in Fressian (https://github.com/Datomic/fressian)
           ;;  tag(s)
