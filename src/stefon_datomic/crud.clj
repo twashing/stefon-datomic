@@ -31,6 +31,11 @@
 (defn vivify-datomic-entity [the-db eid]
   (d/touch (d/entity the-db eid)))
 
+(defn convert-domain-ns
+  "Simply converts a regular domain key, like :post, to the datomic ns representation, :posts"
+  [domain-key]
+
+  (-> domain-key name (str "s") keyword))
 
 (defn create [conn domain-key datom-map]
 
@@ -52,7 +57,9 @@
         datom-w-id (assoc datom-map :id (str (java.util.UUID/randomUUID)))
 
         ;; add namespace to map keys
-        entity-w-ns (add-entity-ns :posts datom-w-id)
+        entity-w-ns (add-entity-ns (convert-domain-ns domain-key) datom-w-id)
+
+        xx (println "===> ONE > " entity-w-ns)
 
         adatom (assoc entity-w-ns :db/id (datomic.api/tempid :db.part/user)) ]
 

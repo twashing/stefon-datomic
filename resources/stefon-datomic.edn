@@ -9,14 +9,14 @@
                    :plugin.post.find [datomic.api/q]
                    :plugin.post.list [datomic.api/q]
 
-                   :plugin.asset.create [datomic.api/transact '(datomic.api/tempid :db.part/db)]
+                   :plugin.asset.create [datomic.api/transact '(fn [] (datomic.api/tempid :db.part/db))]
                    :plugin.asset.retrieve [datomic.api/q]
                    :plugin.asset.update [datomic.api/transact]
                    :plugin.asset.delete [datomic.api/transact]
                    :plugin.asset.find [datomic.api/q]
                    :plugin.asset.list [datomic.api/q]
 
-                   :plugin.tag.create [datomic.api/transact '(datomic.api/tempid :db.part/db)]
+                   :plugin.tag.create [datomic.api/transact '(fn [] (datomic.api/tempid :db.part/db))]
                    :plugin.tag.retrieve [datomic.api/q]
                    :plugin.tag.update [datomic.api/transact]
                    :plugin.tag.delete [datomic.api/transact]

@@ -29,7 +29,7 @@
                      {:name :name, :cardinality :one, :type :string}]})
 
 
-(defn populate-with-posts []
+(defn populate-with-assets []
 
   ;; create DB & get the connection
   (let [
@@ -37,10 +37,10 @@
         conn (:conn result)
 
         ;; add datom
-        date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
-        one (crud/create conn :post {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
-        two (crud/create conn :post {:title "two" :content "two content" :content-type "c/t" :created-date date-one :modified-date date-one})
-        three (crud/create conn :post {:title "three" :content "three content" :content-type "c/t" :created-date date-one :modified-date date-one})]
+
+        one (crud/create conn :asset {:name "iss-orbit" :type "image/png" :asset "binarygoo"})
+        two (crud/create conn :asset {:name "ecoli-split" :type "video/mpeg" :asset "binarygoo"})
+        three (crud/create conn :asset {:name "rumour-has-it" :type "audio/mpeg" :asset "binarrygoo"})]
 
     conn))
 
@@ -50,41 +50,25 @@
                   (shell/stop-system))
 
 
-          ;; match incoming key against known actions
-          (it "Should give an empty list if the action is not known"
-
-              (let [result (crud/find-mapping :fubar)]
-                (should-be-nil result)))
-
-          (it "Should return a proper mapping"
-
-              (let [result (crud/find-mapping :plugin.post.create)]
-                (should-not-be-nil result)
-
-                (should (vector? result))
-                #_(should= 'datomic.api/transact (first result))))
-
-
           ;; ====
           ;; make CRUD functions from generated schema
 
-
-          ;;  post(s)
-          (it "Should save created post(s) to Datomic"
+          ;;  asset(s)
+          (it "Should save created asset(s) to Datomic"
 
               (let [;; create DB & get the connection
                     result (pluginD/bootstrap-stefon)
 
                     ;; add datom
-                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
-                    one (crud/create (:conn result) :post {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
 
-                    qresult (datomic/q '[:find ?e :where [?e :posts/content-type]] (datomic/db (:conn result)))]
+                    one (crud/create (:conn result) :asset {:name "thing" :type "fubar" :asset "stuff"})
+
+                    qresult (datomic/q '[:find ?e :where [?e :assets/type]] (datomic/db (:conn result)))]
 
                 (should= java.util.HashSet (type qresult))
                 (should-not (empty? qresult))))
 
-          (it "Should retrieve a created entity post from Datomic - 001"
+          #_(it "Should retrieve a created entity asset from Datomic - 001"
 
               ;; create 3, then get anyone of them - the second
               (let [;; create DB & get the connection
@@ -92,17 +76,17 @@
 
                     ;; add datom
                     date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
-                    one (crud/create (:conn result) :post {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
+                    one (crud/create (:conn result) :asset {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
 
                     qresult (crud/retrieve-entity (:conn result) {:content-type "c/t" :title "t"}) ]
 
                 (should= java.util.HashSet (type qresult))
                 (should-not (empty? qresult))))
 
-          (it "Should retrieve a created post from Datomic - 002"
+          #_(it "Should retrieve a created asset from Datomic - 002"
 
               ;; create 3, then get anyone of them - the second
-              (let [conn (populate-with-posts)
+              (let [conn (populate-with-assets)
 
                     qresult (crud/retrieve conn {:content-type "c/t" :title "t"})
                     qresult-many (crud/retrieve conn {:content-type "c/t"})
@@ -115,11 +99,11 @@
                 (should (map? uresult))
                 (should= '(:db/id :posts/modified-date :posts/created-date :posts/content-type :posts/content :posts/title :posts/id) (keys uresult))))
 
-          (it "Should update a created post from Datomic"
+          #_(it "Should update a created asset from Datomic"
 
               ;; create 3, then update anyone of them - the third
               (let [
-                    conn (populate-with-posts)
+                    conn (populate-with-assets)
 
                     qresult (crud/retrieve conn {:content-type "c/t" :title "three"})
                     qresult-many (crud/retrieve conn {:content-type "c/t"})]
@@ -135,19 +119,19 @@
 
                       udt-before (assoc (into {} (first qresult))
                                    :db/id eid  ;; for some reason :db/id gets lost... putting it back
-                                   :posts/title "fubar" )
-                      udt-after (crud/update conn :post udt-before)
+                                   :assets/title "fubar" )
+                      udt-after (crud/update conn :asset udt-before)
 
-                      result-after (crud/retrieve conn {:posts/title "fubar"}) ]
+                      result-after (crud/retrieve conn {:assets/title "fubar"}) ]
 
                   (should-not (empty? result-after))
-                  (should= "three content" (-> result-after first :posts/content)))))
+                  (should= "three content" (-> result-after first :assets/content)))))
 
-          (it "Should delete a created post from Datomic"
+          #_(it "Should delete a created asset from Datomic"
 
               ;; create 3, then delete anyone of them - the first
               (let [
-                    conn (populate-with-posts)
+                    conn (populate-with-assets)
 
                     qresult (crud/retrieve conn {:content-type "c/t" :title "three"})
                     qresult-many (crud/retrieve conn {:content-type "c/t"})]
@@ -163,14 +147,14 @@
 
                       dlt-before (assoc (into {} (first qresult))
                                    :db/id eid  ;; for some reason :db/id gets lost... putting it back
-                                   :posts/title "fubar" )
+                                   :assets/title "fubar" )
                       dlt-after (crud/delete conn eid)
 
-                      result-after (crud/retrieve conn {:posts/title "fubar"}) ]
+                      result-after (crud/retrieve conn {:assets/title "fubar"}) ]
 
                   (should (empty? result-after)) )))
 
-          (it "Should find by attributes: content-type & created-date"
+          #_(it "Should find by attributes: content-type & created-date"
 
               ;; create 4, 2 txt, and 2 md files; make one of them have a different created-date
               ;;   then find the md files... from the DB
@@ -180,9 +164,9 @@
 
                     ;; add datom
                     date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
-                    one (crud/create (:conn result) :post {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
-                    two (crud/create (:conn result) :post {:title "two" :content "two content" :content-type "c/t" :created-date date-one :modified-date date-one})
-                    three (crud/create (:conn result) :post {:title "three" :content "three content" :content-type "c/t" :created-date date-one :modified-date date-one})
+                    one (crud/create (:conn result) :asset {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
+                    two (crud/create (:conn result) :asset {:title "two" :content "two content" :content-type "c/t" :created-date date-one :modified-date date-one})
+                    three (crud/create (:conn result) :asset {:title "three" :content "three content" :content-type "c/t" :created-date date-one :modified-date date-one})
 
                     qresult (crud/retrieve (:conn result) {:content-type "c/t" :title "t"})
                     qresult-many (crud/retrieve (:conn result) {:content-type "c/t"})]
@@ -192,13 +176,13 @@
                 (should= 1 (count qresult))
                 (should= 3 (count qresult-many))))
 
-          (it "Should list created posts"
+          #_(it "Should list created assets"
 
               ;; create 3, then list them out... from the DB
-              (let [conn (populate-with-posts)
-                    qresult (crud/list conn :posts)]
+              (let [conn (populate-with-assets)
+                    qresult (crud/list conn :assets)]
 
-                (println "Listing created posts > " qresult)
+                (println "Listing created assets > " qresult)
                 (should-not (empty? qresult))
                 (should= 3 (count qresult))))
 
