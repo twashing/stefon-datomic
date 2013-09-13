@@ -40,7 +40,7 @@
 
         one (crud/create conn :asset {:name "iss-orbit" :type "image/png" :asset "binarygoo"})
         two (crud/create conn :asset {:name "ecoli-split" :type "video/mpeg" :asset "binarygoo"})
-        three (crud/create conn :asset {:name "rumour-has-it" :type "audio/mpeg" :asset "binarrygoo"})]
+        three (crud/create conn :asset {:name "rumour-has-it" :type "audio/mpeg" :asset "binarygoo"})]
 
     conn))
 
@@ -75,29 +75,28 @@
                     result (pluginD/bootstrap-stefon)
 
                     ;; add datom
-
                     one (crud/create (:conn result) :asset {:name "thing" :type "fubar" :asset "stuff"})
-
                     qresult (crud/retrieve-entity (:conn result) :asset {:name "thing" :type "fubar"}) ]
 
                 (should= java.util.HashSet (type qresult))
                 (should-not (empty? qresult))))
 
-          #_(it "Should retrieve a created asset from Datomic - 002"
+          (it "Should retrieve a created asset from Datomic - 002"
 
               ;; create 3, then get anyone of them - the second
               (let [conn (populate-with-assets)
 
-                    qresult (crud/retrieve conn {:content-type "c/t" :title "t"})
-                    qresult-many (crud/retrieve conn {:content-type "c/t"})
+                    qresult (crud/retrieve conn :asset {:name "iss-orbit"})
+                    qresult-many (crud/retrieve conn :asset {:asset "binarygoo"})
 
                     eid (:db/id (first qresult))
                     uresult (crud/retrieve-by-id conn eid)]
 
-                (println "retrieve-by-id RESULT > " uresult)
+                (should= 1 (count qresult))
+                (should= 3 (count qresult-many))
 
                 (should (map? uresult))
-                (should= '(:db/id :posts/modified-date :posts/created-date :posts/content-type :posts/content :posts/title :posts/id) (keys uresult))))
+                (should= '(:db/id :assets/asset :assets/type :assets/name :assets/id) (keys uresult))))
 
           #_(it "Should update a created asset from Datomic"
 
