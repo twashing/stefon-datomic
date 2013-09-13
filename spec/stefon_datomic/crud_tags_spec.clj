@@ -13,23 +13,23 @@
 
 (def config (load-string (slurp (io/resource "stefon-datomic.edn"))))
 (def domain-schema {:assets
-                    [{:name :id, :cardinality :one, :type :uuid}
+                    [{:name :id, :cardinality :one, :type :string}
                      {:name :name, :cardinality :one, :type :string}
                      {:name :type, :cardinality :one, :type :string}
                      {:name :asset, :cardinality :one, :type :string}],
                     :posts
-                    [{:name :id, :cardinality :one, :type :uuid}
+                    [{:name :id, :cardinality :one, :type :string}
                      {:name :title, :cardinality :one, :type :string}
                      {:name :content, :cardinality :one, :type :string}
                      {:name :content-type, :cardinality :one, :type :string}
                      {:name :created-date, :cardinality :one, :type :instant}
                      {:name :modified-date, :cardinality :one, :type :instant}],
                     :tags
-                    [{:name :id, :cardinality :one, :type :uuid}
+                    [{:name :id, :cardinality :one, :type :string}
                      {:name :name, :cardinality :one, :type :string}]})
 
 
-(defn populate-with-posts []
+(defn populate-with-tags []
 
   ;; create DB & get the connection
   (let [
@@ -38,9 +38,9 @@
 
         ;; add datom
         date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
-        one (crud/create conn :post {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
-        two (crud/create conn :post {:title "two" :content "two content" :content-type "c/t" :created-date date-one :modified-date date-one})
-        three (crud/create conn :post {:title "three" :content "three content" :content-type "c/t" :created-date date-one :modified-date date-one})]
+        one (crud/create conn :tag {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
+        two (crud/create conn :tag {:title "two" :content "two content" :content-type "c/t" :created-date date-one :modified-date date-one})
+        three (crud/create conn :tag {:title "three" :content "three content" :content-type "c/t" :created-date date-one :modified-date date-one})]
 
     conn))
 
@@ -50,59 +50,43 @@
                   (shell/stop-system))
 
 
-          ;; match incoming key against known actions
-          (it "Should give an empty list if the action is not known"
-
-              (let [result (crud/find-mapping :fubar)]
-                (should-be-nil result)))
-
-          (it "Should return a proper mapping"
-
-              (let [result (crud/find-mapping :plugin.post.create)]
-                (should-not-be-nil result)
-
-                (should (vector? result))
-                #_(should= 'datomic.api/transact (first result))))
-
 
           ;; ====
           ;; make CRUD functions from generated schema
 
 
-          ;;  post(s)
-          #_(it "Should save created post(s) to Datomic"
+          ;;  tag(s)
+          (it "Should save created tag(s) to Datomic"
 
               (let [;; create DB & get the connection
                     result (pluginD/bootstrap-stefon)
 
                     ;; add datom
-                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
-                    one (crud/create (:conn result) :post {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
 
-                    qresult (datomic/q '[:find ?e :where [?e :posts/content-type]] (datomic/db (:conn result)))]
+                    one (crud/create (:conn result) :tag {:name "datomic"})
+
+                    qresult (datomic/q '[:find ?e :where [?e :tags/name]] (datomic/db (:conn result)))]
 
                 (should= java.util.HashSet (type qresult))
                 (should-not (empty? qresult))))
 
-          #_(it "Should retrieve a created entity post from Datomic - 001"
+          (it "Should retrieve a created entity tag from Datomic - 001"
 
               ;; create 3, then get anyone of them - the second
               (let [;; create DB & get the connection
                     result (pluginD/bootstrap-stefon)
 
                     ;; add datom
-                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
-                    one (crud/create (:conn result) :post {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
-
-                    qresult (crud/retrieve-entity (:conn result) {:content-type "c/t" :title "t"}) ]
+                    one (crud/create (:conn result) :tag {:name "datomic"})
+                    qresult (crud/retrieve-entity (:conn result) :tag {:name "datomic"}) ]
 
                 (should= java.util.HashSet (type qresult))
                 (should-not (empty? qresult))))
 
-          #_(it "Should retrieve a created post from Datomic - 002"
+          #_(it "Should retrieve a created tag from Datomic - 002"
 
               ;; create 3, then get anyone of them - the second
-              (let [conn (populate-with-posts)
+              (let [conn (populate-with-tags)
 
                     qresult (crud/retrieve conn {:content-type "c/t" :title "t"})
                     qresult-many (crud/retrieve conn {:content-type "c/t"})
@@ -113,13 +97,13 @@
                 (println "retrieve-by-id RESULT > " uresult)
 
                 (should (map? uresult))
-                (should= '(:db/id :posts/modified-date :posts/created-date :posts/content-type :posts/content :posts/title :posts/id) (keys uresult))))
+                (should= '(:db/id :tags/modified-date :tags/created-date :tags/content-type :tags/content :tags/title :tags/id) (keys uresult))))
 
-          #_(it "Should update a created post from Datomic"
+          #_(it "Should update a created tag from Datomic"
 
               ;; create 3, then update anyone of them - the third
               (let [
-                    conn (populate-with-posts)
+                    conn (populate-with-tags)
 
                     qresult (crud/retrieve conn {:content-type "c/t" :title "three"})
                     qresult-many (crud/retrieve conn {:content-type "c/t"})]
@@ -135,19 +119,19 @@
 
                       udt-before (assoc (into {} (first qresult))
                                    :db/id eid  ;; for some reason :db/id gets lost... putting it back
-                                   :posts/title "fubar" )
-                      udt-after (crud/update conn :post udt-before)
+                                   :tags/title "fubar" )
+                      udt-after (crud/update conn :tag udt-before)
 
-                      result-after (crud/retrieve conn {:posts/title "fubar"}) ]
+                      result-after (crud/retrieve conn {:tags/title "fubar"}) ]
 
                   (should-not (empty? result-after))
-                  (should= "three content" (-> result-after first :posts/content)))))
+                  (should= "three content" (-> result-after first :tags/content)))))
 
-          #_(it "Should delete a created post from Datomic"
+          #_(it "Should delete a created tag from Datomic"
 
               ;; create 3, then delete anyone of them - the first
               (let [
-                    conn (populate-with-posts)
+                    conn (populate-with-tags)
 
                     qresult (crud/retrieve conn {:content-type "c/t" :title "three"})
                     qresult-many (crud/retrieve conn {:content-type "c/t"})]
@@ -163,10 +147,10 @@
 
                       dlt-before (assoc (into {} (first qresult))
                                    :db/id eid  ;; for some reason :db/id gets lost... putting it back
-                                   :posts/title "fubar" )
+                                   :tags/title "fubar" )
                       dlt-after (crud/delete conn eid)
 
-                      result-after (crud/retrieve conn {:posts/title "fubar"}) ]
+                      result-after (crud/retrieve conn {:tags/title "fubar"}) ]
 
                   (should (empty? result-after)) )))
 
@@ -180,9 +164,9 @@
 
                     ;; add datom
                     date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
-                    one (crud/create (:conn result) :post {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
-                    two (crud/create (:conn result) :post {:title "two" :content "two content" :content-type "c/t" :created-date date-one :modified-date date-one})
-                    three (crud/create (:conn result) :post {:title "three" :content "three content" :content-type "c/t" :created-date date-one :modified-date date-one})
+                    one (crud/create (:conn result) :tag {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
+                    two (crud/create (:conn result) :tag {:title "two" :content "two content" :content-type "c/t" :created-date date-one :modified-date date-one})
+                    three (crud/create (:conn result) :tag {:title "three" :content "three content" :content-type "c/t" :created-date date-one :modified-date date-one})
 
                     qresult (crud/retrieve (:conn result) {:content-type "c/t" :title "t"})
                     qresult-many (crud/retrieve (:conn result) {:content-type "c/t"})]
@@ -192,13 +176,13 @@
                 (should= 1 (count qresult))
                 (should= 3 (count qresult-many))))
 
-          #_(it "Should list created posts"
+          #_(it "Should list created tags"
 
               ;; create 3, then list them out... from the DB
-              (let [conn (populate-with-posts)
-                    qresult (crud/list conn :posts)]
+              (let [conn (populate-with-tags)
+                    qresult (crud/list conn :tags)]
 
-                (println "Listing created posts > " qresult)
+                (println "Listing created tags > " qresult)
                 (should-not (empty? qresult))
                 (should= 3 (count qresult))))
 
