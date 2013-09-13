@@ -98,14 +98,14 @@
                 (should (map? uresult))
                 (should= '(:db/id :assets/asset :assets/type :assets/name :assets/id) (keys uresult))))
 
-          #_(it "Should update a created asset from Datomic"
+          (it "Should update a created asset from Datomic"
 
               ;; create 3, then update anyone of them - the third
               (let [
                     conn (populate-with-assets)
 
-                    qresult (crud/retrieve conn {:content-type "c/t" :title "three"})
-                    qresult-many (crud/retrieve conn {:content-type "c/t"})]
+                    qresult (crud/retrieve conn :asset {:name "iss-orbit"})
+                    qresult-many (crud/retrieve conn :asset {:asset "binarygoo"})]
 
                 (should (seq? qresult))
                 (should-not (empty? qresult))
@@ -118,13 +118,13 @@
 
                       udt-before (assoc (into {} (first qresult))
                                    :db/id eid  ;; for some reason :db/id gets lost... putting it back
-                                   :assets/title "fubar" )
+                                   :assets/name "fubar" )
                       udt-after (crud/update conn :asset udt-before)
 
-                      result-after (crud/retrieve conn {:assets/title "fubar"}) ]
+                      result-after (crud/retrieve conn :asset {:assets/name "fubar"}) ]
 
                   (should-not (empty? result-after))
-                  (should= "three content" (-> result-after first :assets/content)))))
+                  (should= "image/png" (-> result-after first :assets/type)))))
 
           #_(it "Should delete a created asset from Datomic"
 
