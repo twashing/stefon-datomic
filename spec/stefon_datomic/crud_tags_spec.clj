@@ -37,10 +37,10 @@
         conn (:conn result)
 
         ;; add datom
-        date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
-        one (crud/create conn :tag {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
-        two (crud/create conn :tag {:title "two" :content "two content" :content-type "c/t" :created-date date-one :modified-date date-one})
-        three (crud/create conn :tag {:title "three" :content "three content" :content-type "c/t" :created-date date-one :modified-date date-one})]
+
+        one (crud/create conn :tag {:name "datomic"})
+        two (crud/create conn :tag {:name "clojure"})
+        three (crud/create conn :tag {:name "programming"})]
 
     conn))
 
@@ -83,13 +83,12 @@
                 (should= java.util.HashSet (type qresult))
                 (should-not (empty? qresult))))
 
-          #_(it "Should retrieve a created tag from Datomic - 002"
+          (it "Should retrieve a created tag from Datomic - 002"
 
               ;; create 3, then get anyone of them - the second
               (let [conn (populate-with-tags)
 
-                    qresult (crud/retrieve conn {:content-type "c/t" :title "t"})
-                    qresult-many (crud/retrieve conn {:content-type "c/t"})
+                    qresult (crud/retrieve conn :tag {:name "clojure"})
 
                     eid (:db/id (first qresult))
                     uresult (crud/retrieve-by-id conn eid)]
@@ -97,7 +96,7 @@
                 (println "retrieve-by-id RESULT > " uresult)
 
                 (should (map? uresult))
-                (should= '(:db/id :tags/modified-date :tags/created-date :tags/content-type :tags/content :tags/title :tags/id) (keys uresult))))
+                (should= '(:db/id :tags/name :tags/id) (keys uresult))))
 
           #_(it "Should update a created tag from Datomic"
 
