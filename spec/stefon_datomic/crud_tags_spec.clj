@@ -124,30 +124,25 @@
                   (should-not (empty? result-after))
                   (should= "fubar" (-> result-after first :tags/name)))))
 
-          #_(it "Should delete a created tag from Datomic"
+          (it "Should delete a created tag from Datomic"
 
               ;; create 3, then delete anyone of them - the first
               (let [
                     conn (populate-with-tags)
 
-                    qresult (crud/retrieve conn {:content-type "c/t" :title "three"})
-                    qresult-many (crud/retrieve conn {:content-type "c/t"})]
+                    qresult (crud/retrieve conn :tag {:name "clojure"}) ]
 
                 (should (seq? qresult))
                 (should-not (empty? qresult))
                 (should= 1 (count qresult))
-                (should= 3 (count qresult-many))
+
 
                 ;; now the DELETE
                 (let [
                       eid (:db/id (first qresult))
 
-                      dlt-before (assoc (into {} (first qresult))
-                                   :db/id eid  ;; for some reason :db/id gets lost... putting it back
-                                   :tags/title "fubar" )
-                      dlt-after (crud/delete conn eid)
-
-                      result-after (crud/retrieve conn {:tags/title "fubar"}) ]
+                      one (crud/delete conn eid)
+                      result-after (crud/retrieve conn :tag {:tags/name "fubar"}) ]
 
                   (should (empty? result-after)) )))
 
