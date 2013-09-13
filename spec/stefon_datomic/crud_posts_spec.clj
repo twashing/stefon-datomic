@@ -211,4 +211,30 @@
           ;;    post > assets
           ;;    assets > post
 
+          (it "Should be able to reject bad input"
+
+              (let [;; ensure no nils
+                    e1 (try (crud/create-relationship nil)
+                            (catch java.lang.AssertionError e e))
+
+                    ;; ensure it's a list
+                    e2 (try (crud/create-relationship {})
+                            (catch java.lang.AssertionError e e))
+
+                    ;; ensure there's at least 1 post
+                    e3 (try (crud/create-relationship [(crud/add-entity-ns :assets {:name "iss-orbit" :type "image/png" :asset "binarygoo"})
+                                                       (crud/add-entity-ns :tags {:name "datomic"})])
+                            (catch java.lang.AssertionError e e))]
+
+
+                (should-not-be-nil e1)
+                (should= java.lang.AssertionError (type e1))
+
+                (should-not-be-nil e2)
+                (should= java.lang.AssertionError (type e2))
+
+                (should-not-be-nil e3)
+                (should= java.lang.AssertionError (type e3))
+
+                ))
           )

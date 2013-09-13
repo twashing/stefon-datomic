@@ -4,6 +4,7 @@
             [stefon-datomic.config :as config]))
 
 
+;; UTILITY Functions
 (defn find-mapping [mkey]
 
   (let [cfg (config/get-config)]
@@ -69,14 +70,25 @@
 (defn create-relationship
   "This function allows us to group together, the creation of a post, with assets & tags
 
-     - can create 1 post with many assets & tags
-     - can create 1 post with many assets
-     - can create 1 post with many tags"
+     can create 1 post with many assets & tags
+     can create 1 post with many assets
+     can create 1 post with many tags"
   [entity-list]
+
+  {:pre [(not (nil? entity-list))
+         (vector? entity-list)
+         (some #(:posts/id %) entity-list)]}
+
+  1
+  ;; ensure it's a list
+  ;; ensure at least 1 :post
+
+  ;; namespaces should be fully qualified for datomic
 
   )
 
 
+;; RETRIEVE Functions
 (defn retrieve-entity [conn domain-key constraint-map]
 
   (let [constraints-w-ns (add-entity-ns (convert-domain-ns domain-key) constraint-map)
@@ -129,6 +141,7 @@
     final-map))
 
 
+;; UPDATE
 (defn update [conn domain-key datom-map]
 
   {:pre [(keyword? domain-key)
@@ -150,6 +163,8 @@
     ;; transact to Datomic
     @(datomic.api/transact conn [datom-map])))
 
+
+;; DELETE
 (defn delete [conn entity-id]
 
   {:pre [(-> conn nil? not)
@@ -157,11 +172,13 @@
 
   @(datomic.api/transact conn [[:db.fn/retractEntity entity-id]] ))
 
+
+;; LIST
 (defn list [conn domain-key]
 
   (let [the-db (d/db conn)
 
-        the-lookup (keyword (name domain-key) "id")  ;; turns :posts "id".. into :posts/id
+        the-lookup (keyword (name domain-key) "id") ;; turns :posts "id".. into :posts/id
         id-set (hset-to-cset (d/q {:find ['?e] :where [['?e the-lookup]]} (d/db conn)))
         entity-set (map (fn [inp]
                           (vivify-datomic-entity the-db inp))
