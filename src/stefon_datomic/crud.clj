@@ -75,16 +75,14 @@
      can create 1 post with many tags"
   [entity-list]
 
+  ;; ensure it's a list
+  ;; ensure at least 1 :post
+  ;; namespaces should be fully qualified for datomic
   {:pre [(not (nil? entity-list))
          (vector? entity-list)
          (some #(:posts/id %) entity-list)]}
 
   1
-  ;; ensure it's a list
-  ;; ensure at least 1 :post
-
-  ;; namespaces should be fully qualified for datomic
-
   )
 
 
