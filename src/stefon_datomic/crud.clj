@@ -58,18 +58,15 @@
 
         ;; add namespace to map keys
         entity-w-ns (add-entity-ns (convert-domain-ns domain-key) datom-w-id)
-
-        xx (println "===> ONE > " entity-w-ns)
-
         adatom (assoc entity-w-ns :db/id (datomic.api/tempid :db.part/user)) ]
 
     ;; transact to Datomic
     @(datomic.api/transact conn [adatom])))
 
 
-(defn retrieve-entity [conn constraint-map]
+(defn retrieve-entity [conn domain-key constraint-map]
 
-  (let [constraints-w-ns (add-entity-ns :posts constraint-map)
+  (let [constraints-w-ns (add-entity-ns (convert-domain-ns domain-key) constraint-map)
 
 
         ;; We expect a structure like... ((:posts/title t) (:posts/content-type c/t))... at the end, we need to double-quote the name
@@ -97,11 +94,11 @@
     (datomic.api/q expression-final the-db param-values) ))
 
 
-(defn retrieve [conn constraint-map]
+(defn retrieve [conn domain-key constraint-map]
 
   (let [the-db (d/db conn)
 
-        id-set (hset-to-cset (retrieve-entity conn constraint-map))
+        id-set (hset-to-cset (retrieve-entity conn domain-key constraint-map))
         entity-set (map (fn [inp]
                           (vivify-datomic-entity the-db inp))
                         id-set)]

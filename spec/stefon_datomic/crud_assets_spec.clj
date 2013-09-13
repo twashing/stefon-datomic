@@ -68,17 +68,17 @@
                 (should= java.util.HashSet (type qresult))
                 (should-not (empty? qresult))))
 
-          #_(it "Should retrieve a created entity asset from Datomic - 001"
+          (it "Should retrieve a created entity asset from Datomic - 001"
 
               ;; create 3, then get anyone of them - the second
               (let [;; create DB & get the connection
                     result (pluginD/bootstrap-stefon)
 
                     ;; add datom
-                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
-                    one (crud/create (:conn result) :asset {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
 
-                    qresult (crud/retrieve-entity (:conn result) {:content-type "c/t" :title "t"}) ]
+                    one (crud/create (:conn result) :asset {:name "thing" :type "fubar" :asset "stuff"})
+
+                    qresult (crud/retrieve-entity (:conn result) :asset {:name "thing" :type "fubar"}) ]
 
                 (should= java.util.HashSet (type qresult))
                 (should-not (empty? qresult))))

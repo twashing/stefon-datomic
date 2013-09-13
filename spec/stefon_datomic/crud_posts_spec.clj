@@ -94,7 +94,7 @@
                     date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
                     one (crud/create (:conn result) :post {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
 
-                    qresult (crud/retrieve-entity (:conn result) {:content-type "c/t" :title "t"}) ]
+                    qresult (crud/retrieve-entity (:conn result) :post {:content-type "c/t" :title "t"}) ]
 
                 (should= java.util.HashSet (type qresult))
                 (should-not (empty? qresult))))
@@ -104,8 +104,8 @@
               ;; create 3, then get anyone of them - the second
               (let [conn (populate-with-posts)
 
-                    qresult (crud/retrieve conn {:content-type "c/t" :title "t"})
-                    qresult-many (crud/retrieve conn {:content-type "c/t"})
+                    qresult (crud/retrieve conn :post {:content-type "c/t" :title "t"})
+                    qresult-many (crud/retrieve conn :post {:content-type "c/t"})
 
                     eid (:db/id (first qresult))
                     uresult (crud/retrieve-by-id conn eid)]
@@ -121,8 +121,8 @@
               (let [
                     conn (populate-with-posts)
 
-                    qresult (crud/retrieve conn {:content-type "c/t" :title "three"})
-                    qresult-many (crud/retrieve conn {:content-type "c/t"})]
+                    qresult (crud/retrieve conn :post {:content-type "c/t" :title "three"})
+                    qresult-many (crud/retrieve conn :post {:content-type "c/t"})]
 
                 (should (seq? qresult))
                 (should-not (empty? qresult))
@@ -138,7 +138,7 @@
                                    :posts/title "fubar" )
                       udt-after (crud/update conn :post udt-before)
 
-                      result-after (crud/retrieve conn {:posts/title "fubar"}) ]
+                      result-after (crud/retrieve conn :post {:posts/title "fubar"}) ]
 
                   (should-not (empty? result-after))
                   (should= "three content" (-> result-after first :posts/content)))))
@@ -149,8 +149,8 @@
               (let [
                     conn (populate-with-posts)
 
-                    qresult (crud/retrieve conn {:content-type "c/t" :title "three"})
-                    qresult-many (crud/retrieve conn {:content-type "c/t"})]
+                    qresult (crud/retrieve conn :post {:content-type "c/t" :title "three"})
+                    qresult-many (crud/retrieve conn :post {:content-type "c/t"})]
 
                 (should (seq? qresult))
                 (should-not (empty? qresult))
@@ -166,7 +166,7 @@
                                    :posts/title "fubar" )
                       dlt-after (crud/delete conn eid)
 
-                      result-after (crud/retrieve conn {:posts/title "fubar"}) ]
+                      result-after (crud/retrieve conn :post {:posts/title "fubar"}) ]
 
                   (should (empty? result-after)) )))
 
@@ -184,8 +184,8 @@
                     two (crud/create (:conn result) :post {:title "two" :content "two content" :content-type "c/t" :created-date date-one :modified-date date-one})
                     three (crud/create (:conn result) :post {:title "three" :content "three content" :content-type "c/t" :created-date date-one :modified-date date-one})
 
-                    qresult (crud/retrieve (:conn result) {:content-type "c/t" :title "t"})
-                    qresult-many (crud/retrieve (:conn result) {:content-type "c/t"})]
+                    qresult (crud/retrieve (:conn result) :post {:content-type "c/t" :title "t"})
+                    qresult-many (crud/retrieve (:conn result) :post {:content-type "c/t"})]
 
                 (should (seq? qresult))
                 (should-not (empty? qresult))
