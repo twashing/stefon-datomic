@@ -234,7 +234,13 @@
                 (should= java.lang.AssertionError (type e2))
 
                 (should-not-be-nil e3)
-                (should= java.lang.AssertionError (type e3))
+                (should= java.lang.AssertionError (type e3))))
 
-                ))
-          )
+          (it "Should be able to put together related IDs"
+
+              (let [date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
+                    r1 (crud/create-relationship [(crud/add-entity-ns :posts {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
+                                                  (crud/add-entity-ns :assets {:name "iss-orbit" :type "image/png" :asset "binarygoo"})
+                                                  (crud/add-entity-ns :tags {:name "datomic"})])]
+
+                )))
