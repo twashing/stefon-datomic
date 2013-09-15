@@ -12,7 +12,8 @@
     (-> cfg :action-mappings mkey)))
 
 (defn add-entity-ns
-  "Turns a datom-map like A into B, given an entity-key of :post
+  "Prepends namespace ekey to all keys of datom-map. Ekey may be a symbol, keyword or string.
+   So it turns a datom-map like A into B, given an entity-key of :post
 
    A) {:title t :content c :content-type c/t :created-date 0000 :modified-date 1111}
    B) {:post/title t :post/content c :post/content-type c/t :post/created-date 0000 :post/modified-date 1111}"
@@ -40,7 +41,6 @@
   (-> domain-key name (str "s") keyword))
 
 
-;; CREATE Functions
 (defn create [conn domain-key datom-map]
 
   {:pre [(keyword? domain-key)
