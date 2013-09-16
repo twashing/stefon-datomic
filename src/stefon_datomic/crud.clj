@@ -115,8 +115,7 @@
 
 
         ;; put into a list and transact
-        transact-list (into [] post-w-tags)
-        aaa (println ">> transact-list > " transact-list) ]
+        transact-list (into [] post-w-tags) ]
 
     @(d/transact conn transact-list)))
 
