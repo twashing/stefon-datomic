@@ -213,17 +213,19 @@
 
           (it "Should be able to reject bad input"
 
-              (let [;; ensure no nils
-                    e1 (try (crud/create-relationship nil)
+              (let [conn (populate-with-posts)
+
+                    ;; ensure no nils
+                    e1 (try (crud/create-relationship conn nil)
                             (catch java.lang.AssertionError e e))
 
                     ;; ensure it's a list
-                    e2 (try (crud/create-relationship {})
+                    e2 (try (crud/create-relationship conn {})
                             (catch java.lang.AssertionError e e))
 
                     ;; ensure there's at least 1 post
-                    e3 (try (crud/create-relationship [(crud/add-entity-ns :assets {:name "iss-orbit" :type "image/png" :asset "binarygoo"})
-                                                       (crud/add-entity-ns :tags {:name "datomic"})])
+                    e3 (try (crud/create-relationship conn [(crud/add-entity-ns :assets {:name "iss-orbit" :type "image/png" :asset "binarygoo"})
+                                                            (crud/add-entity-ns :tags {:name "datomic"})])
                             (catch java.lang.AssertionError e e))]
 
 
@@ -238,9 +240,22 @@
 
           (it "Should be able to put together related IDs"
 
-              (let [date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
-                    r1 (crud/create-relationship [(crud/add-entity-ns :posts {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
-                                                  (crud/add-entity-ns :assets {:name "iss-orbit" :type "image/png" :asset "binarygoo"})
-                                                  (crud/add-entity-ns :tags {:name "datomic"})])]
+              (let [conn (populate-with-posts)
+                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
+                    r1 (crud/create-relationship conn [(crud/add-entity-ns :posts {:title "tree house" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
+                                                       (crud/add-entity-ns :assets {:name "iss-orbit" :type "image/png" :asset "binarygoo"})
+                                                       (crud/add-entity-ns :tags {:name "datomic"})])]
 
-                )))
+                (should-not-be-nil r1)
+                (should (map? r1))
+                (should-not-be-nil (:db-before r1))
+                (should-not-be-nil (:db-after r1))
+
+                (let [r2 (crud/retrieve conn :post {:title "tree house"})]
+
+
+                  (println ">> RELATED post > " r2)
+
+                  (should-not (empty? r2))
+                  (should-not-be-nil (:posts/assets (first r2)))
+                  (should-not-be-nil (:posts/tags (first r2)))))))

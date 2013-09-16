@@ -74,18 +74,18 @@
      can create 1 post with many assets & tags
      can create 1 post with many assets
      can create 1 post with many tags"
-  [entity-list]
+  [conn entity-list]
 
   ;; ensure it's a list
-  ;; ensure at least 1 :post
+  ;; ensure just 1 or 0 :post
   ;; namespaces should be fully qualified for datomic
   {:pre [(not (nil? entity-list))
          (vector? entity-list)
-         (some #(:posts/title %) entity-list)]}
+         (< 2 (count (some #(:posts/title %) entity-list)))]}
 
   (let [
         ;; 1. put i. tempid(s) and ii. ID(s) in entities
-        entities-w-ids (into [] (map #(assoc % :id (str (java.util.UUID/randomUUID)) :db/id (datomic.api/tempid :db.part/user)) entity-list))
+        entities-w-ids (into [] (map #(assoc % :posts/id (str (java.util.UUID/randomUUID)) :db/id (datomic.api/tempid :db.part/user)) entity-list))
 
 
         ;; 2. assign tempid(s) of assets to post
@@ -93,7 +93,7 @@
                          (some #(= :assets/name %)
                                (keys inp)))
                        entities-w-ids)
-        asset-ids (map #(:db/id %) assets)
+        asset-ids (into [] (map #(:db/id %) assets))
 
 
         ;; 3. assign tempid(s) of tags to post
@@ -101,7 +101,7 @@
                        (some #(= :tags/name %)
                              (keys inp)))
                      entities-w-ids)
-        tag-ids (map #(:db/id %) tags)
+        tag-ids (into [] (map #(:db/id %) tags))
 
 
         ;; 4. update the post
@@ -110,17 +110,15 @@
         filtered-post (filter #(:posts/title (second %)) indexed-items)
         post-index (ffirst filtered-post)
 
-        post-w-assets (assoc-in entities-w-ids [post-index :assets-ref] asset-ids)
-        post-w-tags (assoc-in post-w-assets [post-index :tags-ref] tag-ids)
+        post-w-assets (assoc-in entities-w-ids [post-index :posts/assets] asset-ids)
+        post-w-tags (assoc-in post-w-assets [post-index :posts/tags] tag-ids)
 
-
-        aaa (println ">> post-w-tags > " post-w-tags)
 
         ;; put into a list and transact
+        transact-list (into [] post-w-tags)
+        aaa (println ">> transact-list > " transact-list) ]
 
-        ]
-
-    1))
+    @(d/transact conn transact-list)))
 
 
 ;; RETRIEVE Functions
