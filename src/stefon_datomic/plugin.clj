@@ -139,15 +139,16 @@
     (println ">> mapped-fn > " (type mapped-fn))
     (println ">> domain-key > " mapped-domain-key)
     (println ">> conn > " (:conn @communication-pair))
-    (println "WTF >> " (-> mapped-domain-key nil? not))
 
     (if mapped-fn
-      (do
-        (try (def action-result (mapped-fn (:conn @communication-pair) mapped-domain-key params))
-             (catch Exception e (println ">> Exception > " e)))
-        (println ">> ACTION result > " action-result)
-        (println "")))
-    ))
+
+      (let [fn1 (partial mapped-fn (:conn @communication-pair))
+            fn2 (if mapped-domain-key (partial fn1 mapped-domain-key) fn1)  ;; conditionally apply the domain-key argument
+            fn3 (partial fn2 params)
+
+            action-result (try (fn3) (catch Exception e (println ">> Exception > " e)))]
+
+        action-result))))
 
 (def communication-pair (atom {:receive-fn receive-fn
                                :send-fn nil

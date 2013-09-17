@@ -4,7 +4,7 @@
  :action-mappings {
                    :plugin.post.create {:mapped-action stefon-datomic.crud/create :domain-key :post}
                    :plugin.post.retrieve {:mapped-action stefon-datomic.crud/retrieve-by-id :domain-key nil}
-                   :plugin.post.update {:mapped-action stefon-datomic.crud/update :domain-key :post}
+                   :plugin.post.update {:mapped-action stefon-datomic.crud/update-embellish :domain-key :post}
                    :plugin.post.delete {:mapped-action stefon-datomic.crud/delete :domain-key nil}
                    :plugin.post.find {:mapped-action stefon-datomic.crud/retrieve :domain-key :post}
                    :plugin.post.list {:mapped-action stefon-datomic.crud/list :domain-key :post}

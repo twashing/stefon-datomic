@@ -174,6 +174,54 @@
     ;; transact to Datomic
     @(datomic.api/transact conn [datom-map])))
 
+(defn update-embellish
+  "Embellishes the update map with
+
+     i) db namespace prefix on attributes
+     ii) db/id"
+  [conn domain-key datom-map]
+
+  {:pre [(keyword? domain-key)
+         (map? datom-map)]}
+
+
+
+  (let [w-ns (add-entity-ns (convert-domain-ns :post) datom-map)
+
+        yy (println "WTF >> " datom-map)
+        xx (retrieve-entity conn domain-key datom-map)
+
+
+        w-id nil]
+
+    (update conn domain-key w-id)))
+
+
+(defn add-entity-ns
+  "Prepends namespace ekey to all keys of datom-map. Ekey may be a symbol, keyword or string.
+   So it turns a datom-map like A into B, given an entity-key of :post
+
+   A) {:title t :content c :content-type c/t :created-date 0000 :modified-date 1111}
+   B) {:post/title t :post/content c :post/content-type c/t :post/created-date 0000 :post/modified-date 1111}"
+  [ekey datom-map]
+  (reduce-kv (fn [a k v]
+               (assoc a (keyword
+                         (name ekey)
+                         (name k))
+                      v))
+             {}
+             datom-map))
+
+(defn convert-domain-ns
+  "Simply converts a regular domain key, like :post, to the datomic ns representation, :posts"
+  [domain-key]
+
+  (-> domain-key name (str "s") keyword))
+
+
+
+
+
 
 ;; DELETE
 (defn delete [conn entity-id]
