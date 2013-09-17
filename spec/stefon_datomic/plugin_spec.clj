@@ -29,7 +29,7 @@
                      {:name :name, :cardinality :one, :type :string}]})
 
 
-#_(describe "Plugin should be able to attach to a running Stefon instance => "
+ (describe "Plugin should be able to attach to a running Stefon instance => "
 
           (before (datomic/delete-database (-> config :dev :url))
                   (shell/stop-system))
@@ -61,37 +61,131 @@
           (before (datomic/delete-database (-> config :dev :url))
                   (shell/stop-system))
 
-          (let [step-one (shell/start-system)
-                step-two (pluginD/plugin :dev)
+          (it "Testing kernel / plugin connection with CREATE"
 
-                result (pluginD/bootstrap-stefon :dev true)
-                conn (:conn result)
+              (let [step-one (shell/start-system)
+                    step-two (pluginD/plugin :dev)
 
-                date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
+                    result (pluginD/bootstrap-stefon :dev true)
+                    conn (:conn result)
 
-                ;; CREATE Post
-                cpost (shell/create :post "my post" "my content" "text/md" date-one date-one [] [])
-                test-created (crud/retrieve conn :post {:title "my post"})
-                aaa (println ">> cpost > " test-created)
+                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
+
+                    ;; CREATE Post
+                    cpost (shell/create :post "my post" "my content" "text/md" date-one date-one [] [])
+                    test-created (crud/retrieve conn :post {:title "my post"})
+                    aaa (println ">> cpost > " test-created) ]
+
+                (should-not-be-nil test-created)
+                (should-not (empty? test-created))
+                (should= 1 (count test-created))))
+
+          #_(it "Testing kernel / plugin connection with RETRIEVE"
+
+              (let [step-one (shell/start-system)
+                    step-two (pluginD/plugin :dev)
+
+                    result (pluginD/bootstrap-stefon :dev true)
+                    conn (:conn result)
+
+                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
+
+                    ;; CREATE Post
+                    cpost (shell/create :post "my post" "my content" "text/md" date-one date-one [] [])
+                    test-created (crud/retrieve conn :post {:title "my post"})
+                    aaa (println ">> cpost > " test-created)
 
 
-                ;; RETRIEVE Post
-                ;;rpost (shell/retrieve :post (:id @cpost))
-                ;;ccc (println ">> rpost > " @rpost)
+                    ;; RETRIEVE Post
+                    ;;rpost (shell/retrieve :post (:id @cpost))
+                    ;;ccc (println ">> rpost > " @rpost)
+                    ]
 
-                ;; FIND Post
-                ;;fpost (shell/find :post {:title "my post"})
-                ;;bbb (println ">> fpost > " @fpost)
+                (it "one" 1)))
 
-                ;; UPDATE Post
-                ;;upost (shell/update id-123 {:title "another title"})
+          #_(it "Testing kernel / plugin connection with UPDATE"
 
-                ;; DELETE Post
-                ;;dpost (shell/delete id-123)
+              (let [step-one (shell/start-system)
+                    step-two (pluginD/plugin :dev)
 
-                ;; CREATE Post w/ related Assets and Tags
-                ;; rpost ...
+                    result (pluginD/bootstrap-stefon :dev true)
+                    conn (:conn result)
 
-                ]
+                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
 
-            (it "one" 1)))
+                    ;; CREATE Post
+                    cpost (shell/create :post "my post" "my content" "text/md" date-one date-one [] [])
+                    test-created (crud/retrieve conn :post {:title "my post"})
+                    aaa (println ">> cpost > " test-created)
+
+                    ;; UPDATE Post
+                    ;;upost (shell/update id-123 {:title "another title"})
+                    ]
+
+                (it "one" 1)))
+
+          #_(it "Testing kernel / plugin connection with DELETE"
+
+              (let [step-one (shell/start-system)
+                    step-two (pluginD/plugin :dev)
+
+                    result (pluginD/bootstrap-stefon :dev true)
+                    conn (:conn result)
+
+                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
+
+                    ;; CREATE Post
+                    cpost (shell/create :post "my post" "my content" "text/md" date-one date-one [] [])
+                    test-created (crud/retrieve conn :post {:title "my post"})
+                    aaa (println ">> cpost > " test-created)
+
+                    ;; DELETE Post
+                    ;;dpost (shell/delete id-123)
+
+                    ]
+
+                (it "one" 1)))
+
+          #_(it "Testing kernel / plugin connection with FIND"
+
+              (let [step-one (shell/start-system)
+                    step-two (pluginD/plugin :dev)
+
+                    result (pluginD/bootstrap-stefon :dev true)
+                    conn (:conn result)
+
+                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
+
+                    ;; CREATE Post
+                    cpost (shell/create :post "my post" "my content" "text/md" date-one date-one [] [])
+                    test-created (crud/retrieve conn :post {:title "my post"})
+                    aaa (println ">> cpost > " test-created)
+
+                    ;; FIND Post
+                    ;;fpost (shell/find :post {:title "my post"})
+                    ;;bbb (println ">> fpost > " @fpost)
+                    ]
+
+                (it "one" 1)))
+
+          #_(it "Testing kernel / plugin connection with CREATE with RELATIONSHIPS"
+
+              (let [step-one (shell/start-system)
+                    step-two (pluginD/plugin :dev)
+
+                    result (pluginD/bootstrap-stefon :dev true)
+                    conn (:conn result)
+
+                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
+
+                    ;; CREATE Post
+                    cpost (shell/create :post "my post" "my content" "text/md" date-one date-one [] [])
+                    test-created (crud/retrieve conn :post {:title "my post"})
+                    aaa (println ">> cpost > " test-created)
+
+                    ;; CREATE Post w/ related Assets and Tags
+                    ;; rpost ...
+
+                    ]
+
+                (it "one" 1))))
