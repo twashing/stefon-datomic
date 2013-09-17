@@ -5,12 +5,6 @@
             [stefon-datomic.config :as config]))
 
 
-;; UTILITY Functions
-(defn find-mapping [mkey]
-
-  (let [cfg (config/get-config)]
-    (-> cfg :action-mappings mkey)))
-
 (defn add-entity-ns
   "Prepends namespace ekey to all keys of datom-map. Ekey may be a symbol, keyword or string.
    So it turns a datom-map like A into B, given an entity-key of :post
@@ -49,13 +43,6 @@
   (let [
         one (str "plugin." (name domain-key) ".create")
         lookup-key (keyword one)
-
-        ;; find the mapping
-        mapping (find-mapping lookup-key)
-
-        ;; insert mapped function & preamble
-        mapped-fn (first mapping)
-        mapped-preamble (second mapping)  ;; TODO - can't execute this
 
         ;; ensure we are adding ID strings to entities
         datom-w-id (assoc datom-map :id (str (java.util.UUID/randomUUID)))
@@ -179,16 +166,8 @@
   {:pre [(keyword? domain-key)
          (map? datom-map)]}
 
-  (let [
-        one (str "plugin." (name domain-key) ".create")
-        lookup-key (keyword one)
-
-        ;; find the mapping
-        mapping (find-mapping lookup-key)
-
-        ;; insert mapped function & preamble
-        mapped-fn (first mapping) ]
-
+  (let [one (str "plugin." (name domain-key) ".create")
+        lookup-key (keyword one) ]
 
     (println "UPDATE datom > " datom-map)
 

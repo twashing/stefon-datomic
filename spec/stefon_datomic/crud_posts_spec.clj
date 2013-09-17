@@ -8,7 +8,8 @@
             [stefon.shell :as shell]
             [stefon.shell.plugin :as plugin]
             [stefon-datomic.plugin :as pluginD]
-            [stefon-datomic.crud :as crud]))
+            [stefon-datomic.crud :as crud]
+            [stefon-datomic.config :as config]))
 
 
 (def config (load-string (slurp (io/resource "stefon-datomic.edn"))))
@@ -32,8 +33,7 @@
 (defn populate-with-posts []
 
   ;; create DB & get the connection
-  (let [
-        result (pluginD/bootstrap-stefon)
+  (let [result (pluginD/bootstrap-stefon)
         conn (:conn result)
 
         ;; add datom
@@ -53,12 +53,12 @@
           ;; match incoming key against known actions
           (it "Should give an empty list if the action is not known"
 
-              (let [result (crud/find-mapping :fubar)]
+              (let [result (config/find-mapping :fubar)]
                 (should-be-nil result)))
 
           (it "Should return a proper mapping"
 
-              (let [result (crud/find-mapping :plugin.post.create)]
+              (let [result (config/find-mapping :plugin.post.create)]
                 (should-not-be-nil result)
 
                 (should (vector? result))
