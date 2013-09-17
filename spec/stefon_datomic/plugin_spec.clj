@@ -110,10 +110,15 @@
                     ;; CREATE Post
                     date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
                     cpost (shell/create :post "my post" "my content" "text/md" date-one date-one [] [])
-                    upost (shell/update :post (:id @cpost) {:posts/title "new title" :posts/content "new content"})
 
-                    test-updated (crud/retrieve conn :post {:posts/id (:id @cpost)})
-                    aaa (println ">> upost > " test-updated)
+                    ww (println "... cpost > " @cpost)
+                    xx (crud/retrieve conn :post {:posts/title "my post"})
+                    yy (println "... This is getting FRUSTRATING > " xx)
+
+                    ;;upost (shell/update :post (:id @cpost) {:title "new title" :content "new content"})
+
+                    ;;test-updated (crud/retrieve conn :post {:posts/id (:id @cpost)})
+                    ;;aaa (println ">> upost > " test-updated)
 
                     ;; UPDATE Post
                     ;;upost (shell/update id-123 {:title "another title"})
