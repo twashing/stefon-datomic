@@ -53,3 +53,20 @@
                 (should (map? @result))
                 (should= :plugin.post.create (-> @result keys first))
                 (should= {:title "t" :content "c" :content-type "c/t" :created-date "0000" :modified-date "1111" :assets-ref nil :tags-ref nil} (-> @result :plugin.post.create :parameters)))))
+
+(describe "Integrate CRUD with plugin messages"
+
+
+          ;; CREATE Post
+
+          ;; RETRIEVE Post
+
+          ;; UPDATE Post
+
+          ;; DELETE Post
+
+
+          ;; CREATE Post w/ related Assets and Tags
+
+
+          )
