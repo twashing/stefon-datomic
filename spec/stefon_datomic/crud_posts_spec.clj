@@ -61,7 +61,7 @@
               (let [result (config/find-mapping :plugin.post.create)]
                 (should-not-be-nil result)
 
-                (should (vector? result))
+                #_(should (vector? result))
                 #_(should= 'datomic.api/transact (first result))))
 
 

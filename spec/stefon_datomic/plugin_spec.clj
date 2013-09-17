@@ -66,15 +66,16 @@
 
                 ;; CREATE Post
                 cpost (shell/create :post "my post" "my content" "text/md" date-one date-one nil nil)
-                aaa (println ">> cpost > " @cpost)
+                ;;aaa (println ">> cpost > " @cpost)
 
                 ;; RETRIEVE Post
                 rpost (shell/retrieve :post (:id @cpost))
-                ccc (println ">> rpost > " @rpost)
+                ;;ccc (println ">> rpost > " @rpost)
+
 
                 ;; FIND Post
                 fpost (shell/find :post {:title "my post"})
-                bbb (println ">> fpost > " @fpost)
+                ;;bbb (println ">> fpost > " @fpost)
 
                 ;; UPDATE Post
                 ;;upost (shell/update id-123 {:title "another title"})

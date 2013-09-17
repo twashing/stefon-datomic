@@ -115,33 +115,25 @@
           @tee-fns)
 
   ;; based on message, perform action
-  (println ">> JACKING IN >> " message)
+  (println ">> JACKING IN >> " (seq message))
 
-  #_{
-                   :plugin.post.create [datomic.api/transact '(fn [] (datomic.api/tempid :db.part/db))]
-                   :plugin.post.retrieve [datomic.api/q]
-                   :plugin.post.update [datomic.api/transact]
-                   :plugin.post.delete [datomic.api/transact]
-                   :plugin.post.find [datomic.api/q]
-                   :plugin.post.list [datomic.api/q]
 
-                   :plugin.asset.create [datomic.api/transact '(fn [] (datomic.api/tempid :db.part/db))]
-                   :plugin.asset.retrieve [datomic.api/q]
-                   :plugin.asset.update [datomic.api/transact]
-                   :plugin.asset.delete [datomic.api/transact]
-                   :plugin.asset.find [datomic.api/q]
-                   :plugin.asset.list [datomic.api/q]
+  ;; key / param(s)
+  (let [key-params (-> message seq first)
+        key (first key-params)
+        params (:parameters (second key-params))
 
-                   :plugin.tag.create [datomic.api/transact '(fn [] (datomic.api/tempid :db.part/db))]
-                   :plugin.tag.retrieve [datomic.api/q]
-                   :plugin.tag.update [datomic.api/transact]
-                   :plugin.tag.delete [datomic.api/transact]
-                   :plugin.tag.find [datomic.api/q]
-                   :plugin.tag.list [datomic.api/q]}
-  ;; {:plugin.post.create {:parameters {:title my post, :content my content, :content-type text/md, :created-date #inst "2013-01-01T08:00:00.000-00:00", :modified-date #inst "2013-01-01T08:00:00.000-00:00", :assets-ref nil, :tags-ref nil}}}
-  (config/get-config)
+        mapped-action (config/find-mapping key)
 
-  )
+        yyy (println "")
+        qqq (println ">> key > " key)
+        www (println ">> params > " params)
+        eee (println ">> mapped-action > " mapped-action)
+        zzz (println "")
+
+        ]
+
+    ))
 
 (def communication-pair (atom {:receive-fn receive-fn
                                :send-fn nil}))
