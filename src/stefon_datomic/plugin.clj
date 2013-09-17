@@ -115,7 +115,7 @@
           @tee-fns)
 
   ;; based on message, perform action
-
+  (println ">> JACKING IN >> " message)
   )
 
 (def communication-pair (atom {:receive-fn receive-fn
@@ -143,17 +143,13 @@
            send-function (shell/attach-plugin handler-fn)
            domain-schema-promise (send-function {:stefon.domain.schema {:parameters nil}})
 
-           step-four (create-db env)
-
-           ;;result (connect-or-create @domain-schema-promise env)
-           ]
+           step-four (create-db env) ]
 
            (let [init-result (init-db @domain-schema-promise env)
                  conn (connect-to-db env)]
 
              {:init-result init-result
               :conn conn}))))
-
 
 
 ;; PLUGING Function

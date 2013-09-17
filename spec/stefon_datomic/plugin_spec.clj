@@ -56,8 +56,13 @@
 
 (describe "Integrate CRUD with plugin messages"
 
+          (before (datomic/delete-database (-> config :dev :url))
+                  (shell/stop-system))
 
-          (let [date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
+          (let [result (pluginD/bootstrap-stefon)
+                conn (:conn result)
+
+                date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
 
                 ;; CREATE Post
                 cpost (shell/create :post "my post" "my content" "text/md" date-one date-one nil nil)
