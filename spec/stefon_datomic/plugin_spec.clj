@@ -38,7 +38,7 @@
 
               (let [result (atom nil)
                     tee-fn (fn [msg]
-                             (println "<< RECIEVEING Message >> " msg)
+                             ;;(println "<< RECIEVEING Message >> " msg)
                              (swap! result (fn [inp] msg)))
 
                     step-one (shell/start-system)
@@ -64,12 +64,12 @@
                 aaa (println ">> cpost > " @cpost)
 
                 ;; RETRIEVE Post
-                ;; rpost ...
+                rpost (shell/retrieve :post (:id @cpost))
+                ccc (println ">> rpost > " @rpost)
 
                 ;; FIND Post
                 fpost (shell/find :post {:title "my post"})
-                bbb (println ">> fpost > " fpost)
-
+                bbb (println ">> fpost > " @fpost)
 
                 ;; UPDATE Post
                 ;;upost (shell/update id-123 {:title "another title"})
