@@ -57,16 +57,29 @@
 (describe "Integrate CRUD with plugin messages"
 
 
-          ;; CREATE Post
+          (let [date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
 
-          ;; RETRIEVE Post
+                ;; CREATE Post
+                cpost (shell/create :post "my post" "my content" "text/md" date-one date-one nil nil)
+                aaa (println ">> cpost > " @cpost)
 
-          ;; UPDATE Post
+                ;; RETRIEVE Post
+                ;; rpost ...
 
-          ;; DELETE Post
+                ;; FIND Post
+                fpost (shell/find :post {:title "my post"})
+                bbb (println ">> fpost > " fpost)
 
 
-          ;; CREATE Post w/ related Assets and Tags
+                ;; UPDATE Post
+                ;;upost (shell/update id-123 {:title "another title"})
 
+                ;; DELETE Post
+                ;;dpost (shell/delete id-123)
 
-          )
+                ;; CREATE Post w/ related Assets and Tags
+                ;; rpost ...
+
+                ]
+
+            (it "one" 1)))
