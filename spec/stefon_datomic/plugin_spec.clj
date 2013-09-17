@@ -59,7 +59,7 @@
           (before (datomic/delete-database (-> config :dev :url))
                   (shell/stop-system))
 
-          (let [result (pluginD/bootstrap-stefon)
+          (let [result (pluginD/bootstrap-stefon :dev true)
                 conn (:conn result)
 
                 date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))

@@ -2,24 +2,24 @@
  :dev {:url "datomic:mem://stefon"}
  :prod {:url "datomic:free://localhost:4334/stefon"}
  :action-mappings {
-                   :plugin.post.create {:domain-key :post}
-                   :plugin.post.retrieve {:domain-key nil}
-                   :plugin.post.update {:domain-key :post}
-                   :plugin.post.delete {:domain-key nil}
-                   :plugin.post.find {:domain-key :post}
-                   :plugin.post.list {:domain-key :post}
+                   :plugin.post.create {:mapped-action 'stefon-datomic.crud/create :domain-key :post}
+                   :plugin.post.retrieve {:mapped-action 'stefon-datomic.crud/retrieve-by-id :domain-key nil}
+                   :plugin.post.update {:mapped-action 'stefon-datomic.crud/update :domain-key :post}
+                   :plugin.post.delete {:mapped-action 'stefon-datomic.crud/delete :domain-key nil}
+                   :plugin.post.find {:mapped-action 'stefon-datomic.crud/retrieve :domain-key :post}
+                   :plugin.post.list {:mapped-action 'stefon-datomic.crud/list :domain-key :post}
 
-                   :plugin.asset.create {:domain-key :asset}
-                   :plugin.asset.retrieve {:domain-key nil}
-                   :plugin.asset.update {:domain-key :asset}
-                   :plugin.asset.delete {:domain-key nil}
-                   :plugin.asset.find {:domain-key :asset}
-                   :plugin.asset.list {:domain-key :asset}
+                   :plugin.asset.create {:mapped-action 'stefon-datomic.crud/create :domain-key :asset}
+                   :plugin.asset.retrieve {:mapped-action 'stefon-datomic.crud/retrieve-by-id :domain-key nil}
+                   :plugin.asset.update {:mapped-action 'stefon-datomic.crud/update :domain-key :asset}
+                   :plugin.asset.delete {:mapped-action 'stefon-datomic.crud/delete :domain-key nil}
+                   :plugin.asset.find {:mapped-action 'stefon-datomic.crud/retrieve :domain-key :asset}
+                   :plugin.asset.list {:mapped-action 'stefon-datomic.crud/list :domain-key :asset}
 
-                   :plugin.tag.create {:domain-key :tag}
-                   :plugin.tag.retrieve {:domain-key nil}
-                   :plugin.tag.update {:domain-key :tag}
-                   :plugin.tag.delete {:domain-key nil}
-                   :plugin.tag.find {:domain-key :tag}
-                   :plugin.tag.list {:domain-key :tag}}
+                   :plugin.tag.create {:mapped-action 'stefon-datomic.crud/create :domain-key :tag}
+                   :plugin.tag.retrieve {:mapped-action 'stefon-datomic.crud/retrieve-by-id :domain-key nil}
+                   :plugin.tag.update {:mapped-action 'stefon-datomic.crud/update :domain-key :tag}
+                   :plugin.tag.delete {:mapped-action 'stefon-datomic.crud/delete :domain-key nil}
+                   :plugin.tag.find {:mapped-action 'stefon-datomic.crud/retrieve :domain-key :tag}
+                   :plugin.tag.list {:mapped-action 'stefon-datomic.crud/list :domain-key :tag}}
  }

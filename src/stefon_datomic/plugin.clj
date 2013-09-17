@@ -124,19 +124,21 @@
         params (:parameters (second key-params))
 
         mapped-action (config/find-mapping key)
+        mapped-fn (:mapped-action mapped-action)
+        domain-key (:domain-key mapped-action)
 
         yyy (println "")
         qqq (println ">> key > " key)
         www (println ">> params > " params)
         eee (println ">> mapped-action > " mapped-action)
-        zzz (println "")
-
-        ]
+        zzz (println "") ]
 
     ))
 
 (def communication-pair (atom {:receive-fn receive-fn
-                               :send-fn nil}))
+                               :send-fn nil
+
+                               :conn nil}))
 
 
 (defn send-message [message]
@@ -152,21 +154,27 @@
 ;; BOOTSTRAP the System
 (defn bootstrap-stefon
   "Start the system and create a DB"
-  ([]
-     (bootstrap-stefon :dev (fn [message])))
-  ([env handler-fn]
+  ([] (bootstrap-stefon :dev true (fn [message])))
+  ([env] (bootstrap-stefon env true (fn [message])))
+  ([env initialize] (bootstrap-stefon :dev true (fn [message])))
+  ([env initialize handler-fn]
      (let [step-one (if-not (shell/system-started?)
                       (shell/start-system))
-           send-function (shell/attach-plugin handler-fn)
-           domain-schema-promise (send-function {:stefon.domain.schema {:parameters nil}})
+           send-function (shell/attach-plugin handler-fn)]
 
-           step-four (create-db env) ]
+       (if initialize
 
-           (let [init-result (init-db @domain-schema-promise env)
-                 conn (connect-to-db env)]
-
+         (let [domain-schema-promise (send-function {:stefon.domain.schema {:parameters nil}})
+               step-four (create-db env)
+               init-result (init-db @domain-schema-promise env)]
+           (let [conn (connect-to-db env)]
              {:init-result init-result
-              :conn conn}))))
+              :conn conn}))
+
+         (let [conn (connect-to-db env)]
+             {:init-result nil
+              :conn conn})))))
+
 
 
 ;; PLUGING Function
@@ -188,9 +196,10 @@
 
      ;; attach plugin to kernel
      (if (shell/system-started?)
-       (let [send-fn (shell/attach-plugin (:receive-fn @communication-pair))]
+       (let [send-fn (shell/attach-plugin (:receive-fn @communication-pair))
+             bootstrap-result (bootstrap-stefon env)]
 
-         (swap! communication-pair (fn [inp]
-                                     (assoc inp :send-fn send-fn)))
+         (swap! communication-pair (fn [inp] (assoc inp :conn (:conn bootstrap-result))))
+         (swap! communication-pair (fn [inp] (assoc inp :send-fn send-fn)))
          send-fn)
        (throw Exception "stefon-datomic: stefon system not started"))))
