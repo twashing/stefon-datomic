@@ -6,7 +6,11 @@
             [stefon.shell :as shell]
             [stefon.shell.kernel :as kernel]
 
+            [stefon-datomic.crud :as crud]
             [stefon-datomic.config :as config]))
+
+
+(declare communication-pair)
 
 
 ;; DATABASE Functions
@@ -125,14 +129,24 @@
 
         mapped-action (config/find-mapping key)
         mapped-fn (:mapped-action mapped-action)
-        domain-key (:domain-key mapped-action)
+        mapped-domain-key (:domain-key mapped-action)]
 
-        yyy (println "")
-        qqq (println ">> key > " key)
-        www (println ">> params > " params)
-        eee (println ">> mapped-action > " mapped-action)
-        zzz (println "") ]
 
+    (println "")
+    (println ">> key > " key)
+    (println ">> params > " params)
+    (println ">> mapped-action > " mapped-action)
+    (println ">> mapped-fn > " (type mapped-fn))
+    (println ">> domain-key > " mapped-domain-key)
+    (println ">> conn > " (:conn @communication-pair))
+    (println "WTF >> " (-> mapped-domain-key nil? not))
+
+    (if mapped-fn
+      (do
+        (try (def action-result (mapped-fn (:conn @communication-pair) mapped-domain-key params))
+             (catch Exception e (println ">> Exception > " e)))
+        (println ">> ACTION result > " action-result)
+        (println "")))
     ))
 
 (def communication-pair (atom {:receive-fn receive-fn

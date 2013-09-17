@@ -7,7 +7,8 @@
             [stefon.shell :as shell]
             [stefon.domain :as domain]
             [stefon.shell.plugin :as plugin]
-            [stefon-datomic.plugin :as pluginD]))
+            [stefon-datomic.plugin :as pluginD]
+            [stefon-datomic.crud :as crud]))
 
 
 (def config (load-string (slurp (io/resource "stefon-datomic.edn"))))
@@ -28,7 +29,7 @@
                      {:name :name, :cardinality :one, :type :string}]})
 
 
-(describe "Plugin should be able to attach to a running Stefon instance => "
+#_(describe "Plugin should be able to attach to a running Stefon instance => "
 
           (before (datomic/delete-database (-> config :dev :url))
                   (shell/stop-system))
@@ -52,29 +53,34 @@
                 (should-not-be-nil @result)
                 (should (map? @result))
                 (should= :plugin.post.create (-> @result keys first))
-                (should= {:title "t" :content "c" :content-type "c/t" :created-date "0000" :modified-date "1111" :assets-ref nil :tags-ref nil} (-> @result :plugin.post.create :parameters)))))
+                (should= {:title "t" :content "c" :content-type "c/t" :created-date "0000" :modified-date "1111" :assets nil :tags nil} (-> @result :plugin.post.create :parameters)))))
+
 
 (describe "Integrate CRUD with plugin messages"
 
           (before (datomic/delete-database (-> config :dev :url))
                   (shell/stop-system))
 
-          (let [result (pluginD/bootstrap-stefon :dev true)
+          (let [step-one (shell/start-system)
+                step-two (pluginD/plugin :dev)
+
+                result (pluginD/bootstrap-stefon :dev true)
                 conn (:conn result)
 
                 date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
 
                 ;; CREATE Post
-                cpost (shell/create :post "my post" "my content" "text/md" date-one date-one nil nil)
-                ;;aaa (println ">> cpost > " @cpost)
+                cpost (shell/create :post "my post" "my content" "text/md" date-one date-one [] [])
+                test-created (crud/retrieve conn :post {:title "my post"})
+                aaa (println ">> cpost > " test-created)
+
 
                 ;; RETRIEVE Post
-                rpost (shell/retrieve :post (:id @cpost))
+                ;;rpost (shell/retrieve :post (:id @cpost))
                 ;;ccc (println ">> rpost > " @rpost)
 
-
                 ;; FIND Post
-                fpost (shell/find :post {:title "my post"})
+                ;;fpost (shell/find :post {:title "my post"})
                 ;;bbb (println ">> fpost > " @fpost)
 
                 ;; UPDATE Post
