@@ -10,7 +10,8 @@
                  #_[stefon "0.1.0-SNAPSHOT"]]
 
   :profiles {:dev {:source-paths ["dev"]
-                   :dependencies [[lamina "0.5.0-rc3"]
+                   :dependencies [[org.clojure/core.async "0.1.222.0-83d0c2-alpha"]
+                                  [prismatic/schema "0.1.5"]
                                   [cljs-uuid "0.0.4"]
                                   [org.clojure/tools.trace "0.7.6"]
                                   [org.clojure/tools.namespace "0.2.3"]
