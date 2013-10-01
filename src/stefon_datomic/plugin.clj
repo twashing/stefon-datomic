@@ -175,11 +175,15 @@
   ([env initialize handler-fn]
      (let [step-one (if-not (shell/system-started?)
                       (shell/start-system))
-           send-function (shell/attach-plugin handler-fn)]
+           ;;send-function (shell/attach-plugin handler-fn)
+           result (shell/attach-plugin handler-fn)
+           sendfn (:sendfn result)
+           recievefn (:recievefn result)]
 
+       (println ">> ... > " result)
        (if initialize
 
-         (let [domain-schema-promise (send-function {:stefon.domain.schema {:parameters nil}})
+         (let [domain-schema-promise (sendfn {:id result :stefon.domain.schema {:parameters nil}})
                step-four (create-db env)
                init-result (init-db @domain-schema-promise env)]
            (let [conn (connect-to-db env)]
