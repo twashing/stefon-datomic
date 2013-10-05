@@ -12,21 +12,23 @@
 
 
 (def config (load-string (slurp (io/resource "stefon-datomic.edn"))))
-(def domain-schema {:assets
-                    [{:name :id, :cardinality :one, :type :uuid}
-                     {:name :name, :cardinality :one, :type :string}
-                     {:name :type, :cardinality :one, :type :string}
-                     {:name :asset, :cardinality :one, :type :string}],
-                    :posts
-                    [{:name :id, :cardinality :one, :type :uuid}
-                     {:name :title, :cardinality :one, :type :string}
-                     {:name :content, :cardinality :one, :type :string}
-                     {:name :content-type, :cardinality :one, :type :string}
-                     {:name :created-date, :cardinality :one, :type :instant}
-                     {:name :modified-date, :cardinality :one, :type :instant}],
+(def domain-schema {:posts
+                    [{:name :id :cardinality :one :type :string}
+                     {:name :title :cardinality :one :type :string}
+                     {:name :content :cardinality :one :type :string}
+                     {:name :content-type :cardinality :one :type :string}
+                     {:name :created-date :cardinality :one :type :instant}
+                     {:name :modified-date :cardinality :one :type :instant}
+                     {:name :assets :cardinality :many :type :ref}
+                     {:name :tags :cardinality :many :type :ref}],
+                    :assets
+                    [{:name :id :cardinality :one :type :string}
+                     {:name :name :cardinality :one :type :string}
+                     {:name :type :cardinality :one :type :string}
+                     {:name :asset :cardinality :one :type :string}],
                     :tags
-                    [{:name :id, :cardinality :one, :type :uuid}
-                     {:name :name, :cardinality :one, :type :string}]})
+                    [{:name :id :cardinality :one :type :string}
+                     {:name :name :cardinality :one :type :string}]})
 
 
 (describe "Plugin should be able to attach to a running Stefon instance => "
@@ -53,20 +55,24 @@
                 (should= {:posts [], :assets [], :tags []} (:result @result-promise)) ))
 
 
-          #_(it "Should return a list of domain schema"
+          (it "Should return a list of domain schema"
 
-              (let [sys1 (shell/create-system)
-                    sys2 (shell/start-system sys1)
+              (let [
+                    sys2 (shell/start-system)
 
-                    handler-fn (fn [message] (println "Handler message, after :stefon.domain.schema > " message))
-                    sender-fn (plugin/attach-plugin @sys2 handler-fn)
+                    result-promise (promise)
+                    handler-fn (fn [message]
 
-                    result-promise (sender-fn {:stefon.domain.schema {:parameters nil}})]
+                                 (println "Handler message, after :stefon.domain.schema > " message)
+                                 (deliver result-promise message))
+                    plugin-result (plugin/attach-plugin sys2 handler-fn)
+
+                    xx ((:sendfn plugin-result) {:id (:id plugin-result) :message {:stefon.domain.schema {:parameters nil}}})]
 
                 (println ">> " @result-promise)
                 (should-not-be-nil @result-promise)
-                (should= '(:posts :assets :tags) (keys @result-promise))
-                (should= domain-schema @result-promise)))
+                (should= '(:posts :assets :tags) (keys (:result @result-promise)))
+                (should= domain-schema (:result @result-promise))))
 
 
           #_(it "Should get the plugin's configuration"
