@@ -169,8 +169,43 @@
 (defn handle-domain-schema [env message]
 
   (println ">> handle-domain-schema CALLED > " message)
+  (println ">> handle-domain-schema RESULT > " (init-db (:result message) env)))
 
-  (init-db (:result message) env))
+
+(defn init-core [env]
+
+
+  #_(let [step-one (if-not (shell/system-started?)
+                      (shell/start-system))
+
+           init-result (promise)
+           handlerfn (fn [message]
+
+                       (println ">> domain handler CALLED > " message)
+
+                       (let [db-result (init-db (:result message) env)]
+
+                         (println ">> domain handler RESULT > " db-result)
+                         (deliver init-result db-result)))
+
+           result (shell/attach-plugin handlerfn)
+
+           cid (:id result)
+           sendfn (:sendfn result)
+           recievefn (:recievefn result)]
+
+
+       (if initialize
+
+         (let [xx (println ">> Here > " init-result)
+               xx init-result  ;; make sure we have an init-result before we get the domain schema
+               xx (sendfn {:id cid :message {:stefon.domain.schema {:parameters nil}}}) ]
+
+           (let [conn (connect-to-db env)]
+             {:conn conn}))
+
+         (let [conn (connect-to-db env)]
+           {:conn conn}))))
 
 
 ;; BOOTSTRAP the System
@@ -187,38 +222,32 @@
 
   ([env initialize handlerfn]
 
-     {:pre [(fn? handlerfn)]}
 
-     (let [step-one (if-not (shell/system-started?)
-                      (shell/start-system))
+     ;; START System
+     (if-not (shell/system-started?)
+       (shell/start-system))
 
-           result (shell/attach-plugin handlerfn)
 
-           cid (:id result)
-           sendfn (:sendfn result)
-           recievefn (:recievefn result)]
+     ;; ATTACH Plugin
+     (shell/attach-plugin handlerfn)
 
-       (if initialize
 
-         (let [
-               xx (create-db env)
-               xx (sendfn {:id cid :message {:stefon.domain.schema {:parameters nil}}}) ]
+     ;; CONNECT
+     (if initialize
 
-           (let [conn (connect-to-db env)]
-             {;;:init-result init-result
-              :conn conn}))
+       ;; 1. get schema; initialize DB; get connection
+       {:conn (init-core env)}
 
-         (let [conn (connect-to-db env)]
-             {;;:init-result nil
-              :conn conn})))))
-
+       ;; 2. get connection
+       {:conn (connect-to-db env)})))
 
 
 ;; PLUGING Function
 (defn plugin
   "This clears out all tee functions before attaching to the kernel"
 
-  ([] (plugin :prod))
+  ([]
+     (plugin :prod))
 
   ([env]
      (let [config (config/get-config)]
@@ -226,10 +255,8 @@
 
   ([env config]
 
-
      ;; clear tee-fns
      (swap! tee-fns (fn [inp] []))
-
 
      ;; attach plugin to kernel
      (if (shell/system-started?)

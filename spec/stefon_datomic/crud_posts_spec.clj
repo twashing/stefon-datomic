@@ -77,7 +77,7 @@
 
                     ;; add datom
                     date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
-                    ;;one (crud/create (:conn result) :post {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
+                    ;;one (crud/create (:conn result) :post {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one :assets [] :tags []})
 
                     ;;qresult (datomic/q '[:find ?e :where [?e :posts/content-type]] (datomic/db (:conn result)))
                     ]
