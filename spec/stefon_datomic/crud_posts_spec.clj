@@ -84,7 +84,7 @@
                 (should= java.util.HashSet (type qresult))
                 (should-not (empty? qresult))))
 
-          #_(it "Should retrieve a created entity post from Datomic - 001"
+          (it "Should retrieve a created entity post from Datomic - 001"
 
               ;; create 3, then get anyone of them - the second
               (let [;; create DB & get the connection
@@ -99,7 +99,7 @@
                 (should= java.util.HashSet (type qresult))
                 (should-not (empty? qresult))))
 
-          #_(it "Should retrieve a created post from Datomic - 002"
+          (it "Should retrieve a created post from Datomic - 002"
 
               ;; create 3, then get anyone of them - the second
               (let [conn (populate-with-posts)
@@ -115,7 +115,7 @@
                 (should (map? uresult))
                 (should= '(:db/id :posts/modified-date :posts/created-date :posts/content-type :posts/content :posts/title :posts/id) (keys uresult))))
 
-          #_(it "Should update a created post from Datomic"
+          (it "Should update a created post from Datomic"
 
               ;; create 3, then update anyone of them - the third
               (let [
@@ -143,7 +143,7 @@
                   (should-not (empty? result-after))
                   (should= "three content" (-> result-after first :posts/content)))))
 
-          #_(it "Should delete a created post from Datomic"
+          (it "Should delete a created post from Datomic"
 
               ;; create 3, then delete anyone of them - the first
               (let [
@@ -170,7 +170,7 @@
 
                   (should (empty? result-after)) )))
 
-          #_(it "Should find by attributes: content-type & created-date"
+          (it "Should find by attributes: content-type & created-date"
 
               ;; create 4, 2 txt, and 2 md files; make one of them have a different created-date
               ;;   then find the md files... from the DB
@@ -192,7 +192,7 @@
                 (should= 1 (count qresult))
                 (should= 3 (count qresult-many))))
 
-          #_(it "Should list created posts"
+          (it "Should list created posts"
 
               ;; create 3, then list them out... from the DB
               (let [conn (populate-with-posts)
@@ -211,7 +211,7 @@
           ;;    post > assets
           ;;    assets > post
 
-          #_(it "Should be able to reject bad input"
+          (it "Should be able to reject bad input"
 
               (let [conn (populate-with-posts)
 
@@ -238,7 +238,7 @@
                 (should-not-be-nil e3)
                 (should= java.lang.AssertionError (type e3))))
 
-          #_(it "Should be able to put together related IDs"
+          (it "Should be able to put together related IDs"
 
               (let [conn (populate-with-posts)
                     date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
