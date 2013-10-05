@@ -11,8 +11,8 @@
             [stefon-datomic.config :as config]))
 
 
-#_(def config (load-string (slurp (io/resource "stefon-datomic.edn"))))
-#_(def domain-schema {:assets
+(def config (load-string (slurp (io/resource "stefon-datomic.edn"))))
+(def domain-schema {:assets
                     [{:name :id, :cardinality :one, :type :uuid}
                      {:name :name, :cardinality :one, :type :string}
                      {:name :type, :cardinality :one, :type :string}
@@ -29,25 +29,28 @@
                      {:name :name, :cardinality :one, :type :string}]})
 
 
-#_(describe "Plugin should be able to attach to a running Stefon instance => "
+(describe "Plugin should be able to attach to a running Stefon instance => "
 
           (before (datomic/delete-database (-> config :dev :url))
                   (shell/stop-system))
 
+
           (it "Should attach to a running Stefon instance"
 
-              (let [sys1 (shell/create-system)
-                    sys2 (shell/start-system sys1)
+              (let [
+                    sys2 (shell/start-system)
 
-                    handler-fn (fn [message] (println "Handler message, after :stefon.domain > " message))
-                    sender-fn (plugin/attach-plugin @sys2 handler-fn)
+                    result-promise (promise)
+                    handler-fn (fn [message]
 
-                    result-promise (sender-fn {:stefon.domain {:parameters nil}})]
+                                 (println "Handler message, after :stefon.domain > " message)
+                                 (deliver result-promise message))
+                    plugin-result (plugin/attach-plugin sys2 handler-fn)
+
+                    xx ((:sendfn plugin-result) {:id (:id plugin-result) :message {:stefon.domain {:parameters nil}}}) ]
 
                 (should-not-be-nil @result-promise)
-                (should= {:posts [], :assets [], :tags []} @result-promise)
-
-                (should= 1 1)))
+                (should= {:posts [], :assets [], :tags []} (:result @result-promise)) ))
 
 
           #_(it "Should return a list of domain schema"
@@ -66,19 +69,19 @@
                 (should= domain-schema @result-promise)))
 
 
-          (it "Should get the plugin's configuration"
+          #_(it "Should get the plugin's configuration"
 
               (let [config (config/get-config)]
                 (should-not-be-nil config)
                 (should (some #{:dev :prod} (keys config)))))
 
 
-          (it "Should throw an exception if DB has not been created, and we connect to DB"
+          #_(it "Should throw an exception if DB has not been created, and we connect to DB"
 
               (should-throw Exception (pluginD/connect-to-db :dev)))
 
 
-          (it "Should be able to create a DB"
+          #_(it "Should be able to create a DB"
 
               (let [rvalue (pluginD/create-db :dev)]
 
@@ -86,7 +89,7 @@
                 (should rvalue)))
 
 
-          (it "Should be able to Generate a DB Schema from a Domain Schema"
+          #_(it "Should be able to Generate a DB Schema from a Domain Schema"
 
               (let [db-schema (pluginD/generate-db-schema domain-schema)]
 
@@ -98,7 +101,7 @@
                 (should= :db.cardinality/one (-> db-schema first :db/cardinality))))
 
 
-          (it "Should be able to load schema into a created DB"
+          #_(it "Should be able to load schema into a created DB"
 
               ;; create DB
               (pluginD/create-db :dev)
@@ -117,7 +120,7 @@
                 (should (map? @result))))
 
 
-          (it "Should connect or create a DB - Part 1"
+          #_(it "Should connect or create a DB - Part 1"
 
               (let [
                     one (if-not (shell/system-started?)
@@ -136,7 +139,7 @@
                 (should= datomic.peer.LocalConnection (type (:conn result)))))
 
 
-          (it "Should connect or create a DB - Part 2"
+          #_(it "Should connect or create a DB - Part 2"
 
               (let [
                     one (if-not (shell/system-started?)
@@ -158,13 +161,13 @@
                 (should= datomic.peer.LocalConnection (type (:conn result)))))
 
 
-          (it "Should attach itself to the kernel - Main 001"
+          #_(it "Should attach itself to the kernel - Main 001"
 
               ;; check to see if kernel / system is running
               (should-throw Exception (pluginD/plugin :dev)))
 
 
-          (it "Should attach itself to the kernel - Main 002"
+          #_(it "Should attach itself to the kernel - Main 002"
 
               (let [one (shell/start-system)
                     senderF (pluginD/plugin :dev)]
@@ -178,7 +181,7 @@
                 (should (fn? (:send-fn @pluginD/communication-pair)))))
 
 
-          (it "Should attach itself to the kernel - Main 002"
+          #_(it "Should attach itself to the kernel - Main 002"
 
 
               ;; check plugin attach
