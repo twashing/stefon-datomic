@@ -12,8 +12,8 @@
             [stefon-datomic.config :as config]))
 
 
-#_(def config (load-string (slurp (io/resource "stefon-datomic.edn"))))
-#_(def domain-schema {:assets
+(def config (load-string (slurp (io/resource "stefon-datomic.edn"))))
+(def domain-schema {:assets
                     [{:name :id, :cardinality :one, :type :uuid}
                      {:name :name, :cardinality :one, :type :string}
                      {:name :type, :cardinality :one, :type :string}
@@ -30,7 +30,7 @@
                      {:name :name, :cardinality :one, :type :string}]})
 
 
-#_(defn populate-with-posts []
+(defn populate-with-posts []
 
   ;; create DB & get the connection
   (let [result (pluginD/bootstrap-stefon)
@@ -44,7 +44,7 @@
 
     conn))
 
-#_(describe "Plugin should be able to capture and persist CRUD messages from a Stefon instance => "
+(describe "Plugin should be able to capture and persist CRUD messages from a Stefon instance => "
 
           (before (datomic/delete-database (-> config :dev :url))
                   (shell/stop-system))
@@ -59,10 +59,10 @@
           (it "Should return a proper mapping"
 
               (let [result (config/find-mapping :plugin.post.create)]
-                (should-not-be-nil result)
 
-                #_(should (vector? result))
-                #_(should= 'datomic.api/transact (first result))))
+                (should-not-be-nil result)
+                (should (map? result))
+                (should= stefon-datomic.crud/create (:mapped-action result))))
 
 
           ;; ====
@@ -70,7 +70,7 @@
 
 
           ;;  post(s)
-          (it "Should save created post(s) to Datomic"
+          #_(it "Should save created post(s) to Datomic"
 
               (let [;; create DB & get the connection
                     result (pluginD/bootstrap-stefon)
@@ -84,7 +84,7 @@
                 (should= java.util.HashSet (type qresult))
                 (should-not (empty? qresult))))
 
-          (it "Should retrieve a created entity post from Datomic - 001"
+          #_(it "Should retrieve a created entity post from Datomic - 001"
 
               ;; create 3, then get anyone of them - the second
               (let [;; create DB & get the connection
@@ -99,7 +99,7 @@
                 (should= java.util.HashSet (type qresult))
                 (should-not (empty? qresult))))
 
-          (it "Should retrieve a created post from Datomic - 002"
+          #_(it "Should retrieve a created post from Datomic - 002"
 
               ;; create 3, then get anyone of them - the second
               (let [conn (populate-with-posts)
@@ -115,7 +115,7 @@
                 (should (map? uresult))
                 (should= '(:db/id :posts/modified-date :posts/created-date :posts/content-type :posts/content :posts/title :posts/id) (keys uresult))))
 
-          (it "Should update a created post from Datomic"
+          #_(it "Should update a created post from Datomic"
 
               ;; create 3, then update anyone of them - the third
               (let [
@@ -143,7 +143,7 @@
                   (should-not (empty? result-after))
                   (should= "three content" (-> result-after first :posts/content)))))
 
-          (it "Should delete a created post from Datomic"
+          #_(it "Should delete a created post from Datomic"
 
               ;; create 3, then delete anyone of them - the first
               (let [
@@ -170,7 +170,7 @@
 
                   (should (empty? result-after)) )))
 
-          (it "Should find by attributes: content-type & created-date"
+          #_(it "Should find by attributes: content-type & created-date"
 
               ;; create 4, 2 txt, and 2 md files; make one of them have a different created-date
               ;;   then find the md files... from the DB
@@ -192,7 +192,7 @@
                 (should= 1 (count qresult))
                 (should= 3 (count qresult-many))))
 
-          (it "Should list created posts"
+          #_(it "Should list created posts"
 
               ;; create 3, then list them out... from the DB
               (let [conn (populate-with-posts)
@@ -211,7 +211,7 @@
           ;;    post > assets
           ;;    assets > post
 
-          (it "Should be able to reject bad input"
+          #_(it "Should be able to reject bad input"
 
               (let [conn (populate-with-posts)
 
@@ -238,7 +238,7 @@
                 (should-not-be-nil e3)
                 (should= java.lang.AssertionError (type e3))))
 
-          (it "Should be able to put together related IDs"
+          #_(it "Should be able to put together related IDs"
 
               (let [conn (populate-with-posts)
                     date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))

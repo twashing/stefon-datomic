@@ -54,7 +54,7 @@
           ;; make CRUD functions from generated schema
 
           ;;  asset(s)
-          (it "Should save created asset(s) to Datomic"
+          #_(it "Should save created asset(s) to Datomic"
 
               (let [;; create DB & get the connection
                     result (pluginD/bootstrap-stefon)
