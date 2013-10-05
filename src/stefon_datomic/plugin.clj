@@ -260,5 +260,5 @@
 
          (swap! communication-pair (fn [inp] (assoc inp :conn (:conn bootstrap-result))))
          (swap! communication-pair (fn [inp] (assoc inp :send-fn (:sendfn plugin-result))))
-         (:sendfn plugin-result))
+         plugin-result)
        (throw Exception "stefon-datomic: stefon system not started"))))

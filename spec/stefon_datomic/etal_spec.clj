@@ -181,10 +181,9 @@
 
                 ;; check result is the sender-function
                 (should-not-be-nil resultP)
-                (should (fn? resultP))
+                (should (map? resultP))
+                (should= '(:recievefn :sendfn :id :channel) (keys resultP))
 
                 ;; check assignment of sender function
                 (should-not-be-nil (:send-fn @pluginD/communication-pair))
-                (should (fn? (:send-fn @pluginD/communication-pair)))))
-
-)
+                (should (fn? (:send-fn @pluginD/communication-pair))))) )

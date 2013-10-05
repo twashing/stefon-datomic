@@ -11,25 +11,26 @@
             [stefon-datomic.crud :as crud]))
 
 
-#_(def config (load-string (slurp (io/resource "stefon-datomic.edn"))))
-#_(def domain-schema {:assets
-                    [{:name :id, :cardinality :one, :type :uuid}
-                     {:name :name, :cardinality :one, :type :string}
-                     {:name :type, :cardinality :one, :type :string}
-                     {:name :asset, :cardinality :one, :type :string}],
-                    :posts
-                    [{:name :id, :cardinality :one, :type :uuid}
-                     {:name :title, :cardinality :one, :type :string}
-                     {:name :content, :cardinality :one, :type :string}
-                     {:name :content-type, :cardinality :one, :type :string}
-                     {:name :created-date, :cardinality :one, :type :instant}
-                     {:name :modified-date, :cardinality :one, :type :instant}],
+(def config (load-string (slurp (io/resource "stefon-datomic.edn"))))
+(def domain-schema {:posts
+                    [{:name :id :cardinality :one :type :string}
+                     {:name :title :cardinality :one :type :string}
+                     {:name :content :cardinality :one :type :string}
+                     {:name :content-type :cardinality :one :type :string}
+                     {:name :created-date :cardinality :one :type :instant}
+                     {:name :modified-date :cardinality :one :type :instant}
+                     {:name :assets :cardinality :many :type :ref}
+                     {:name :tags :cardinality :many :type :ref}],
+                    :assets
+                    [{:name :id :cardinality :one :type :string}
+                     {:name :name :cardinality :one :type :string}
+                     {:name :type :cardinality :one :type :string}
+                     {:name :asset :cardinality :one :type :string}],
                     :tags
-                    [{:name :id, :cardinality :one, :type :uuid}
-                     {:name :name, :cardinality :one, :type :string}]})
+                    [{:name :id :cardinality :one :type :string}
+                     {:name :name :cardinality :one :type :string}]})
 
-
- #_(describe "Plugin should be able to attach to a running Stefon instance => "
+(describe "Plugin should be able to attach to a running Stefon instance => "
 
           (before (datomic/delete-database (-> config :dev :url))
                   (shell/stop-system))
