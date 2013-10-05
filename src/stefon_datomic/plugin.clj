@@ -169,30 +169,41 @@
 ;; BOOTSTRAP the System
 (defn bootstrap-stefon
   "Start the system and create a DB"
-  ([] (bootstrap-stefon :dev true (fn [message])))
-  ([env] (bootstrap-stefon env true (fn [message])))
-  ([env initialize] (bootstrap-stefon :dev true (fn [message])))
-  ([env initialize handler-fn]
+
+  ([] (bootstrap-stefon :dev true (fn [message] (println ">> handlerfn CALLED > " message))))
+
+  ([env]
+     (bootstrap-stefon env true (fn [message] (println ">> handlerfn CALLED > " message))))
+
+  ([env initialize]
+     (bootstrap-stefon :dev true (fn [message] (println ">> handlerfn CALLED > " message))))
+
+  ([env initialize handlerfn]
+
+     {:pre [(fn? handlerfn)]}
+
      (let [step-one (if-not (shell/system-started?)
                       (shell/start-system))
-           ;;send-function (shell/attach-plugin handler-fn)
-           result (shell/attach-plugin handler-fn)
+
+           result (shell/attach-plugin handlerfn)
+
+           cid (:id result)
            sendfn (:sendfn result)
            recievefn (:recievefn result)]
 
        (if initialize
 
-         (let [domain-schema-promise (sendfn {:id result :stefon.domain.schema {:parameters nil}})
+         (let [xx (sendfn {:id cid :message {:stefon.domain.schema {:parameters nil}}})
 
-               xx (println ">> ... > " @domain-schema-promise)
 
-               step-four (create-db env)
-               init-result (init-db @domain-schema-promise env)]
-           (let [conn (connect-to-db env)]
+               ;;step-four (create-db env)
+               ;;init-result (init-db domain-schema-promise env)
+               ]
+           #_(let [conn (connect-to-db env)]
              {:init-result init-result
               :conn conn}))
 
-         (let [conn (connect-to-db env)]
+         #_(let [conn (connect-to-db env)]
              {:init-result nil
               :conn conn})))))
 

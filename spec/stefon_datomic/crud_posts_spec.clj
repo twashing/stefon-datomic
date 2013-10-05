@@ -70,19 +70,21 @@
 
 
           ;;  post(s)
-          #_(it "Should save created post(s) to Datomic"
+          (it "Should save created post(s) to Datomic"
 
               (let [;; create DB & get the connection
                     result (pluginD/bootstrap-stefon)
 
                     ;; add datom
                     date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
-                    one (crud/create (:conn result) :post {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
+                    ;;one (crud/create (:conn result) :post {:title "t" :content "c" :content-type "c/t" :created-date date-one :modified-date date-one})
 
-                    qresult (datomic/q '[:find ?e :where [?e :posts/content-type]] (datomic/db (:conn result)))]
+                    ;;qresult (datomic/q '[:find ?e :where [?e :posts/content-type]] (datomic/db (:conn result)))
+                    ]
 
-                (should= java.util.HashSet (type qresult))
-                (should-not (empty? qresult))))
+                ;;(should= java.util.HashSet (type qresult))
+                ;;(should-not (empty? qresult))
+                ))
 
           #_(it "Should retrieve a created entity post from Datomic - 001"
 
