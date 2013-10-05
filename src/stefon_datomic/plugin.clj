@@ -180,10 +180,12 @@
            sendfn (:sendfn result)
            recievefn (:recievefn result)]
 
-       (println ">> ... > " result)
        (if initialize
 
          (let [domain-schema-promise (sendfn {:id result :stefon.domain.schema {:parameters nil}})
+
+               xx (println ">> ... > " @domain-schema-promise)
+
                step-four (create-db env)
                init-result (init-db @domain-schema-promise env)]
            (let [conn (connect-to-db env)]

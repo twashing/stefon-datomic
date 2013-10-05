@@ -11,8 +11,8 @@
             [stefon-datomic.crud :as crud]))
 
 
-(def config (load-string (slurp (io/resource "stefon-datomic.edn"))))
-(def domain-schema {:assets
+#_(def config (load-string (slurp (io/resource "stefon-datomic.edn"))))
+#_(def domain-schema {:assets
                     [{:name :id, :cardinality :one, :type :uuid}
                      {:name :name, :cardinality :one, :type :string}
                      {:name :type, :cardinality :one, :type :string}
@@ -29,7 +29,7 @@
                      {:name :name, :cardinality :one, :type :string}]})
 
 
- (describe "Plugin should be able to attach to a running Stefon instance => "
+ #_(describe "Plugin should be able to attach to a running Stefon instance => "
 
           (before (datomic/delete-database (-> config :dev :url))
                   (shell/stop-system))
@@ -56,7 +56,7 @@
                 (should= {:title "t" :content "c" :content-type "c/t" :created-date "0000" :modified-date "1111" :assets nil :tags nil} (-> @result :plugin.post.create :parameters)))))
 
 
-(describe "Integrate CRUD with plugin messages"
+#_(describe "Integrate CRUD with plugin messages"
 
           (before (datomic/delete-database (-> config :dev :url))
                   (shell/stop-system))

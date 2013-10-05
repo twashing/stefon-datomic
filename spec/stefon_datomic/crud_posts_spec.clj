@@ -12,8 +12,8 @@
             [stefon-datomic.config :as config]))
 
 
-(def config (load-string (slurp (io/resource "stefon-datomic.edn"))))
-(def domain-schema {:assets
+#_(def config (load-string (slurp (io/resource "stefon-datomic.edn"))))
+#_(def domain-schema {:assets
                     [{:name :id, :cardinality :one, :type :uuid}
                      {:name :name, :cardinality :one, :type :string}
                      {:name :type, :cardinality :one, :type :string}
@@ -30,7 +30,7 @@
                      {:name :name, :cardinality :one, :type :string}]})
 
 
-(defn populate-with-posts []
+#_(defn populate-with-posts []
 
   ;; create DB & get the connection
   (let [result (pluginD/bootstrap-stefon)
@@ -44,7 +44,7 @@
 
     conn))
 
-(describe "Plugin should be able to capture and persist CRUD messages from a Stefon instance => "
+#_(describe "Plugin should be able to capture and persist CRUD messages from a Stefon instance => "
 
           (before (datomic/delete-database (-> config :dev :url))
                   (shell/stop-system))
