@@ -2,6 +2,7 @@
 
   (:require [datomic.api :as datomic]
             [clojure.pprint :as pprint]
+            [clojure.core.async :as async :refer :all]
 
             [stefon.shell :as shell]
             [stefon.shell.kernel :as kernel]
@@ -166,59 +167,50 @@
                    (conj inp receiveF))))
 
 
-(defn handle-domain-schema [env message]
 
-  (println ">> handle-domain-schema CALLED > " message)
-  (println ">> handle-domain-schema RESULT > " (init-db (:result message) env)))
+(def broadcast-list (atom []))
+(defn subscribe-to-braodcast [handlefn]
 
+  (swap! broadcast-list (fn [inp]
+                          (conj inp handlefn))))
 
-(defn init-core [env]
+(defn generic-handler [env message]
 
+  ;;(println ">> generic-handler CALLED > " message)
+  (reduce (fn [rslt echf]
+            (echf message))
+          []
+          @broadcast-list))
 
-  #_(let [step-one (if-not (shell/system-started?)
-                      (shell/start-system))
+(defn init-core [env plugin-result]
 
-           init-result (promise)
-           handlerfn (fn [message]
+  (let [conn (promise)
+        xx (subscribe-to-braodcast (fn [message]
 
-                       (println ">> domain handler CALLED > " message)
+                                  ;; initialize DB
+                                  (init-db (:result message) env)
 
-                       (let [db-result (init-db (:result message) env)]
+                                  ;; get connection
+                                  (deliver conn (connect-to-db env))))]
 
-                         (println ">> domain handler RESULT > " db-result)
-                         (deliver init-result db-result)))
+    ;; get schema
+    ((:sendfn plugin-result) {:id (:id plugin-result) :message {:stefon.domain.schema {:parameters nil}}})
 
-           result (shell/attach-plugin handlerfn)
-
-           cid (:id result)
-           sendfn (:sendfn result)
-           recievefn (:recievefn result)]
-
-
-       (if initialize
-
-         (let [xx (println ">> Here > " init-result)
-               xx init-result  ;; make sure we have an init-result before we get the domain schema
-               xx (sendfn {:id cid :message {:stefon.domain.schema {:parameters nil}}}) ]
-
-           (let [conn (connect-to-db env)]
-             {:conn conn}))
-
-         (let [conn (connect-to-db env)]
-           {:conn conn}))))
+    ;; return the connection
+    @conn))
 
 
 ;; BOOTSTRAP the System
 (defn bootstrap-stefon
   "Start the system and create a DB"
 
-  ([] (bootstrap-stefon :dev true (partial handle-domain-schema :dev)))
+  ([] (bootstrap-stefon :dev true (partial generic-handler :dev)))
 
   ([env]
-     (bootstrap-stefon env true (partial handle-domain-schema env)))
+     (bootstrap-stefon env true (partial generic-handler env)))
 
   ([env initialize]
-     (bootstrap-stefon env initialize (partial handle-domain-schema env)))
+     (bootstrap-stefon env initialize (partial generic-handler env)))
 
   ([env initialize handlerfn]
 
@@ -229,17 +221,20 @@
 
 
      ;; ATTACH Plugin
-     (shell/attach-plugin handlerfn)
+     (let [result (shell/attach-plugin handlerfn)
 
+           cid (:id result)
+           sendfn (:sendfn result)
+           recievefn (:recievefn result)]
 
-     ;; CONNECT
-     (if initialize
+       ;; CONNECT
+       (if initialize
 
-       ;; 1. get schema; initialize DB; get connection
-       {:conn (init-core env)}
+         ;; 1. get schema; initialize DB; get connection
+         (assoc result :conn (init-core env result))
 
-       ;; 2. get connection
-       {:conn (connect-to-db env)})))
+         ;; 2. get connection
+         (assoc result :conn (connect-to-db env))))))
 
 
 ;; PLUGING Function
