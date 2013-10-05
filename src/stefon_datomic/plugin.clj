@@ -2,6 +2,7 @@
 
   (:require [datomic.api :as datomic]
             [clojure.pprint :as pprint]
+            [clojure.string :as string]
             [clojure.core.async :as async :refer :all]
 
             [stefon.shell :as shell]
@@ -125,9 +126,15 @@
 
   ;; key / param(s)
   (let [key-params (-> message seq first)
-        key (first key-params)
-        params (:parameters (second key-params))
 
+        ;;xx (println "... 1 > " key-params)
+        key (first key-params)
+
+        ;;xx (println "... 2 > " key)
+        original-key (keyword (string/replace (name key) #"plugin" "stefon"))
+        params (-> key-params second :message original-key )
+
+        ;;xx (println "... 3 > " params)
         mapped-action (config/find-mapping key)
         mapped-fn (:mapped-action mapped-action)
         mapped-domain-key (:domain-key mapped-action)]

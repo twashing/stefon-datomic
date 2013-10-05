@@ -30,6 +30,7 @@
                     [{:name :id :cardinality :one :type :string}
                      {:name :name :cardinality :one :type :string}]})
 
+
 (describe "Plugin should be able to attach to a running Stefon instance => "
 
           (before (datomic/delete-database (-> config :dev :url))
@@ -56,7 +57,7 @@
                 (should (map? @result))
                 (should= :plugin.post.create (-> @result keys first))
                 (should= {:title "t" :content "c" :content-type "c/t" :created-date "0000" :modified-date "1111" :assets nil :tags nil}
-                         (-> @result :plugin.post.create :parameters)))))
+                         (-> @result :plugin.post.create :message :stefon.post.create :parameters)))))
 
 
 #_(describe "Integrate CRUD with plugin messages"
