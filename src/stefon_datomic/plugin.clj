@@ -255,10 +255,10 @@
 
      ;; attach plugin to kernel
      (if (shell/system-started?)
-       (let [send-fn (shell/attach-plugin (:receive-fn @communication-pair))
+       (let [plugin-result (shell/attach-plugin (:receive-fn @communication-pair))
              bootstrap-result (bootstrap-stefon env)]
 
          (swap! communication-pair (fn [inp] (assoc inp :conn (:conn bootstrap-result))))
-         (swap! communication-pair (fn [inp] (assoc inp :send-fn send-fn)))
-         send-fn)
+         (swap! communication-pair (fn [inp] (assoc inp :send-fn (:sendfn plugin-result))))
+         (:sendfn plugin-result))
        (throw Exception "stefon-datomic: stefon system not started"))))

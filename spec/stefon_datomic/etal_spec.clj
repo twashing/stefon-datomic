@@ -75,19 +75,19 @@
                 (should= domain-schema (:result @result-promise))))
 
 
-          #_(it "Should get the plugin's configuration"
+          (it "Should get the plugin's configuration"
 
               (let [config (config/get-config)]
                 (should-not-be-nil config)
                 (should (some #{:dev :prod} (keys config)))))
 
 
-          #_(it "Should throw an exception if DB has not been created, and we connect to DB"
+          (it "Should throw an exception if DB has not been created, and we connect to DB"
 
               (should-throw Exception (pluginD/connect-to-db :dev)))
 
 
-          #_(it "Should be able to create a DB"
+          (it "Should be able to create a DB"
 
               (let [rvalue (pluginD/create-db :dev)]
 
@@ -95,23 +95,22 @@
                 (should rvalue)))
 
 
-          #_(it "Should be able to Generate a DB Schema from a Domain Schema"
+          (it "Should be able to Generate a DB Schema from a Domain Schema"
 
               (let [db-schema (pluginD/generate-db-schema domain-schema)]
 
                 (should-not-be-nil db-schema)
-                (should= 12 (count db-schema))
+                (should= 14 (count db-schema))
 
                 (should= :assets/id (-> db-schema first :db/ident))
-                (should= :db.type/uuid (-> db-schema first :db/valueType))
+                (should= :db.type/string (-> db-schema first :db/valueType))
                 (should= :db.cardinality/one (-> db-schema first :db/cardinality))))
 
 
-          #_(it "Should be able to load schema into a created DB"
+          (it "Should be able to load schema into a created DB"
 
               ;; create DB
               (pluginD/create-db :dev)
-
 
               (let [
                     ;; connect
@@ -126,80 +125,66 @@
                 (should (map? @result))))
 
 
-          #_(it "Should connect or create a DB - Part 1"
+          (it "Should connect or create a DB - Part 1"
 
               (let [
                     one (if-not (shell/system-started?)
                           (shell/start-system))
-                    rhandler (fn [message] (println "Part 1 handler called"))
-                    sfunction (shell/attach-plugin rhandler)
 
-                    domain-schema-promise (sfunction {:stefon.domain.schema {:parameters nil}})
+                    domain-schema-promise (promise)
+                    rhandler (fn [message] (deliver domain-schema-promise message))
+                    plugin-result (shell/attach-plugin rhandler)
+
+                    xx ((:sendfn plugin-result) {:id (:id plugin-result) :message {:stefon.domain.schema {:parameters nil}}})
 
                     ;; try calling when db DOES NOT exist
-                    result (pluginD/connect-or-create @domain-schema-promise :dev)
-                    ]
+                    result (pluginD/connect-or-create (:result @domain-schema-promise) :dev) ]
 
                 (should-not-be-nil result)
                 (should-not-be-nil (:conn result))
                 (should= datomic.peer.LocalConnection (type (:conn result)))))
 
 
-          #_(it "Should connect or create a DB - Part 2"
+          (it "Should connect or create a DB - Part 2"
 
               (let [
                     one (if-not (shell/system-started?)
                           (shell/start-system))
-                    rhandler (fn [message] (println "Part 2 handler called"))
-                    sfunction (shell/attach-plugin rhandler)
 
-                    domain-schema-promise (sfunction {:stefon.domain.schema {:parameters nil}})
+                    domain-schema-promise (promise)
+                    rhandler (fn [message] (deliver domain-schema-promise (:result message)))
+                    plugin-result (shell/attach-plugin rhandler)
+
+                    xx ((:sendfn plugin-result) {:id (:id plugin-result) :message {:stefon.domain.schema {:parameters nil}}})
                     aa (pluginD/create-db :dev)
                     bb (pluginD/init-db @domain-schema-promise :dev)
 
 
                     ;; try calling when db DOES exist
-                    result (pluginD/connect-or-create @domain-schema-promise :dev)
-                    ]
+                    result (pluginD/connect-or-create @domain-schema-promise :dev) ]
 
                 (should-not-be-nil result)
                 (should-not-be-nil (:conn result))
                 (should= datomic.peer.LocalConnection (type (:conn result)))))
 
 
-          #_(it "Should attach itself to the kernel - Main 001"
+          (it "Should attach itself to the kernel - Main 001"
 
               ;; check to see if kernel / system is running
               (should-throw Exception (pluginD/plugin :dev)))
 
 
-          #_(it "Should attach itself to the kernel - Main 002"
+          (it "Should attach itself to the kernel - Main 002"
 
               (let [one (shell/start-system)
-                    senderF (pluginD/plugin :dev)]
+                    resultP (pluginD/plugin :dev)]
 
                 ;; check result is the sender-function
-                (should-not-be-nil senderF)
-                (should (fn? senderF))
+                (should-not-be-nil resultP)
+                (should (fn? resultP))
 
                 ;; check assignment of sender function
                 (should-not-be-nil (:send-fn @pluginD/communication-pair))
                 (should (fn? (:send-fn @pluginD/communication-pair)))))
 
-
-          #_(it "Should attach itself to the kernel - Main 002"
-
-
-              ;; check plugin attach
-              (let [one (shell/start-system)
-                    two (pluginD/plugin :dev)
-
-                    response-msg (atom nil)
-                    response-handler (pluginD/add-receive-tee (fn [msg]
-                                                                (swap! response-msg (fn [inp] msg))))
-
-                    three (pluginD/send-message {:fu :bar})]
-
-                (should-not-be-nil @response-msg)
-                (should (map? @response-msg))
-                (should= {:fu :bar} @response-msg))))
+)
