@@ -54,7 +54,7 @@
           ;; make CRUD functions from generated schema
 
           ;;  asset(s)
-          #_(it "Should save created asset(s) to Datomic"
+          (it "Should save created asset(s) to Datomic"
 
               (let [;; create DB & get the connection
                     result (pluginD/bootstrap-stefon)
@@ -67,7 +67,7 @@
                 (should= java.util.HashSet (type qresult))
                 (should-not (empty? qresult))))
 
-          #_(it "Should retrieve a created entity asset from Datomic - 001"
+          (it "Should retrieve a created entity asset from Datomic - 001"
 
               ;; create 3, then get anyone of them - the second
               (let [;; create DB & get the connection
@@ -80,7 +80,7 @@
                 (should= java.util.HashSet (type qresult))
                 (should-not (empty? qresult))))
 
-          #_(it "Should retrieve a created asset from Datomic - 002"
+          (it "Should retrieve a created asset from Datomic - 002"
 
               ;; create 3, then get anyone of them - the second
               (let [conn (populate-with-assets)
@@ -97,7 +97,7 @@
                 (should (map? uresult))
                 (should= '(:db/id :assets/asset :assets/type :assets/name :assets/id) (keys uresult))))
 
-          #_(it "Should update a created asset from Datomic"
+          (it "Should update a created asset from Datomic"
 
               ;; create 3, then update anyone of them - the third
               (let [
@@ -125,7 +125,7 @@
                   (should-not (empty? result-after))
                   (should= "image/png" (-> result-after first :assets/type)))))
 
-          #_(it "Should delete a created asset from Datomic"
+          (it "Should delete a created asset from Datomic"
 
               ;; create 3, then delete anyone of them - the first
               (let [
@@ -148,7 +148,7 @@
 
                   (should (empty? result-after)) )))
 
-          #_(it "Should find by attributes: content-type & created-date"
+          (it "Should find by attributes: content-type & created-date"
 
               ;; create 4, 2 txt, and 2 md files; make one of them have a different created-date
               ;;   then find the md files... from the DB
@@ -163,7 +163,7 @@
                 (should= 1 (count qresult))
                 (should= 3 (count qresult-many))))
 
-          #_(it "Should list created assets"
+          (it "Should list created assets"
 
               ;; create 3, then list them out... from the DB
               (let [conn (populate-with-assets)
