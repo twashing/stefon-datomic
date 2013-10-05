@@ -40,7 +40,8 @@
 
               (let [result (atom nil)
                     tee-fn (fn [msg]
-                             ;;(println "<< RECIEVEING Message >> " msg)
+
+                             (println "<< RECIEVEING Message >> " msg)
                              (swap! result (fn [inp] msg)))
 
                     step-one (shell/start-system)
@@ -54,7 +55,8 @@
                 (should-not-be-nil @result)
                 (should (map? @result))
                 (should= :plugin.post.create (-> @result keys first))
-                (should= {:title "t" :content "c" :content-type "c/t" :created-date "0000" :modified-date "1111" :assets nil :tags nil} (-> @result :plugin.post.create :parameters)))))
+                (should= {:title "t" :content "c" :content-type "c/t" :created-date "0000" :modified-date "1111" :assets nil :tags nil}
+                         (-> @result :plugin.post.create :parameters)))))
 
 
 #_(describe "Integrate CRUD with plugin messages"
