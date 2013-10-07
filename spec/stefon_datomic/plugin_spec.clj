@@ -202,10 +202,11 @@
                     step-two (pluginD/plugin :dev)
 
                     ;; separate test plugin
+                    test-retrieved (promise)
                     step-three (promise)
                     xx (deliver step-three (shell/attach-plugin (fn [msg]
 
-                                                                  (println "*** msg [" msg "] > ID [" (-> msg :result :tempids vals first) "]" )
+                                                                  ;;(println "*** msg [" msg "] > ID [" (-> msg :result :tempids vals first) "]" )
 
                                                                   ;; send a retrieve command
                                                                   (if (-> msg :result :tempids)
@@ -218,8 +219,7 @@
                                                                   ;; evaluate retrieve results
                                                                   (if (some #{:posts/modified-date} (-> msg :result keys))
 
-                                                                    (println "YEEEEEEEEEEEEEEEEsss !!"))
-                                                                  )))
+                                                                    (deliver test-retrieved (:result msg))) )))
 
                     date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013")) ]
 
@@ -229,8 +229,8 @@
                                        :message {:stefon.post.create
                                                  {:parameters {:title "my post" :content "my content" :content-type "text/md" :created-date date-one :modified-date date-one :assets [] :tags []}} }})
 
-                #_(should-not-be-nil @test-retrieved)
-                #_(should= stefon.domain.Post (type @test-retrieved))
-                #_(should= '(:id :title :content :content-type :created-date :modified-date :assets :tags) (keys @test-retrieved))
+                (should-not-be-nil @test-retrieved)
+                (should (some #{:db/id :posts/id :posts/title :posts/content :posts/content-type :posts/created-date :posts/modified-date} (keys @test-retrieved)))
+
 
                 )))
