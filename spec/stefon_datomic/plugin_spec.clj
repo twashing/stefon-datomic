@@ -33,11 +33,11 @@
 
 (describe "Plugin should be able to attach to a running Stefon instance => "
 
-          (before (datomic/delete-database (-> config :dev :url))
+            (before (datomic/delete-database (-> config :dev :url))
                   (shell/stop-system))
 
 
-          (it "Testing the core plugin function"
+            (it "Testing the core plugin function"
 
               (let [result (atom nil)
                     tee-fn (fn [msg]
@@ -57,62 +57,81 @@
                 (should (map? @result))
                 (should= :plugin.post.create (-> @result keys first))
                 (should= {:title "t" :content "c" :content-type "c/t" :created-date "0000" :modified-date "1111" :assets nil :tags nil}
-                         (-> @result :plugin.post.create :message :stefon.post.create :parameters))))
+                         (-> @result :plugin.post.create :message :stefon.post.create :parameters)))) )
+
+
+(describe "Integrate CRUD with plugin messages"
+
+          (before (datomic/delete-database (-> config :dev :url))
+                  (shell/stop-system))
 
 
           (it "Testing kernel / plugin connection with CREATE"
 
               (let [
                     result (pluginD/bootstrap-stefon)
-
-                    step-one (shell/start-system)
-                    step-two (pluginD/plugin :dev)
-
-                    result (pluginD/bootstrap-stefon)
                     conn (:conn result)
 
-                    ;; CREATE Post
-                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
-                    cpost (shell/create :post "my post" "my content" "text/md" date-one date-one [] [])
-                    test-created (crud/retrieve conn :post {:title "my post"})
-                    ]
+                    step-two (pluginD/plugin :dev)
 
-                (println "... " test-created)
-                (should-not-be-nil test-created)
-                (should-not (empty? test-created))
-                (should= 1 (count test-created))
-
-                )))
+                    create-promise (promise)
+                    retrieve-promise (promise)
 
 
+                    ;; ...
+                    step-four (pluginD/subscribe-to-braodcast (fn [msg]
 
+                                                                (println "<< IN broadcast >>" msg)
 
-#_(describe "Integrate CRUD with plugin messages"
+                                                                (deliver create-promise (-> msg :plugin.post.create :message))
+                                                                (deliver retrieve-promise (crud/retrieve conn :post {:title "my post"})) ))
 
-          (before (datomic/delete-database (-> config :dev :url))
-                  (shell/stop-system))
+                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013")) ]
 
+                ;; CREATE Post
+                (shell/create :post "my post" "my content" "text/md" date-one date-one [] [])
 
+                (should-not-be-nil @retrieve-promise)
+                (should-not (empty? @retrieve-promise))
+                (should= 1 (count @retrieve-promise)) ))
 
           #_(it "Testing kernel / plugin connection with RETRIEVE"
 
-              (let [step-one (shell/start-system)
-                    step-two (pluginD/plugin :dev)
+              (let [
+                    #_result #_(pluginD/bootstrap-stefon)
 
-                    result (pluginD/bootstrap-stefon :dev true)
-                    conn (:conn result)
+                    #_step-one #_(shell/start-system)
+                    #_step-two #_(pluginD/plugin :dev)
+
+                    #_tee-fn #_(fn [msg]
+
+                             (println "<< RECIEVE Needs ID >> " msg)
+                             )
+
+                    #_step-three #_(pluginD/add-receive-tee tee-fn)
+
+
+                    #_result #_(pluginD/bootstrap-stefon :dev true)
+                    #_conn #_(:conn result)
 
                     ;; RETRIEVE Post
-                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
-                    cpost (shell/create :post "my post" "my content" "text/md" date-one date-one [] [])
+                    #_date-one #_(-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
+                    #_cpost #_(shell/create :post "my post" "my content" "text/md" date-one date-one [] [])
 
-                    test-retrieved (shell/retrieve :post (:id @cpost))
-                    aaa (println ">> cpost > " (keys @test-retrieved))
+
+                    ;; ... TODO - wait for plugin to respond before retrieving
+                    #_xxx #_(println "... " cpost)
+                    #_test-retrieved #_(shell/retrieve :post (:id @cpost))
+                    #_aaa #_(println ">> cpost > " (keys @test-retrieved))
                     ]
 
-                (should-not-be-nil @test-retrieved)
-                (should= stefon.domain.Post (type @test-retrieved))
-                (should= '(:id :title :content :content-type :created-date :modified-date :assets :tags) (keys @test-retrieved))))
+                #_(should-not-be-nil @test-retrieved)
+                #_(should= stefon.domain.Post (type @test-retrieved))
+                #_(should= '(:id :title :content :content-type :created-date :modified-date :assets :tags) (keys @test-retrieved))
+
+                ))
+
+
 
           #_(it "Testing kernel / plugin connection with UPDATE"
 

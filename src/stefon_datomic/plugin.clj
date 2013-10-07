@@ -261,6 +261,8 @@
 
      ;; clear tee-fns
      (swap! tee-fns (fn [inp] []))
+     (swap! broadcast-list (fn [inp] []))
+
 
      ;; attach plugin to kernel
      (if (shell/system-started?)
