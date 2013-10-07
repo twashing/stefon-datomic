@@ -167,7 +167,7 @@
 
               ;; create 3, then list them out... from the DB
               (let [conn (populate-with-assets)
-                    qresult (crud/list conn :assets)]
+                    qresult (crud/llist conn :assets)]
 
                 (println "Listing created assets > " qresult)
                 (should-not (empty? qresult))

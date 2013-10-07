@@ -196,7 +196,7 @@
 
               ;; create 3, then list them out... from the DB
               (let [conn (populate-with-posts)
-                    qresult (crud/list conn :posts)]
+                    qresult (crud/llist conn :posts)]
 
                 (println "Listing created posts > " qresult)
                 (should-not (empty? qresult))

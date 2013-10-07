@@ -180,6 +180,8 @@
     ;; transact to Datomic
     @(datomic.api/transact conn [datom-map])))
 
+(declare llist)
+
 (defn update-embellish
   "Embellishes the update map with
 
@@ -196,7 +198,7 @@
         merged-constraints { :id (:id datom-map) }
 
         xx (println "WTF >> datom-map > " datom-map)
-        xx (println "WTF >> list > " (this/list conn :post))
+        xx (println "WTF >> list > " (llist conn :post))
         xx (try (retrieve-entity conn :post merged-constraints) (catch Exception e (println "EXCEPTION > update > retrieve > " e)))
 
         yy (println "WTF >> merged-constraints > " merged-constraints)
@@ -243,7 +245,7 @@
 
 
 ;; LIST
-(defn list [conn domain-key]
+(defn llist [conn domain-key]
 
   (let [the-db (d/db conn)
 

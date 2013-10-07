@@ -151,7 +151,7 @@
 
               ;; create 3, then list them out... from the DB
               (let [conn (populate-with-tags)
-                    qresult (crud/list conn :tags)]
+                    qresult (crud/llist conn :tags)]
 
                 (println "Listing created tags > " qresult)
                 (should-not (empty? qresult))
