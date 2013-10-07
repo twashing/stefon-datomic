@@ -92,35 +92,7 @@
                 (should= 1 (count @retrieve-promise)) ))
 
 
-          (it "Testing kernel / plugin connection with RETRIEVE"
 
-              (shell/stop-system)
-              (let [
-                    result (pluginD/bootstrap-stefon)
-                    conn (:conn result)
-
-                    step-two (pluginD/plugin :dev)
-
-                    step-four (pluginD/subscribe-to-braodcast (fn [msg]
-
-                                                                (println "<< IN broadcast > 2 >>" msg)
-
-
-                                                                #_test-retrieved #_(shell/retrieve :post (:id @cpost))
-                                                                #_aaa #_(println ">> cpost > " (keys @test-retrieved))
-                                                                ))
-
-                    ;; RETRIEVE Post
-                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
-                    ]
-
-                (shell/create :post "my post" "my content" "text/md" date-one date-one [] [])
-
-                #_(should-not-be-nil @test-retrieved)
-                #_(should= stefon.domain.Post (type @test-retrieved))
-                #_(should= '(:id :title :content :content-type :created-date :modified-date :assets :tags) (keys @test-retrieved))
-
-                ))
 
           #_(it "Testing kernel / plugin connection with UPDATE"
 
@@ -212,5 +184,49 @@
                     ;; rpost ...
 
                     ]
+
+                )))
+
+(describe "three"
+
+          (it "Testing kernel / plugin connection with RETRIEVE"
+
+              (shell/stop-system)
+              (let [
+                    result (pluginD/bootstrap-stefon)
+                    conn (:conn result)
+
+                    ;; separate test plugin
+                    separate-promise (promise)
+                    xx (deliver separate-promise (shell/attach-plugin (fn [msg]
+
+                                                                        ;;(println "*** > " msg)
+                                                                        (if (= "kernel-channel" (-> msg :plugin.post.create :id))
+
+                                                                          ;; ... retrieve
+                                                                          (do
+
+
+                                                                            (println "... Test Plugin CALLED > [" msg "] > separate-promise [" separate-promise "]")
+                                                                            ((:sendfn @separate-promise) {:id (:id @separate-promise)
+                                                                                                          :message {:stefon.post.find {:parameters {:param-map {:title "my post"}}}}}))
+                                                                          )
+                                                                        )))
+
+                    ;;xx (println "... step-one > " step-one)
+
+
+                    ;; initialize datomic plugin
+                    step-two (pluginD/plugin :dev)
+
+
+                    ;; RETRIEVE Post
+                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013")) ]
+
+                (shell/create :post "my post" "my content" "text/md" date-one date-one [] [])
+
+                #_(should-not-be-nil @test-retrieved)
+                #_(should= stefon.domain.Post (type @test-retrieved))
+                #_(should= '(:id :title :content :content-type :created-date :modified-date :assets :tags) (keys @test-retrieved))
 
                 )))

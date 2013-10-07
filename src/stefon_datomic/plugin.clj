@@ -121,7 +121,7 @@
           @tee-fns)
 
   ;; based on message, perform action
-  (println ">> JACKING IN >> " (seq message))
+  (println ">> stefon-datomic.plugin > JACKING IN >> " (seq message))
 
 
   ;; key / param(s)
@@ -133,6 +133,7 @@
         ;;xx (println "... 2 > " key)
         original-key (keyword (string/replace (name key) #"plugin" "stefon"))
         params (-> key-params second :message original-key :parameters)
+        origin-id (-> key-params second :id)
 
         ;;xx (println "... 3 > " params)
         mapped-action (config/find-mapping key)
@@ -156,6 +157,9 @@
 
             action-result (try (fn3) (catch Exception e (println ">> Exception > " e)))]
 
+        ;;(println ">> stefon-datomic.plugin > RESULT >> [" {:id (:id @communication-pair) :origin origin-id :result action-result} "]" )
+
+        ((:send-fn @communication-pair) {:id (:id @communication-pair) :origin origin-id :result action-result})
         action-result))))
 
 (def communication-pair (atom {:receive-fn receive-fn
@@ -270,5 +274,6 @@
 
          (swap! communication-pair (fn [inp] (assoc inp :conn (:conn bootstrap-result))))
          (swap! communication-pair (fn [inp] (assoc inp :send-fn (:sendfn plugin-result))))
+         (swap! communication-pair (fn [inp] (assoc inp :id (:id plugin-result))))
          plugin-result)
        (throw Exception "stefon-datomic: stefon system not started"))))

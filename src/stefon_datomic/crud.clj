@@ -37,7 +37,7 @@
 
 (defn create [conn domain-key datom-map]
 
-  #_(println "... domain-key [" domain-key "] / datom-map [" datom-map "]" )
+  ;;(println "... domain-key [" domain-key "] / datom-map [" datom-map "]" )
   {:pre [(keyword? domain-key)
          (map? datom-map)]}
 
