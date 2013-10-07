@@ -57,7 +57,34 @@
                 (should (map? @result))
                 (should= :plugin.post.create (-> @result keys first))
                 (should= {:title "t" :content "c" :content-type "c/t" :created-date "0000" :modified-date "1111" :assets nil :tags nil}
-                         (-> @result :plugin.post.create :message :stefon.post.create :parameters)))))
+                         (-> @result :plugin.post.create :message :stefon.post.create :parameters))))
+
+
+          (it "Testing kernel / plugin connection with CREATE"
+
+              (let [
+                    result (pluginD/bootstrap-stefon)
+
+                    step-one (shell/start-system)
+                    step-two (pluginD/plugin :dev)
+
+                    result (pluginD/bootstrap-stefon)
+                    conn (:conn result)
+
+                    ;; CREATE Post
+                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
+                    cpost (shell/create :post "my post" "my content" "text/md" date-one date-one [] [])
+                    test-created (crud/retrieve conn :post {:title "my post"})
+                    ]
+
+                (println "... " test-created)
+                (should-not-be-nil test-created)
+                (should-not (empty? test-created))
+                (should= 1 (count test-created))
+
+                )))
+
+
 
 
 #_(describe "Integrate CRUD with plugin messages"
@@ -65,23 +92,7 @@
           (before (datomic/delete-database (-> config :dev :url))
                   (shell/stop-system))
 
-          (it "Testing kernel / plugin connection with CREATE"
 
-              (let [step-one (shell/start-system)
-                    step-two (pluginD/plugin :dev)
-
-                    result (pluginD/bootstrap-stefon :dev true)
-                    conn (:conn result)
-
-                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
-
-                    ;; CREATE Post
-                    cpost (shell/create :post "my post" "my content" "text/md" date-one date-one [] [])
-                    test-created (crud/retrieve conn :post {:title "my post"})]
-
-                (should-not-be-nil test-created)
-                (should-not (empty? test-created))
-                (should= 1 (count test-created))))
 
           #_(it "Testing kernel / plugin connection with RETRIEVE"
 
@@ -103,7 +114,7 @@
                 (should= stefon.domain.Post (type @test-retrieved))
                 (should= '(:id :title :content :content-type :created-date :modified-date :assets :tags) (keys @test-retrieved))))
 
-          (it "Testing kernel / plugin connection with UPDATE"
+          #_(it "Testing kernel / plugin connection with UPDATE"
 
               (let [step-one (shell/start-system)
                     step-two (pluginD/plugin :dev)
@@ -194,4 +205,4 @@
 
                     ]
 
-                (it "one" 1))))
+                )))

@@ -132,7 +132,7 @@
 
         ;;xx (println "... 2 > " key)
         original-key (keyword (string/replace (name key) #"plugin" "stefon"))
-        params (-> key-params second :message original-key )
+        params (-> key-params second :message original-key :parameters)
 
         ;;xx (println "... 3 > " params)
         mapped-action (config/find-mapping key)
@@ -194,11 +194,13 @@
   (let [conn (promise)
         xx (subscribe-to-braodcast (fn [message]
 
-                                  ;; initialize DB
-                                  (init-db (:result message) env)
+                                     ;;(println "... subscribe-to-broadcast > " message)
 
-                                  ;; get connection
-                                  (deliver conn (connect-to-db env))))]
+                                     ;; initialize DB
+                                     (init-db (:result message) env)
+
+                                     ;; get connection
+                                     (deliver conn (connect-to-db env))))]
 
     ;; get schema
     ((:sendfn plugin-result) {:id (:id plugin-result) :message {:stefon.domain.schema {:parameters nil}}})
