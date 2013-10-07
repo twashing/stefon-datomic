@@ -31,7 +31,7 @@
                      {:name :name :cardinality :one :type :string}]})
 
 
-(describe "Plugin should be able to attach to a running Stefon instance => "
+(describe "[SEPC] Plugin should be able to attach to a running Stefon instance => "
 
             (before (datomic/delete-database (-> config :dev :url))
                   (shell/stop-system))
@@ -60,7 +60,7 @@
                          (-> @result :plugin.post.create :message :stefon.post.create :parameters)))) )
 
 
-(describe "Integrate CRUD with plugin messages"
+(describe "[SPEC] Integrate CRUD with plugin messages > CREATE"
 
 
           (it "Testing kernel / plugin connection with CREATE"
@@ -187,43 +187,47 @@
 
                 )))
 
-(describe "three"
+(describe "[SPEC] Integrate CRUD with plugin messages > RETRIEVE"
 
           (it "Testing kernel / plugin connection with RETRIEVE"
+
 
               (shell/stop-system)
               (let [
                     result (pluginD/bootstrap-stefon)
                     conn (:conn result)
 
-                    ;; separate test plugin
-                    separate-promise (promise)
-                    xx (deliver separate-promise (shell/attach-plugin (fn [msg]
-
-                                                                        ;;(println "*** > " msg)
-                                                                        (if (= "kernel-channel" (-> msg :plugin.post.create :id))
-
-                                                                          ;; ... retrieve
-                                                                          (do
-
-
-                                                                            (println "... Test Plugin CALLED > [" msg "] > separate-promise [" separate-promise "]")
-                                                                            ((:sendfn @separate-promise) {:id (:id @separate-promise)
-                                                                                                          :message {:stefon.post.find {:parameters {:param-map {:title "my post"}}}}}))
-                                                                          )
-                                                                        )))
-
-                    ;;xx (println "... step-one > " step-one)
-
 
                     ;; initialize datomic plugin
                     step-two (pluginD/plugin :dev)
 
+                    ;; separate test plugin
+                    step-three (promise)
+                    xx (deliver step-three (shell/attach-plugin (fn [msg]
 
-                    ;; RETRIEVE Post
+                                                                  (println "*** msg [" msg "] > ID [" (-> msg :result :tempids vals first) "]" )
+
+                                                                  ;; send a retrieve command
+                                                                  (if (-> msg :result :tempids)
+
+                                                                    ((:sendfn @step-three) {:id (:id @step-three)
+                                                                                            :message {:stefon.post.retrieve {:parameters {:id (-> msg :result :tempids vals first)}}}})
+
+                                                                    )
+
+                                                                  ;; evaluate retrieve results
+                                                                  (if (some #{:posts/modified-date} (-> msg :result keys))
+
+                                                                    (println "YEEEEEEEEEEEEEEEEsss !!"))
+                                                                  )))
+
                     date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013")) ]
 
-                (shell/create :post "my post" "my content" "text/md" date-one date-one [] [])
+
+                ;; kickoff the send process
+                ((:sendfn @step-three) {:id (:id @step-three)
+                                       :message {:stefon.post.create
+                                                 {:parameters {:title "my post" :content "my content" :content-type "text/md" :created-date date-one :modified-date date-one :assets [] :tags []}} }})
 
                 #_(should-not-be-nil @test-retrieved)
                 #_(should= stefon.domain.Post (type @test-retrieved))

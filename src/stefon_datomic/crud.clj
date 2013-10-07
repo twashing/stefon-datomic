@@ -154,7 +154,9 @@
 
 (defn retrieve-by-id [conn eid]
 
-  (let [result (d/q '[:find ?eid :in $ ?eid :where [?eid]] (d/db conn) eid)
+  (let [final-id (if (number? eid) eid (:id eid))
+
+        result (d/q '[:find ?eid :in $ ?eid :where [?eid]] (d/db conn) final-id)
         result-map (into {} (vivify-datomic-entity (d/db conn) (ffirst result)))
 
         eid (ffirst result)
