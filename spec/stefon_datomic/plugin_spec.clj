@@ -57,7 +57,7 @@
                 (should (map? @result))
                 (should= :plugin.post.create (-> @result keys first))
                 (should= {:title "t" :content "c" :content-type "c/t" :created-date "0000" :modified-date "1111" :assets nil :tags nil}
-                         (-> @result :plugin.post.create :message :stefon.post.create :parameters)))) )
+                         (-> @result :plugin.post.create :message :stefon.post.create :parameters (dissoc :id))))) )
 
 
 (describe "[SPEC] Integrate CRUD with plugin messages > CREATE"
@@ -162,7 +162,7 @@
                                                                     (deliver post-id-promise (-> msg :result :id)))
 
                                                                   ;; send an update command
-                                                                  (if (-> msg :result :tempids)
+                                                                  #_(if (-> msg :result :tempids)
 
                                                                     ((:sendfn @step-three) {:id (:id @step-three)
                                                                                             :message {:stefon.post.update {:parameters {:id @post-id-promise

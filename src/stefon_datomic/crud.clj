@@ -45,10 +45,12 @@
         one (str "plugin." (name domain-key) ".create")
         lookup-key (keyword one)
 
+
         ;; ensure we are adding ID strings to entities
         datom-w-id (if (nil? (:id datom-map))
                      (assoc datom-map :id (str (java.util.UUID/randomUUID)))
                      datom-map)
+
 
         ;; add namespace to map keys
         entity-w-ns (add-entity-ns (convert-domain-ns domain-key) datom-w-id)
@@ -198,7 +200,7 @@
         merged-constraints { :id (:id datom-map) }
 
         xx (println "WTF >> datom-map > " datom-map)
-        xx (println "WTF >> list > " (llist conn :post))
+        xx (println "WTF >> list > " (llist conn :posts))
         xx (try (retrieve-entity conn :post merged-constraints) (catch Exception e (println "EXCEPTION > update > retrieve > " e)))
 
         yy (println "WTF >> merged-constraints > " merged-constraints)
@@ -206,7 +208,7 @@
 
         w-id nil]
 
-    (update conn domain-key w-id)))
+    #_(update conn domain-key w-id)))
 
 
 (defn add-entity-ns
