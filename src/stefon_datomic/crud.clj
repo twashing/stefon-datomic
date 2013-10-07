@@ -138,6 +138,7 @@
         ;;
         the-db (datomic.api/db conn)]
 
+    (println ">> retrieve-entity > expression-FIANL [" expression-final "] > param-values [" param-values "]" )
     (datomic.api/q expression-final the-db param-values) ))
 
 
@@ -190,11 +191,12 @@
          (map? datom-map)]}
 
 
-
   (let [w-ns (add-entity-ns (convert-domain-ns :post) datom-map)
 
         merged-constraints { :id (:id datom-map) }
 
+        xx (println "WTF >> datom-map > " datom-map)
+        xx (println "WTF >> list > " (this/list conn :post))
         xx (try (retrieve-entity conn :post merged-constraints) (catch Exception e (println "EXCEPTION > update > retrieve > " e)))
 
         yy (println "WTF >> merged-constraints > " merged-constraints)

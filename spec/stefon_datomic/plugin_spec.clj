@@ -110,15 +110,11 @@
                     step-three (promise)
                     xx (deliver step-three (shell/attach-plugin (fn [msg]
 
-                                                                  ;;(println "*** msg [" msg "] > ID [" (-> msg :result :tempids vals first) "]" )
-
                                                                   ;; send a retrieve command
                                                                   (if (-> msg :result :tempids)
 
                                                                     ((:sendfn @step-three) {:id (:id @step-three)
-                                                                                            :message {:stefon.post.retrieve {:parameters {:id (-> msg :result :tempids vals first)}}}})
-
-                                                                    )
+                                                                                            :message {:stefon.post.retrieve {:parameters {:id (-> msg :result :tempids vals first)}}}}) )
 
                                                                   ;; evaluate retrieve results
                                                                   (if (some #{:posts/modified-date} (-> msg :result keys))
@@ -130,8 +126,8 @@
 
                 ;; kickoff the send process
                 ((:sendfn @step-three) {:id (:id @step-three)
-                                       :message {:stefon.post.create
-                                                 {:parameters {:title "my post" :content "my content" :content-type "text/md" :created-date date-one :modified-date date-one :assets [] :tags []}} }})
+                                        :message {:stefon.post.create
+                                                  {:parameters {:title "my post" :content "my content" :content-type "text/md" :created-date date-one :modified-date date-one :assets [] :tags []}} }})
 
                 (should-not-be-nil @test-retrieved)
                 (should (some #{:db/id :posts/id :posts/title :posts/content :posts/content-type :posts/created-date :posts/modified-date} (keys @test-retrieved)))
@@ -139,9 +135,61 @@
 
                 )))
 
-#_(describe "[SPEC] Integrate CRUD with plugin messages > RETRIEVE"
+(describe "[SPEC] Integrate CRUD with plugin messages > UPDATE"
 
           (it "Testing kernel / plugin connection with UPDATE"
+
+
+              (shell/stop-system)
+              (let [
+                    result (pluginD/bootstrap-stefon)
+                    conn (:conn result)
+
+
+                    ;; initialize datomic plugin
+                    step-two (pluginD/plugin :dev)
+
+                    ;; separate test plugin
+                    test-retrieved (promise)
+                    step-three (promise)
+                    post-id-promise (promise)
+                    xx (deliver step-three (shell/attach-plugin (fn [msg]
+
+                                                                  (println "*** " msg)
+
+                                                                  ;; get the Post id
+                                                                  (if (= "kernel" (:from msg))
+                                                                    (deliver post-id-promise (-> msg :result :id)))
+
+                                                                  ;; send an update command
+                                                                  (if (-> msg :result :tempids)
+
+                                                                    ((:sendfn @step-three) {:id (:id @step-three)
+                                                                                            :message {:stefon.post.update {:parameters {:id @post-id-promise
+                                                                                                                                        :param-map {:title "new title"
+                                                                                                                                                    :content "new content"}}}}}) )
+
+
+                                                                  ;; evaluate retrieve results
+                                                                  #_(if (some #{:posts/modified-date} (-> msg :result keys))
+
+                                                                    (deliver test-retrieved (:result msg))) )))
+
+                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013")) ]
+
+
+                ;; kickoff the send process
+                ((:sendfn @step-three) {:id (:id @step-three)
+                                        :message {:stefon.post.create
+                                                  {:parameters {:title "my post" :content "my content" :content-type "text/md" :created-date date-one :modified-date date-one :assets [] :tags []}} }})
+
+                #_(should-not-be-nil @test-retrieved)
+                #_(should (some #{:db/id :posts/id :posts/title :posts/content :posts/content-type :posts/created-date :posts/modified-date} (keys @test-retrieved)))
+
+
+                ))
+
+            #_(it "Testing kernel / plugin connection with UPDATE"
 
               (let [step-one (shell/start-system)
                     step-two (pluginD/plugin :dev)
@@ -192,7 +240,7 @@
 
                 (it "one" 1))))
 
-#_(describe "[SPEC] Integrate CRUD with plugin messages > RETRIEVE"
+#_(describe "[SPEC] Integrate CRUD with plugin messages > FIND"
 
           #_(it "Testing kernel / plugin connection with FIND"
 
@@ -218,7 +266,7 @@
 
           )
 
-#_(describe "[SPEC] Integrate CRUD with plugin messages > RETRIEVE"
+#_(describe "[SPEC] Integrate CRUD with plugin messages > CREATE with RELATIONSHIPS"
 
           (it "Testing kernel / plugin connection with CREATE with RELATIONSHIPS"
 
