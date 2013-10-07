@@ -239,11 +239,10 @@
        ;; CONNECT
        (if initialize
 
-         ;; 1. get schema; initialize DB; get connection
+         ;; get schema; initialize DB; get connection
          (assoc result :conn (init-core env result))
 
-         ;; 2. get connection
-         (assoc result :conn (connect-to-db env))))))
+         ))))
 
 
 ;; PLUGING Function

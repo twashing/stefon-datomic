@@ -62,12 +62,10 @@
 
 (describe "Integrate CRUD with plugin messages"
 
-          (before (datomic/delete-database (-> config :dev :url))
-                  (shell/stop-system))
-
 
           (it "Testing kernel / plugin connection with CREATE"
 
+              (shell/stop-system)
               (let [
                     result (pluginD/bootstrap-stefon)
                     conn (:conn result)
@@ -77,11 +75,9 @@
                     create-promise (promise)
                     retrieve-promise (promise)
 
-
-                    ;; ...
                     step-four (pluginD/subscribe-to-braodcast (fn [msg]
 
-                                                                (println "<< IN broadcast >>" msg)
+                                                                (println "<< IN broadcast > 1 >>" msg)
 
                                                                 (deliver create-promise (-> msg :plugin.post.create :message))
                                                                 (deliver retrieve-promise (crud/retrieve conn :post {:title "my post"})) ))
@@ -95,43 +91,36 @@
                 (should-not (empty? @retrieve-promise))
                 (should= 1 (count @retrieve-promise)) ))
 
-          #_(it "Testing kernel / plugin connection with RETRIEVE"
 
+          (it "Testing kernel / plugin connection with RETRIEVE"
+
+              (shell/stop-system)
               (let [
-                    #_result #_(pluginD/bootstrap-stefon)
+                    result (pluginD/bootstrap-stefon)
+                    conn (:conn result)
 
-                    #_step-one #_(shell/start-system)
-                    #_step-two #_(pluginD/plugin :dev)
+                    step-two (pluginD/plugin :dev)
 
-                    #_tee-fn #_(fn [msg]
+                    step-four (pluginD/subscribe-to-braodcast (fn [msg]
 
-                             (println "<< RECIEVE Needs ID >> " msg)
-                             )
-
-                    #_step-three #_(pluginD/add-receive-tee tee-fn)
+                                                                (println "<< IN broadcast > 2 >>" msg)
 
 
-                    #_result #_(pluginD/bootstrap-stefon :dev true)
-                    #_conn #_(:conn result)
+                                                                #_test-retrieved #_(shell/retrieve :post (:id @cpost))
+                                                                #_aaa #_(println ">> cpost > " (keys @test-retrieved))
+                                                                ))
 
                     ;; RETRIEVE Post
-                    #_date-one #_(-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
-                    #_cpost #_(shell/create :post "my post" "my content" "text/md" date-one date-one [] [])
-
-
-                    ;; ... TODO - wait for plugin to respond before retrieving
-                    #_xxx #_(println "... " cpost)
-                    #_test-retrieved #_(shell/retrieve :post (:id @cpost))
-                    #_aaa #_(println ">> cpost > " (keys @test-retrieved))
+                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
                     ]
+
+                (shell/create :post "my post" "my content" "text/md" date-one date-one [] [])
 
                 #_(should-not-be-nil @test-retrieved)
                 #_(should= stefon.domain.Post (type @test-retrieved))
                 #_(should= '(:id :title :content :content-type :created-date :modified-date :assets :tags) (keys @test-retrieved))
 
                 ))
-
-
 
           #_(it "Testing kernel / plugin connection with UPDATE"
 
