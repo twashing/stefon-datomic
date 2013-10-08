@@ -174,7 +174,7 @@
                                                                                                                                           :param-map {:title "new title"
                                                                                                                                                       :content "new content"}}}}})) )
 
-                                                                  #_(println "... post-did-promise [" post-did-promise "]")
+                                                                  (println "... post-did-promise [" post-did-promise "]")
 
 
                                                                   ;; retrieve AFTER update
@@ -199,7 +199,6 @@
 
                 #_(should-not-be-nil @test-retrieved)
                 #_(should (some #{:db/id :posts/id :posts/title :posts/content :posts/content-type :posts/created-date :posts/modified-date} (keys @test-retrieved)))
-
 
                 )))
 

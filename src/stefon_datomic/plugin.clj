@@ -143,6 +143,7 @@
 
     ;;(println "")
     ;;(println ">> key > " key)
+    ;;(println ">> original-key > " original-key)
     ;;(println ">> params > " params)
     ;;(println ">> mapped-action > " mapped-action)
     ;;(println ">> mapped-fn > " (type mapped-fn))
@@ -159,7 +160,7 @@
 
         ;;(println ">> stefon-datomic.plugin > RESULT >> [" {:id (:id @communication-pair) :origin origin-id :result action-result} "]" )
 
-        ((:send-fn @communication-pair) {:id (:id @communication-pair) :origin origin-id :result action-result})
+        ((:send-fn @communication-pair) {:id (:id @communication-pair) :origin origin-id :action original-key :result action-result})
         action-result))))
 
 (def communication-pair (atom {:receive-fn receive-fn
