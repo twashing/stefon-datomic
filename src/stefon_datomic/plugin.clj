@@ -158,7 +158,7 @@
 
             action-result (try (fn3) (catch Exception e (println ">> Exception > " e)))]
 
-        ;;(println ">> stefon-datomic.plugin > RESULT >> [" {:id (:id @communication-pair) :origin origin-id :result action-result} "]" )
+        ;;(println ">> stefon-datomic.plugin > RESULT >> [" {:id (:id @communication-pair) :origin origin-id :action original-key :result action-result} "]" )
 
         ((:send-fn @communication-pair) {:id (:id @communication-pair) :origin origin-id :action original-key :result action-result})
         action-result))))

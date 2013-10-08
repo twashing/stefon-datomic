@@ -53,6 +53,7 @@
                 ;; create a post, then check the DB
                 (shell/create :post "t" "c" "c/t" "0000" "1111" nil nil)
 
+                ;;(println "... " result)
                 (should-not-be-nil @result)
                 (should (map? @result))
                 (should= :plugin.post.create (-> @result keys first))
@@ -156,7 +157,7 @@
                     post-did-promise (promise)
                     xx (deliver step-three (shell/attach-plugin (fn [msg]
 
-                                                                  (println "*** " msg)
+                                                                  ;;(println "*** " msg)
 
 
                                                                   ;; GET the Post id
@@ -174,20 +175,29 @@
                                                                                                                                           :param-map {:title "new title"
                                                                                                                                                       :content "new content"}}}}})) )
 
-                                                                  (println "... post-did-promise [" post-did-promise "]")
-
-
                                                                   ;; retrieve AFTER update
-                                                                  #_(if (and (-> msg :result :tempids empty?)
-                                                                           (realized? post-did-promise))
+                                                                  (if (and (-> msg :result :tempids empty?)
+                                                                           (realized? post-did-promise)
+                                                                           (= :stefon.post.update (-> msg :action)))
+
                                                                     ((:sendfn @step-three) {:id (:id @step-three)
                                                                                             :message {:stefon.post.retrieve {:parameters {:id @post-did-promise}}}}))
 
 
                                                                   ;; evaluate retrieve results
-                                                                  #_(if (some #{:posts/modified-date} (-> msg :result keys))
+                                                                  (if (and (not= "kernel" (:id msg))
+                                                                           (= :stefon.post.retrieve (:action msg))
+                                                                           (not (nil? (:result msg))))
 
-                                                                    (deliver test-retrieved (:result msg))) )))
+                                                                    (do
+                                                                      (deliver test-retrieved (:result msg))
+
+                                                                      ;;(println "... " msg)
+                                                                      (should-not-be-nil @test-retrieved)
+                                                                      (should (some #{:db/id :posts/id :posts/title :posts/content :posts/content-type :posts/created-date :posts/modified-date}
+                                                                                    (keys @test-retrieved)))
+
+                                                                      )) )))
 
                     date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013")) ]
 
@@ -195,12 +205,7 @@
                 ;; kickoff the send process
                 ((:sendfn @step-three) {:id (:id @step-three)
                                         :message {:stefon.post.create
-                                                  {:parameters {:title "my post" :content "my content" :content-type "text/md" :created-date date-one :modified-date date-one :assets [] :tags []}} }})
-
-                #_(should-not-be-nil @test-retrieved)
-                #_(should (some #{:db/id :posts/id :posts/title :posts/content :posts/content-type :posts/created-date :posts/modified-date} (keys @test-retrieved)))
-
-                )))
+                                                  {:parameters {:title "my post" :content "my content" :content-type "text/md" :created-date date-one :modified-date date-one :assets [] :tags []}} }}) )))
 
 #_(describe "[SPEC] Integrate CRUD with plugin messages > RETRIEVE"
 
