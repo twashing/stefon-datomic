@@ -153,21 +153,35 @@
                     test-retrieved (promise)
                     step-three (promise)
                     post-id-promise (promise)
+                    post-did-promise (promise)
                     xx (deliver step-three (shell/attach-plugin (fn [msg]
 
                                                                   (println "*** " msg)
 
-                                                                  ;; get the Post id
+
+                                                                  ;; GET the Post id
                                                                   (if (= "kernel" (:from msg))
                                                                     (deliver post-id-promise (-> msg :result :id)))
 
-                                                                  ;; send an update command
-                                                                  #_(if (-> msg :result :tempids)
 
+                                                                  ;; send an UPDATE command
+                                                                  (if (-> msg :result :tempids empty? not)
+
+                                                                    (do
+                                                                      (deliver post-did-promise (-> msg :result :tempids vals first))
+                                                                      ((:sendfn @step-three) {:id (:id @step-three)
+                                                                                              :message {:stefon.post.update {:parameters {:id @post-id-promise
+                                                                                                                                          :param-map {:title "new title"
+                                                                                                                                                      :content "new content"}}}}})) )
+
+                                                                  #_(println "... post-did-promise [" post-did-promise "]")
+
+
+                                                                  ;; retrieve AFTER update
+                                                                  #_(if (and (-> msg :result :tempids empty?)
+                                                                           (realized? post-did-promise))
                                                                     ((:sendfn @step-three) {:id (:id @step-three)
-                                                                                            :message {:stefon.post.update {:parameters {:id @post-id-promise
-                                                                                                                                        :param-map {:title "new title"
-                                                                                                                                                    :content "new content"}}}}}) )
+                                                                                            :message {:stefon.post.retrieve {:parameters {:id @post-did-promise}}}}))
 
 
                                                                   ;; evaluate retrieve results
@@ -187,34 +201,7 @@
                 #_(should (some #{:db/id :posts/id :posts/title :posts/content :posts/content-type :posts/created-date :posts/modified-date} (keys @test-retrieved)))
 
 
-                ))
-
-            #_(it "Testing kernel / plugin connection with UPDATE"
-
-              (let [step-one (shell/start-system)
-                    step-two (pluginD/plugin :dev)
-
-                    result (pluginD/bootstrap-stefon :dev true)
-                    conn (:conn result)
-
-                    ;; CREATE Post
-                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
-                    cpost (shell/create :post "my post" "my content" "text/md" date-one date-one [] [])
-
-                    ww (println "... cpost > " @cpost)
-                    xx (crud/retrieve conn :post {:posts/title "my post"})
-                    yy (println "... This is getting FRUSTRATING > " xx)
-
-                    ;;upost (shell/update :post (:id @cpost) {:title "new title" :content "new content"})
-
-                    ;;test-updated (crud/retrieve conn :post {:posts/id (:id @cpost)})
-                    ;;aaa (println ">> upost > " test-updated)
-
-                    ;; UPDATE Post
-                    ;;upost (shell/update id-123 {:title "another title"})
-                    ]
-
-                (it "one" 1))))
+                )))
 
 #_(describe "[SPEC] Integrate CRUD with plugin messages > RETRIEVE"
 

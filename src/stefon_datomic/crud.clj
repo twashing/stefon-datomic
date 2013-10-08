@@ -140,8 +140,18 @@
         ;;
         the-db (datomic.api/db conn)]
 
-    (println ">> retrieve-entity > expression-FIANL [" expression-final "] > param-values [" param-values "]" )
     (datomic.api/q expression-final the-db param-values) ))
+
+
+
+(defn retrieve-entity-vivify
+  "A retrieve-entity helper function that puts the ID into an object structure"
+  [conn domain-key constraint-map]
+
+  (let [result (retrieve-entity conn domain-key constraint-map)]
+
+    (-> (into {} (vivify-datomic-entity (d/db conn) (ffirst result)))
+        (assoc :db/id (ffirst result)))))
 
 
 (defn retrieve [conn domain-key constraint-map]
@@ -177,7 +187,7 @@
   (let [one (str "plugin." (name domain-key) ".create")
         lookup-key (keyword one) ]
 
-    (println "UPDATE datom > " datom-map)
+    ;;(println "UPDATE datom > " datom-map)
 
     ;; transact to Datomic
     @(datomic.api/transact conn [datom-map])))
@@ -199,16 +209,15 @@
 
         merged-constraints { :id (:id datom-map) }
 
-        xx (println "WTF >> datom-map > " datom-map)
-        xx (println "WTF >> list > " (llist conn :posts))
-        xx (try (retrieve-entity conn :post merged-constraints) (catch Exception e (println "EXCEPTION > update > retrieve > " e)))
+        ;;xx (println "WTF >> datom-map > " datom-map)
+        ;;xx (println "WTF >> list > " (llist conn :posts))
+        w-id (try (retrieve-entity-vivify conn :post merged-constraints) (catch Exception e (println "EXCEPTION > update > retrieve > " e)))
 
-        yy (println "WTF >> merged-constraints > " merged-constraints)
-        zz (println "WTF >> retrieve-result > " xx)
+        ;;yy (println "WTF >> merged-constraints > " merged-constraints)
+        ;;zz (println "WTF >> retrieve-result > " w-id)
+        ]
 
-        w-id nil]
-
-    #_(update conn domain-key w-id)))
+    (update conn domain-key w-id)))
 
 
 (defn add-entity-ns

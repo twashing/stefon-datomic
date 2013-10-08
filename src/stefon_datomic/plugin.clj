@@ -141,13 +141,13 @@
         mapped-domain-key (:domain-key mapped-action)]
 
 
-    (println "")
-    (println ">> key > " key)
-    (println ">> params > " params)
-    (println ">> mapped-action > " mapped-action)
-    (println ">> mapped-fn > " (type mapped-fn))
-    (println ">> domain-key > " mapped-domain-key)
-    (println ">> conn > " (:conn @communication-pair))
+    ;;(println "")
+    ;;(println ">> key > " key)
+    ;;(println ">> params > " params)
+    ;;(println ">> mapped-action > " mapped-action)
+    ;;(println ">> mapped-fn > " (type mapped-fn))
+    ;;(println ">> domain-key > " mapped-domain-key)
+    ;;(println ">> conn > " (:conn @communication-pair))
 
     (if mapped-fn
 
