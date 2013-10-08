@@ -168,14 +168,14 @@
 (defn retrieve-by-id [conn eid]
 
   (let [final-id (if (number? eid) eid (:id eid))
+        result (d/q '[:find ?eid :in $ ?eid :where [?eid]] (d/db conn) final-id) ]
 
-        result (d/q '[:find ?eid :in $ ?eid :where [?eid]] (d/db conn) final-id)
-        result-map (into {} (vivify-datomic-entity (d/db conn) (ffirst result)))
-
-        eid (ffirst result)
-        final-map (assoc result-map :db/id eid)]
-
-    final-map))
+    (if (empty? result)
+      {}
+      (let [result-map (into {} (vivify-datomic-entity (d/db conn) (ffirst result)))
+            eid (ffirst result)
+            final-map (assoc result-map :db/id eid) ]
+        final-map))))
 
 
 ;; UPDATE

@@ -227,7 +227,7 @@
                     post-did-promise (promise)
                     xx (deliver step-three (shell/attach-plugin (fn [msg]
 
-                                                                  (println "*** " msg)
+                                                                  ;;(println "*** " msg)
 
                                                                   ;; GET the Post id
                                                                   (if (= "kernel" (:from msg))
@@ -235,38 +235,34 @@
 
 
                                                                   ;; send an DELETE command
-                                                                  (if (and (= :stefon.post.create (:action msg))
+                                                                  (if (and (not= "kernel" (:from msg))
+                                                                           (= :stefon.post.create (:action msg))
                                                                            (-> msg :result :tempids empty? not))
 
-                                                                    #_(println "here ... " (-> msg :result :tempids vals first))
-                                                                    (do
-                                                                      (deliver post-did-promise (-> msg :result :tempids vals first))
+                                                                    (let [did (-> msg :result :tempids vals first)]
+
+                                                                      (deliver post-did-promise did)
                                                                       ((:sendfn @step-three) {:id (:id @step-three)
-                                                                                              :message {:stefon.post.delete {:parameters {:id (-> msg :result :tempids vals first)}}}})) )
+                                                                                              :message {:stefon.post.delete {:parameters {:id did}}}})) )
 
                                                                   ;; retrieve AFTER delete
-                                                                  #_(if (and (-> msg :result :tempids empty?)
-                                                                             (realized? post-did-promise)
-                                                                             (= :stefon.post.update (-> msg :action)))
+                                                                  (if (and (not= "kernel" (:from msg))
+                                                                           (= :stefon.post.delete (-> msg :action)))
 
                                                                       ((:sendfn @step-three) {:id (:id @step-three)
                                                                                               :message {:stefon.post.retrieve {:parameters {:id @post-did-promise}}}}))
 
 
                                                                   ;; evaluate retrieve results
-                                                                  #_(if (and (not= "kernel" (:id msg))
+                                                                  (if (and (not= "kernel" (:id msg))
                                                                              (= :stefon.post.retrieve (:action msg))
                                                                              (not (nil? (:result msg))))
 
                                                                       (do
-                                                                        (deliver test-retrieved (:result msg))
 
                                                                         ;;(println "... " msg)
-                                                                        (should-not-be-nil @test-retrieved)
-                                                                        (should (some #{:db/id :posts/id :posts/title :posts/content :posts/content-type :posts/created-date :posts/modified-date}
-                                                                                      (keys @test-retrieved)))
-
-                                                                        )))))
+                                                                        (should-not-be-nil (:result msg))
+                                                                        (should (empty? (:result msg))))))))
 
                     date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013")) ]
 
