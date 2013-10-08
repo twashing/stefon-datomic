@@ -207,29 +207,76 @@
                                         :message {:stefon.post.create
                                                   {:parameters {:title "my post" :content "my content" :content-type "text/md" :created-date date-one :modified-date date-one :assets [] :tags []}} }}) )))
 
-#_(describe "[SPEC] Integrate CRUD with plugin messages > RETRIEVE"
+(describe "[SPEC] Integrate CRUD with plugin messages > DELETE"
 
-          #_(it "Testing kernel / plugin connection with DELETE"
 
-              (let [step-one (shell/start-system)
-                    step-two (pluginD/plugin :dev)
+          (it "Testing kernel / plugin connection with DELETE"
 
-                    result (pluginD/bootstrap-stefon :dev true)
+              (shell/stop-system)
+              (let [
+                    result (pluginD/bootstrap-stefon)
                     conn (:conn result)
 
-                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
+                    ;; initialize datomic plugin
+                    step-two (pluginD/plugin :dev)
 
-                    ;; CREATE Post
-                    cpost (shell/create :post "my post" "my content" "text/md" date-one date-one [] [])
-                    test-created (crud/retrieve conn :post {:title "my post"})
-                    aaa (println ">> cpost > " test-created)
+                    ;; separate test plugin
+                    test-retrieved (promise)
+                    step-three (promise)
+                    post-id-promise (promise)
+                    post-did-promise (promise)
+                    xx (deliver step-three (shell/attach-plugin (fn [msg]
 
-                    ;; DELETE Post
-                    ;;dpost (shell/delete id-123)
+                                                                  (println "*** " msg)
 
-                    ]
+                                                                  ;; GET the Post id
+                                                                  (if (= "kernel" (:from msg))
+                                                                    (deliver post-id-promise (-> msg :result :id)))
 
-                (it "one" 1))))
+
+                                                                  ;; send an DELETE command
+                                                                  (if (and (= :stefon.post.create (:action msg))
+                                                                           (-> msg :result :tempids empty? not))
+
+                                                                    #_(println "here ... " (-> msg :result :tempids vals first))
+                                                                    (do
+                                                                      (deliver post-did-promise (-> msg :result :tempids vals first))
+                                                                      ((:sendfn @step-three) {:id (:id @step-three)
+                                                                                              :message {:stefon.post.delete {:parameters {:id (-> msg :result :tempids vals first)}}}})) )
+
+                                                                  ;; retrieve AFTER delete
+                                                                  #_(if (and (-> msg :result :tempids empty?)
+                                                                             (realized? post-did-promise)
+                                                                             (= :stefon.post.update (-> msg :action)))
+
+                                                                      ((:sendfn @step-three) {:id (:id @step-three)
+                                                                                              :message {:stefon.post.retrieve {:parameters {:id @post-did-promise}}}}))
+
+
+                                                                  ;; evaluate retrieve results
+                                                                  #_(if (and (not= "kernel" (:id msg))
+                                                                             (= :stefon.post.retrieve (:action msg))
+                                                                             (not (nil? (:result msg))))
+
+                                                                      (do
+                                                                        (deliver test-retrieved (:result msg))
+
+                                                                        ;;(println "... " msg)
+                                                                        (should-not-be-nil @test-retrieved)
+                                                                        (should (some #{:db/id :posts/id :posts/title :posts/content :posts/content-type :posts/created-date :posts/modified-date}
+                                                                                      (keys @test-retrieved)))
+
+                                                                        )))))
+
+                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013")) ]
+
+
+                ;; kickoff the send process
+                ((:sendfn @step-three) {:id (:id @step-three)
+                                        :message {:stefon.post.create
+                                                  {:parameters {:title "my post" :content "my content" :content-type "text/md" :created-date date-one :modified-date date-one :assets [] :tags []}} }})
+
+                )))
 
 #_(describe "[SPEC] Integrate CRUD with plugin messages > FIND"
 

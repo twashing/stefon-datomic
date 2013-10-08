@@ -252,7 +252,8 @@
   {:pre [(-> conn nil? not)
          (-> entity-id nil? not)]}
 
-  @(datomic.api/transact conn [[:db.fn/retractEntity entity-id]] ))
+  (let [id-final (if (number? entity-id) entity-id (:id entity-id))]
+    @(datomic.api/transact conn [[:db.fn/retractEntity id-final]] )))
 
 
 ;; LIST
