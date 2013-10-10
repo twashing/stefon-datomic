@@ -31,7 +31,7 @@
                      {:name :name :cardinality :one :type :string}]})
 
 
-(describe "[SEPC] Plugin should be able to attach to a running Stefon instance => "
+#_(describe "[SEPC] Plugin should be able to attach to a running Stefon instance => "
 
             (before (datomic/delete-database (-> config :dev :url))
                   (shell/stop-system))
@@ -61,8 +61,7 @@
                          (-> @result :plugin.post.create :message :stefon.post.create :parameters (dissoc :id))))) )
 
 
-(describe "[SPEC] Integrate CRUD with plugin messages > CREATE"
-
+#_(describe "[SPEC] Integrate CRUD with plugin messages > CREATE"
 
           (it "Testing kernel / plugin connection with CREATE"
 
@@ -92,7 +91,7 @@
                 (should-not (empty? @retrieve-promise))
                 (should= 1 (count @retrieve-promise)) )))
 
-(describe "[SPEC] Integrate CRUD with plugin messages > RETRIEVE"
+#_(describe "[SPEC] Integrate CRUD with plugin messages > RETRIEVE"
 
           (it "Testing kernel / plugin connection with RETRIEVE"
 
@@ -136,7 +135,7 @@
 
                 )))
 
-(describe "[SPEC] Integrate CRUD with plugin messages > UPDATE"
+#_(describe "[SPEC] Integrate CRUD with plugin messages > UPDATE"
 
           (it "Testing kernel / plugin connection with UPDATE"
 
@@ -207,7 +206,7 @@
                                         :message {:stefon.post.create
                                                   {:parameters {:title "my post" :content "my content" :content-type "text/md" :created-date date-one :modified-date date-one :assets [] :tags []}} }}) )))
 
-(describe "[SPEC] Integrate CRUD with plugin messages > DELETE"
+#_(describe "[SPEC] Integrate CRUD with plugin messages > DELETE"
 
           (it "Testing kernel / plugin connection with DELETE"
 
@@ -269,11 +268,10 @@
                 ;; kickoff the send process
                 ((:sendfn @step-three) {:id (:id @step-three)
                                         :message {:stefon.post.create
-                                                  {:parameters {:title "my post" :content "my content" :content-type "text/md" :created-date date-one :modified-date date-one :assets [] :tags []}} }})
+                                                  {:parameters {:title "my post" :content "my content" :content-type "text/md" :created-date date-one :modified-date date-one :assets [] :tags []}} }}) )))
 
-                )))
 
-(describe "[SPEC] Integrate CRUD with plugin messages > FIND"
+#_(describe "[SPEC] Integrate CRUD with plugin messages > FIND"
 
           (it "Testing kernel / plugin connection with FIND"
 
@@ -324,52 +322,67 @@
                 ;; kickoff the send process
                 ((:sendfn @step-three) {:id (:id @step-three)
                                         :message {:stefon.post.create
-                                                  {:parameters {:title "my post" :content "my content" :content-type "text/md" :created-date date-one :modified-date date-one :assets [] :tags []}} }})))
+                                                  {:parameters {:title "my post" :content "my content" :content-type "text/md" :created-date date-one :modified-date date-one :assets [] :tags []}} }}))) )
 
-          #_(it
-
-              (let [step-one (shell/start-system)
-                    step-two (pluginD/plugin :dev)
-
-                    result (pluginD/bootstrap-stefon :dev true)
-                    conn (:conn result)
-
-                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
-
-                    ;; CREATE Post
-                    cpost (shell/create :post "my post" "my content" "text/md" date-one date-one [] [])
-                    test-created (crud/retrieve conn :post {:title "my post"})
-                    aaa (println ">> cpost > " test-created)
-
-                    ;; FIND Post
-                    ;;fpost (shell/find :post {:title "my post"})
-                    ;;bbb (println ">> fpost > " @fpost)
-                    ]
-
-                (it "one" 1)))
-
-          )
-
-#_(describe "[SPEC] Integrate CRUD with plugin messages > CREATE with RELATIONSHIPS"
+(describe "[SPEC] Integrate CRUD with plugin messages > CREATE with RELATIONSHIPS"
 
           (it "Testing kernel / plugin connection with CREATE with RELATIONSHIPS"
 
-              (let [step-one (shell/start-system)
-                    step-two (pluginD/plugin :dev)
-
-                    result (pluginD/bootstrap-stefon :dev true)
+              (shell/stop-system)
+              (let [
+                    result (pluginD/bootstrap-stefon)
                     conn (:conn result)
 
-                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
+                    ;; initialize datomic plugin
+                    step-two (pluginD/plugin :dev)
 
-                    ;; CREATE Post
-                    cpost (shell/create :post "my post" "my content" "text/md" date-one date-one [] [])
-                    test-created (crud/retrieve conn :post {:title "my post"})
-                    aaa (println ">> cpost > " test-created)
+                    ;; separate test plugin
+                    test-retrieved (promise)
+                    step-three (promise)
+                    post-id-promise (promise)
+                    post-did-promise (promise)
+                    xx (deliver step-three (shell/attach-plugin (fn [msg]
 
-                    ;; CREATE Post w/ related Assets and Tags
-                    ;; rpost ...
+                                                                  (println "*** " msg)
+                                                                  ;; GET the Post id
+                                                                  (if (= "kernel" (:from msg))
+                                                                    (deliver post-id-promise (-> msg :result :id)))
 
-                    ]
 
-                )))
+                                                                  ;; send an FIND command
+                                                                  #_(if (and (not= "kernel" (:from msg))
+                                                                           (= :stefon.post.create (:action msg))
+                                                                           (-> msg :result :tempids empty? not))
+
+                                                                    (let [did (-> msg :result :tempids vals first)]
+
+                                                                      (deliver post-did-promise did)
+                                                                      ((:sendfn @step-three) {:id (:id @step-three)
+                                                                                              :message {:stefon.post.find {:parameters {:param-map {:title "my post"}}}}})) )
+
+                                                                  ;; retrieve AFTER find
+                                                                  #_(if (and (not= "kernel" (:from msg))
+                                                                           (= :stefon.post.find (-> msg :action)))
+
+                                                                    ;; evaluate retrieve results
+                                                                    (do
+                                                                        (should-not-be-nil (:result msg))
+                                                                        (should-not (empty? (:result msg)))))
+                                                                  )))
+
+                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013")) ]
+
+
+                ;; kickoff the send process
+                ((:sendfn @step-three) {:id (:id @step-three)
+                                        :message {:stefon.post.create-relationship
+                                                  {:parameters {:entity-list [(crud/add-entity-ns :posts {:id (str (java.util.UUID/randomUUID))
+                                                                                                          :title "tree house"
+                                                                                                          :content "c"
+                                                                                                          :content-type "c/t"
+                                                                                                          :created-date date-one
+                                                                                                          :modified-date date-one
+                                                                                                          })
+                                                                              (crud/add-entity-ns :assets {:id (str (java.util.UUID/randomUUID)) :name "iss-orbit" :type "image/png" :asset "binarygoo"})
+                                                                              (crud/add-entity-ns :tags {:id (str (java.util.UUID/randomUUID)) :name "datomic"})]}
+                                                   } }}))))

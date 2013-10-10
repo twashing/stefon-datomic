@@ -68,6 +68,8 @@
      can create 1 post with many tags"
   [conn entity-list]
 
+  (println ">> crud/create-relationship CALLED > entity-list [" entity-list "]")
+
   ;; ensure it's a list
   ;; ensure just 1 or 0 :post
   ;; namespaces should be fully qualified for datomic
@@ -102,8 +104,10 @@
         filtered-post (filter #(:posts/title (second %)) indexed-items)
         post-index (ffirst filtered-post)
 
-        post-w-assets (assoc-in entities-w-ids [post-index :posts/assets] asset-ids)
-        post-w-tags (assoc-in post-w-assets [post-index :posts/tags] tag-ids)
+        ;;xx (println "... entities-w-ids [" entities-w-ids "] > post-index [" post-index "] > asset-ids [" asset-ids "]")
+
+        post-w-assets (if post-index (assoc-in entities-w-ids [post-index :posts/assets] asset-ids) entities-w-ids)
+        post-w-tags (if post-index (assoc-in post-w-assets [post-index :posts/tags] tag-ids) post-w-assets)
 
 
         ;; put into a list and transact

@@ -3,6 +3,7 @@
  :prod {:url "datomic:free://localhost:4334/stefon"}
  :action-mappings {
                    :plugin.post.create {:mapped-action stefon-datomic.crud/create :domain-key :post}
+                   :plugin.post.create-relationship {:mapped-action stefon-datomic.crud/create-relationship :domain-key nil}
                    :plugin.post.retrieve {:mapped-action stefon-datomic.crud/retrieve-by-id :domain-key nil}
                    :plugin.post.update {:mapped-action stefon-datomic.crud/update-embellish :domain-key :post}
                    :plugin.post.delete {:mapped-action stefon-datomic.crud/delete :domain-key nil}
