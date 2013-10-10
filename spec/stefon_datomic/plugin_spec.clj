@@ -31,7 +31,7 @@
                      {:name :name :cardinality :one :type :string}]})
 
 
-#_(describe "[SEPC] Plugin should be able to attach to a running Stefon instance => "
+(describe "[SEPC] Plugin should be able to attach to a running Stefon instance => "
 
             (before (datomic/delete-database (-> config :dev :url))
                   (shell/stop-system))
@@ -61,7 +61,7 @@
                          (-> @result :plugin.post.create :message :stefon.post.create :parameters (dissoc :id))))) )
 
 
-#_(describe "[SPEC] Integrate CRUD with plugin messages > CREATE"
+(describe "[SPEC] Integrate CRUD with plugin messages > CREATE"
 
           (it "Testing kernel / plugin connection with CREATE"
 
@@ -91,7 +91,7 @@
                 (should-not (empty? @retrieve-promise))
                 (should= 1 (count @retrieve-promise)) )))
 
-#_(describe "[SPEC] Integrate CRUD with plugin messages > RETRIEVE"
+(describe "[SPEC] Integrate CRUD with plugin messages > RETRIEVE"
 
           (it "Testing kernel / plugin connection with RETRIEVE"
 
@@ -135,7 +135,7 @@
 
                 )))
 
-#_(describe "[SPEC] Integrate CRUD with plugin messages > UPDATE"
+(describe "[SPEC] Integrate CRUD with plugin messages > UPDATE"
 
           (it "Testing kernel / plugin connection with UPDATE"
 
@@ -206,7 +206,7 @@
                                         :message {:stefon.post.create
                                                   {:parameters {:title "my post" :content "my content" :content-type "text/md" :created-date date-one :modified-date date-one :assets [] :tags []}} }}) )))
 
-#_(describe "[SPEC] Integrate CRUD with plugin messages > DELETE"
+(describe "[SPEC] Integrate CRUD with plugin messages > DELETE"
 
           (it "Testing kernel / plugin connection with DELETE"
 
@@ -271,7 +271,7 @@
                                                   {:parameters {:title "my post" :content "my content" :content-type "text/md" :created-date date-one :modified-date date-one :assets [] :tags []}} }}) )))
 
 
-#_(describe "[SPEC] Integrate CRUD with plugin messages > FIND"
+(describe "[SPEC] Integrate CRUD with plugin messages > FIND"
 
           (it "Testing kernel / plugin connection with FIND"
 
@@ -343,32 +343,20 @@
                     post-did-promise (promise)
                     xx (deliver step-three (shell/attach-plugin (fn [msg]
 
-                                                                  (println "*** " msg)
                                                                   ;; GET the Post id
                                                                   (if (= "kernel" (:from msg))
                                                                     (deliver post-id-promise (-> msg :result :id)))
 
 
                                                                   ;; send an FIND command
-                                                                  #_(if (and (not= "kernel" (:from msg))
-                                                                           (= :stefon.post.create (:action msg))
-                                                                           (-> msg :result :tempids empty? not))
+                                                                  (if (and (= :stefon.post.create-relationship (:action msg))
+                                                                           (not= "kernel" (:from msg)))
 
-                                                                    (let [did (-> msg :result :tempids vals first)]
-
-                                                                      (deliver post-did-promise did)
-                                                                      ((:sendfn @step-three) {:id (:id @step-three)
-                                                                                              :message {:stefon.post.find {:parameters {:param-map {:title "my post"}}}}})) )
-
-                                                                  ;; retrieve AFTER find
-                                                                  #_(if (and (not= "kernel" (:from msg))
-                                                                           (= :stefon.post.find (-> msg :action)))
-
-                                                                    ;; evaluate retrieve results
                                                                     (do
-                                                                        (should-not-be-nil (:result msg))
-                                                                        (should-not (empty? (:result msg)))))
-                                                                  )))
+
+                                                                      (should-not (empty? (-> msg :result :tempids)))
+                                                                      (should= 3 (count (vals (-> msg :result :tempids))))
+                                                                      )))))
 
                     date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013")) ]
 

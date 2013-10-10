@@ -68,18 +68,26 @@
      can create 1 post with many tags"
   [conn entity-list]
 
-  (println ">> crud/create-relationship CALLED > entity-list [" entity-list "]")
+  ;;(println ">> crud/create-relationship CALLED > entity-list [" entity-list "]")
 
   ;; ensure it's a list
   ;; ensure just 1 or 0 :post
   ;; namespaces should be fully qualified for datomic
-  {:pre [(not (nil? entity-list))
+  #_{:pre [(not (nil? entity-list))
          (vector? entity-list)
          (< 2 (count (some #(:posts/title %) entity-list)))]}
 
   (let [
+
+        entity-list-final (if-not (vector? entity-list) (:entity-list entity-list) entity-list)
+
+        xx (if-not (and (not (nil? entity-list-final))
+                        (vector? entity-list-final)
+                        (< 2 (count (some #(:posts/title %) entity-list-final))))
+             (throw (AssertionError. "method pre-conditions not satisfied")))
+
         ;; 1. put i. tempid(s) and ii. ID(s) in entities
-        entities-w-ids (into [] (map #(assoc % :posts/id (str (java.util.UUID/randomUUID)) :db/id (datomic.api/tempid :db.part/user)) entity-list))
+        entities-w-ids (into [] (map #(assoc % :posts/id (str (java.util.UUID/randomUUID)) :db/id (datomic.api/tempid :db.part/user)) entity-list-final))
 
 
         ;; 2. assign tempid(s) of assets to post
