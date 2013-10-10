@@ -46,7 +46,7 @@
                              (swap! result (fn [inp] msg)))
 
                     step-one (shell/start-system)
-                    step-two (pluginD/plugin :dev)
+                    step-two (pluginD/plugin {:system-started? shell/system-started? :start-system shell/start-system :attach-plugin shell/attach-plugin} :dev)
                     step-three (pluginD/add-receive-tee tee-fn)]
 
 
@@ -70,7 +70,7 @@
                     result (pluginD/bootstrap-stefon {:system-started? shell/system-started? :start-system shell/start-system :attach-plugin shell/attach-plugin})
                     conn (:conn result)
 
-                    step-two (pluginD/plugin :dev)
+                    step-two (pluginD/plugin {:system-started? shell/system-started? :start-system shell/start-system :attach-plugin shell/attach-plugin} :dev)
 
                     create-promise (promise)
                     retrieve-promise (promise)
@@ -103,7 +103,7 @@
 
 
                     ;; initialize datomic plugin
-                    step-two (pluginD/plugin :dev)
+                    step-two (pluginD/plugin {:system-started? shell/system-started? :start-system shell/start-system :attach-plugin shell/attach-plugin} :dev)
 
                     ;; separate test plugin
                     test-retrieved (promise)
@@ -147,7 +147,7 @@
 
 
                     ;; initialize datomic plugin
-                    step-two (pluginD/plugin :dev)
+                    step-two (pluginD/plugin {:system-started? shell/system-started? :start-system shell/start-system :attach-plugin shell/attach-plugin} :dev)
 
                     ;; separate test plugin
                     test-retrieved (promise)
@@ -216,7 +216,7 @@
                     conn (:conn result)
 
                     ;; initialize datomic plugin
-                    step-two (pluginD/plugin :dev)
+                    step-two (pluginD/plugin {:system-started? shell/system-started? :start-system shell/start-system :attach-plugin shell/attach-plugin} :dev)
 
                     ;; separate test plugin
                     test-retrieved (promise)
@@ -281,7 +281,7 @@
                     conn (:conn result)
 
                     ;; initialize datomic plugin
-                    step-two (pluginD/plugin :dev)
+                    step-two (pluginD/plugin {:system-started? shell/system-started? :start-system shell/start-system :attach-plugin shell/attach-plugin} :dev)
 
                     ;; separate test plugin
                     test-retrieved (promise)
@@ -334,7 +334,7 @@
                     conn (:conn result)
 
                     ;; initialize datomic plugin
-                    step-two (pluginD/plugin :dev)
+                    step-two (pluginD/plugin {:system-started? shell/system-started? :start-system shell/start-system :attach-plugin shell/attach-plugin} :dev)
 
                     ;; separate test plugin
                     test-retrieved (promise)
