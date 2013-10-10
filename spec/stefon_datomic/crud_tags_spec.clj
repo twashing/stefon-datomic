@@ -33,7 +33,7 @@
 
   ;; create DB & get the connection
   (let [
-        result (pluginD/bootstrap-stefon)
+        result (pluginD/bootstrap-stefon {:system-started? shell/system-started? :start-system shell/start-system :attach-plugin shell/attach-plugin})
         conn (:conn result)
 
         ;; add datom
@@ -59,7 +59,7 @@
           (it "Should save created tag(s) to Datomic"
 
               (let [;; create DB & get the connection
-                    result (pluginD/bootstrap-stefon)
+                    result (pluginD/bootstrap-stefon {:system-started? shell/system-started? :start-system shell/start-system :attach-plugin shell/attach-plugin})
 
                     ;; add datom
 
@@ -74,7 +74,7 @@
 
               ;; create 3, then get anyone of them - the second
               (let [;; create DB & get the connection
-                    result (pluginD/bootstrap-stefon)
+                    result (pluginD/bootstrap-stefon {:system-started? shell/system-started? :start-system shell/start-system :attach-plugin shell/attach-plugin})
 
                     ;; add datom
                     one (crud/create (:conn result) :tag {:name "datomic"})

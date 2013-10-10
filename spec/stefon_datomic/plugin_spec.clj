@@ -67,7 +67,7 @@
 
               (shell/stop-system)
               (let [
-                    result (pluginD/bootstrap-stefon)
+                    result (pluginD/bootstrap-stefon {:system-started? shell/system-started? :start-system shell/start-system :attach-plugin shell/attach-plugin})
                     conn (:conn result)
 
                     step-two (pluginD/plugin :dev)
@@ -98,7 +98,7 @@
 
               (shell/stop-system)
               (let [
-                    result (pluginD/bootstrap-stefon)
+                    result (pluginD/bootstrap-stefon {:system-started? shell/system-started? :start-system shell/start-system :attach-plugin shell/attach-plugin})
                     conn (:conn result)
 
 
@@ -142,7 +142,7 @@
 
               (shell/stop-system)
               (let [
-                    result (pluginD/bootstrap-stefon)
+                    result (pluginD/bootstrap-stefon {:system-started? shell/system-started? :start-system shell/start-system :attach-plugin shell/attach-plugin})
                     conn (:conn result)
 
 
@@ -212,7 +212,7 @@
 
               (shell/stop-system)
               (let [
-                    result (pluginD/bootstrap-stefon)
+                    result (pluginD/bootstrap-stefon {:system-started? shell/system-started? :start-system shell/start-system :attach-plugin shell/attach-plugin})
                     conn (:conn result)
 
                     ;; initialize datomic plugin
@@ -277,7 +277,7 @@
 
               (shell/stop-system)
               (let [
-                    result (pluginD/bootstrap-stefon)
+                    result (pluginD/bootstrap-stefon {:system-started? shell/system-started? :start-system shell/start-system :attach-plugin shell/attach-plugin})
                     conn (:conn result)
 
                     ;; initialize datomic plugin
@@ -330,7 +330,7 @@
 
               (shell/stop-system)
               (let [
-                    result (pluginD/bootstrap-stefon)
+                    result (pluginD/bootstrap-stefon {:system-started? shell/system-started? :start-system shell/start-system :attach-plugin shell/attach-plugin})
                     conn (:conn result)
 
                     ;; initialize datomic plugin

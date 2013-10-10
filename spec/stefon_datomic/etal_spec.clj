@@ -171,13 +171,13 @@
           (it "Should attach itself to the kernel - Main 001"
 
               ;; check to see if kernel / system is running
-              (should-throw Exception (pluginD/plugin :dev)))
+              (should-throw Exception (pluginD/plugin {:system-started? shell/system-started? :start-system shell/start-system :attach-plugin shell/attach-plugin} :dev)))
 
 
           (it "Should attach itself to the kernel - Main 002"
 
               (let [one (shell/start-system)
-                    resultP (pluginD/plugin :dev)]
+                    resultP (pluginD/plugin {:system-started? shell/system-started? :start-system shell/start-system :attach-plugin shell/attach-plugin} :dev)]
 
                 ;; check result is the sender-function
                 (should-not-be-nil resultP)

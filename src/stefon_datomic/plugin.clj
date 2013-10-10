@@ -218,24 +218,24 @@
 (defn bootstrap-stefon
   "Start the system and create a DB"
 
-  ([] (bootstrap-stefon :dev true (partial generic-handler :dev)))
+  ([function-map] (bootstrap-stefon function-map :dev true (partial generic-handler :dev)))
 
-  ([env]
-     (bootstrap-stefon env true (partial generic-handler env)))
+  ([function-map env]
+     (bootstrap-stefon function-map env true (partial generic-handler env)))
 
-  ([env initialize]
-     (bootstrap-stefon env initialize (partial generic-handler env)))
+  ([function-map env initialize]
+     (bootstrap-stefon function-map env initialize (partial generic-handler env)))
 
-  ([env initialize handlerfn]
+  ([function-map env initialize handlerfn]
 
 
      ;; START System
-     (if-not (shell/system-started?)
-       (shell/start-system))
+     (if-not ((:system-started? function-map))
+       ((:start-system function-map)))
 
 
      ;; ATTACH Plugin
-     (let [result (shell/attach-plugin handlerfn)
+     (let [result ((:attach-plugin function-map) handlerfn)
 
            cid (:id result)
            sendfn (:sendfn result)
@@ -245,23 +245,21 @@
        (if initialize
 
          ;; get schema; initialize DB; get connection
-         (assoc result :conn (init-core env result))
-
-         ))))
+         (assoc result :conn (init-core env result)) ))))
 
 
 ;; PLUGING Function
 (defn plugin
   "This clears out all tee functions before attaching to the kernel"
 
-  ([]
-     (plugin :prod))
+  ([function-map]
+     (plugin function-map :prod))
 
-  ([env]
+  ([function-map env]
      (let [config (config/get-config)]
-       (plugin env config)))
+       (plugin function-map env config)))
 
-  ([env config]
+  ([function-map env config]
 
      ;; clear tee-fns
      (swap! tee-fns (fn [inp] []))
@@ -269,9 +267,10 @@
 
 
      ;; attach plugin to kernel
-     (if (shell/system-started?)
-       (let [plugin-result (shell/attach-plugin (:receive-fn @communication-pair))
-             bootstrap-result (bootstrap-stefon env)]
+     (if ((:system-started? function-map))
+
+       (let [plugin-result ((:attach-plugin function-map) (:receive-fn @communication-pair))
+             bootstrap-result (bootstrap-stefon function-map env)]
 
          (swap! communication-pair (fn [inp] (assoc inp :conn (:conn bootstrap-result))))
          (swap! communication-pair (fn [inp] (assoc inp :send-fn (:sendfn plugin-result))))

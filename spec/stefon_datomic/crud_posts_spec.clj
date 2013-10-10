@@ -33,7 +33,7 @@
 (defn populate-with-posts []
 
   ;; create DB & get the connection
-  (let [result (pluginD/bootstrap-stefon)
+  (let [result (pluginD/bootstrap-stefon {:system-started? shell/system-started? :start-system shell/start-system :attach-plugin shell/attach-plugin})
         conn (:conn result)
 
         ;; add datom
@@ -73,7 +73,7 @@
           (it "Should save created post(s) to Datomic"
 
               (let [;; create DB & get the connection
-                    result (pluginD/bootstrap-stefon)
+                    result (pluginD/bootstrap-stefon {:system-started? shell/system-started? :start-system shell/start-system :attach-plugin shell/attach-plugin})
 
                     ;; add datom
                     date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
@@ -88,7 +88,7 @@
 
               ;; create 3, then get anyone of them - the second
               (let [;; create DB & get the connection
-                    result (pluginD/bootstrap-stefon)
+                    result (pluginD/bootstrap-stefon {:system-started? shell/system-started? :start-system shell/start-system :attach-plugin shell/attach-plugin})
 
                     ;; add datom
                     date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
@@ -176,7 +176,7 @@
               ;;   then find the md files... from the DB
               ;;   then find the one with a different created-date... from the DB
               (let [;; create DB & get the connection
-                    result (pluginD/bootstrap-stefon)
+                    result (pluginD/bootstrap-stefon {:system-started? shell/system-started? :start-system shell/start-system :attach-plugin shell/attach-plugin})
 
                     ;; add datom
                     date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013"))
