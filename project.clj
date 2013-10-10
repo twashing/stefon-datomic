@@ -1,4 +1,4 @@
-(defproject stefon-datomic "0.1.1"
+(defproject stefon-datomic "0.1.1-SNAPSHOT"
   :description "A Datomic database adapter for the Stefon blogging engine."
   :url "https://github.com/twashing/stefon-datomic"
   :license {:name "Eclipse Public License"
