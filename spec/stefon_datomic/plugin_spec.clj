@@ -209,7 +209,6 @@
 
 (describe "[SPEC] Integrate CRUD with plugin messages > DELETE"
 
-
           (it "Testing kernel / plugin connection with DELETE"
 
               (shell/stop-system)
@@ -274,9 +273,73 @@
 
                 )))
 
-#_(describe "[SPEC] Integrate CRUD with plugin messages > FIND"
+(describe "[SPEC] Integrate CRUD with plugin messages > FIND"
 
-          #_(it "Testing kernel / plugin connection with FIND"
+          (it "Testing kernel / plugin connection with FIND"
+
+              (shell/stop-system)
+              (let [
+                    result (pluginD/bootstrap-stefon)
+                    conn (:conn result)
+
+                    ;; initialize datomic plugin
+                    step-two (pluginD/plugin :dev)
+
+                    ;; separate test plugin
+                    test-retrieved (promise)
+                    step-three (promise)
+                    post-id-promise (promise)
+                    post-did-promise (promise)
+                    xx (deliver step-three (shell/attach-plugin (fn [msg]
+
+                                                                  (println "*** " msg)
+
+                                                                  ;; GET the Post id
+                                                                  (if (= "kernel" (:from msg))
+                                                                    (deliver post-id-promise (-> msg :result :id)))
+
+
+                                                                  ;; send an FIND command
+                                                                  (if (and (not= "kernel" (:from msg))
+                                                                           (= :stefon.post.create (:action msg))
+                                                                           (-> msg :result :tempids empty? not))
+
+                                                                    (let [did (-> msg :result :tempids vals first)]
+
+                                                                      (deliver post-did-promise did)
+                                                                      ((:sendfn @step-three) {:id (:id @step-three)
+                                                                                              :message {:stefon.post.find {:parameters {:param-map {:title "my post"}}}}})) )
+
+                                                                  ;; retrieve AFTER delete
+                                                                  #_(if (and (not= "kernel" (:from msg))
+                                                                           (= :stefon.post.delete (-> msg :action)))
+
+                                                                      ((:sendfn @step-three) {:id (:id @step-three)
+                                                                                              :message {:stefon.post.retrieve {:parameters {:id @post-did-promise}}}}))
+
+
+                                                                  ;; evaluate retrieve results
+                                                                  #_(if (and (not= "kernel" (:id msg))
+                                                                             (= :stefon.post.retrieve (:action msg))
+                                                                             (not (nil? (:result msg))))
+
+                                                                      (do
+
+                                                                        ;;(println "... " msg)
+                                                                        (should-not-be-nil (:result msg))
+                                                                        (should (empty? (:result msg))))))))
+
+                    date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013")) ]
+
+
+                ;; kickoff the send process
+                ((:sendfn @step-three) {:id (:id @step-three)
+                                        :message {:stefon.post.create
+                                                  {:parameters {:title "my post" :content "my content" :content-type "text/md" :created-date date-one :modified-date date-one :assets [] :tags []}} }})
+
+                ))
+
+          #_(it
 
               (let [step-one (shell/start-system)
                     step-two (pluginD/plugin :dev)

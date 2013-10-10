@@ -156,12 +156,16 @@
 
 (defn retrieve [conn domain-key constraint-map]
 
+  ;;(println ">> retrieve > domain-key  [" domain-key "] > constraint-map [" constraint-map "]")
+
   (let [the-db (d/db conn)
 
-        id-set (hset-to-cset (retrieve-entity conn domain-key constraint-map))
+        constraint-final (if (some #{:param-map :constraint-map} (keys constraint-map)) (-> constraint-map vals first) constraint-map)
+        id-set (hset-to-cset (retrieve-entity conn domain-key constraint-final))
+
         entity-set (map (fn [inp]
                           (vivify-datomic-entity the-db inp))
-                        id-set)]
+                        id-set) ]
     entity-set))
 
 
