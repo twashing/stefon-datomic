@@ -1,12 +1,9 @@
 (ns stefon-datomic.plugin
 
-  (:require [datomic.api :as datomic]
-            [clojure.pprint :as pprint]
+  (:require [clojure.pprint :as pprint]
             [clojure.string :as string]
             [clojure.core.async :as async :refer :all]
-
-            [stefon.shell :as shell]
-            [stefon.shell.kernel :as kernel]
+            [datomic.api :as datomic]
 
             [stefon-datomic.crud :as crud]
             [stefon-datomic.config :as config]))
