@@ -292,8 +292,6 @@
                     post-did-promise (promise)
                     xx (deliver step-three (shell/attach-plugin (fn [msg]
 
-                                                                  (println "*** " msg)
-
                                                                   ;; GET the Post id
                                                                   (if (= "kernel" (:from msg))
                                                                     (deliver post-id-promise (-> msg :result :id)))
@@ -310,24 +308,15 @@
                                                                       ((:sendfn @step-three) {:id (:id @step-three)
                                                                                               :message {:stefon.post.find {:parameters {:param-map {:title "my post"}}}}})) )
 
-                                                                  ;; retrieve AFTER delete
-                                                                  #_(if (and (not= "kernel" (:from msg))
-                                                                           (= :stefon.post.delete (-> msg :action)))
+                                                                  ;; retrieve AFTER find
+                                                                  (if (and (not= "kernel" (:from msg))
+                                                                           (= :stefon.post.find (-> msg :action)))
 
-                                                                      ((:sendfn @step-three) {:id (:id @step-three)
-                                                                                              :message {:stefon.post.retrieve {:parameters {:id @post-did-promise}}}}))
-
-
-                                                                  ;; evaluate retrieve results
-                                                                  #_(if (and (not= "kernel" (:id msg))
-                                                                             (= :stefon.post.retrieve (:action msg))
-                                                                             (not (nil? (:result msg))))
-
-                                                                      (do
-
-                                                                        ;;(println "... " msg)
+                                                                    ;; evaluate retrieve results
+                                                                    (do
                                                                         (should-not-be-nil (:result msg))
-                                                                        (should (empty? (:result msg))))))))
+                                                                        (should-not (empty? (:result msg)))))
+                                                                  )))
 
                     date-one (-> (java.text.SimpleDateFormat. "MM/DD/yyyy") (.parse "09/01/2013")) ]
 
@@ -335,9 +324,7 @@
                 ;; kickoff the send process
                 ((:sendfn @step-three) {:id (:id @step-three)
                                         :message {:stefon.post.create
-                                                  {:parameters {:title "my post" :content "my content" :content-type "text/md" :created-date date-one :modified-date date-one :assets [] :tags []}} }})
-
-                ))
+                                                  {:parameters {:title "my post" :content "my content" :content-type "text/md" :created-date date-one :modified-date date-one :assets [] :tags []}} }})))
 
           #_(it
 
